@@ -5,37 +5,37 @@
 
 
 RFFEAnalyzer::RFFEAnalyzer()
-:	Analyzer2(),  
-	mSettings( new RFFEAnalyzerSettings() ),
-	mSimulationInitilized( false )
+:   Analyzer2(),
+    mSettings( new RFFEAnalyzerSettings() ),
+    mSimulationInitilized( false )
 {
-	SetAnalyzerSettings( mSettings.get() );
+    SetAnalyzerSettings( mSettings.get() );
 }
 
 RFFEAnalyzer::~RFFEAnalyzer()
 {
-	KillThread();
+    KillThread();
 }
 
 void RFFEAnalyzer::SetupResults()
 {
-	mResults.reset( new RFFEAnalyzerResults( this, mSettings.get() ) );
-	SetAnalyzerResults( mResults.get() );
-	mResults->AddChannelBubblesWillAppearOn( mSettings->mSdataChannel );
+    mResults.reset( new RFFEAnalyzerResults( this, mSettings.get() ) );
+    SetAnalyzerResults( mResults.get() );
+    mResults->AddChannelBubblesWillAppearOn( mSettings->mSdataChannel );
 }
 
 void RFFEAnalyzer::WorkerThread()
 {
     S32 count;
-	mSampleRateHz = GetSampleRate();
+    mSampleRateHz = GetSampleRate();
 
-	mSdata = GetAnalyzerChannelData( mSettings->mSdataChannel );
-	mSclk  = GetAnalyzerChannelData( mSettings->mSclkChannel );
+    mSdata = GetAnalyzerChannelData( mSettings->mSdataChannel );
+    mSclk  = GetAnalyzerChannelData( mSettings->mSclkChannel );
 
     mResults->CancelPacketAndStartNewPacket();
 
-	for( ; ; )
-	{
+    for( ; ; )
+    {
         count = FindStartSeqCondition();
         if ( count == -1 )
         {
@@ -105,7 +105,7 @@ void RFFEAnalyzer::WorkerThread()
         }
         mResults->CommitPacketAndStartNewPacket();
         CheckIfThreadShouldExit();
-	}
+    }
 }
 
 void RFFEAnalyzer::AdvanceToBeginningStartBit()
@@ -113,19 +113,19 @@ void RFFEAnalyzer::AdvanceToBeginningStartBit()
     U64 sample;
     BitState state;
 
-	for( ; ; )
-	{
-		mSdata->AdvanceToNextEdge();
+    for( ; ; )
+    {
+        mSdata->AdvanceToNextEdge();
         state = mSdata->GetBitState();
-		if( state == BIT_HIGH )
-		{
+        if( state == BIT_HIGH )
+        {
             sample = mSdata->GetSampleNumber();
-			mSclk->AdvanceToAbsPosition( sample );
+            mSclk->AdvanceToAbsPosition( sample );
             state  = mSclk->GetBitState();
-			if( state == BIT_LOW )
-				break;
-		}	
-	}
+            if( state == BIT_LOW )
+                break;
+        }
+    }
 }
 
 S32 RFFEAnalyzer::FindStartSeqCondition()
@@ -191,18 +191,18 @@ S32 RFFEAnalyzer::FindStartSeqCondition()
         sample = mSclk->GetSampleNumber();
         mSdata->AdvanceToAbsPosition( sample );
 
-		Frame frame;
+        Frame frame;
         frame.mType                    = RFFEAnalyzerResults::RffeSSCField;
-		frame.mStartingSampleInclusive = sample_up;
-		frame.mEndingSampleInclusive   = sample;
+        frame.mStartingSampleInclusive = sample_up;
+        frame.mEndingSampleInclusive   = sample;
 
         mResults->AddMarker( sample_up,
                              AnalyzerResults::Start,
                              mSettings->mSdataChannel );
-		mResults->AddFrame( frame );
-		mResults->CommitResults();
+        mResults->AddFrame( frame );
+        mResults->CommitResults();
 
-		ReportProgress( frame.mEndingSampleInclusive );
+        ReportProgress( frame.mEndingSampleInclusive );
         break;
     }
 
@@ -262,7 +262,7 @@ S32 RFFEAnalyzer::FindSlaveAddrAndCommand()
                  0, 4,
                  sampleDataState );
 
-	// decode type
+    // decode type
     mRffeType = RFFEUtil::decodeRFFECmdFrame( (U8)(cmd & 0xFF) );
     switch ( mRffeType )
     {
@@ -281,7 +281,7 @@ S32 RFFEAnalyzer::FindSlaveAddrAndCommand()
                      sampleDataState );
         count = RFFEUtil::byteCount( (U8)cmd );
         break;
-    case RFFEAnalyzerResults::RffeTypeReserved: 
+    case RFFEAnalyzerResults::RffeTypeReserved:
         FillInFrame( RFFEAnalyzerResults::RffeTypeField,
                      mRffeType,
                      0,
@@ -423,7 +423,7 @@ void RFFEAnalyzer::FindBusPark()
     // at falling edge of clk
     sampleDataOffsets[0] = mSclk->GetSampleNumber();
     mSdata->AdvanceToAbsPosition( sampleDataOffsets[0] );
-    
+
     // look if next rising edge is in reach
     delta =  sampleDataOffsets[0] - sampleClkOffsets[0];
     if ( mSclk->WouldAdvancingCauseTransition( (U32)(delta + 2) ) )
@@ -513,8 +513,8 @@ void RFFEAnalyzer::FillInFrame( RFFEAnalyzerResults::RffeFrameType type,
     frame.mType                    = (U8)type;
     frame.mData1                   = frame_data1;
     frame.mData2                   = frame_data2;
-	frame.mStartingSampleInclusive = starting_sample;
-	frame.mEndingSampleInclusive   = ending_sample;
+    frame.mStartingSampleInclusive = starting_sample;
+    frame.mEndingSampleInclusive   = ending_sample;
 
     if ( markers_len != 0 )
     {
@@ -528,8 +528,8 @@ void RFFEAnalyzer::FillInFrame( RFFEAnalyzerResults::RffeFrameType type,
     }
 
     mResults->AddFrame( frame );
-	mResults->CommitResults();
-	ReportProgress( frame.mEndingSampleInclusive );
+    mResults->CommitResults();
+    ReportProgress( frame.mEndingSampleInclusive );
 }
 
 /**************************************************************** bits/bytes */
@@ -561,7 +561,7 @@ U64 RFFEAnalyzer::GetBitStream(U32 len, AnalyzerResults::MarkerType *states)
     U64 data;
     U32 i;
     BitState state;
-	DataBuilder data_builder;
+    DataBuilder data_builder;
 
     data_builder.Reset( &data, AnalyzerEnums::MsbFirst , len );
 
@@ -583,45 +583,45 @@ U64 RFFEAnalyzer::GetBitStream(U32 len, AnalyzerResults::MarkerType *states)
 
 bool RFFEAnalyzer::NeedsRerun()
 {
-	return false;
+    return false;
 }
 
 U32 RFFEAnalyzer::GenerateSimulationData( U64 minimum_sample_index,
                                           U32 device_sample_rate,
                                           SimulationChannelDescriptor** simulation_channels )
 {
-	if( mSimulationInitilized == false )
-	{
-		mSimulationDataGenerator.Initialize( GetSimulationSampleRate(), mSettings.get() );
-		mSimulationInitilized = true;
-	}
+    if( mSimulationInitilized == false )
+    {
+        mSimulationDataGenerator.Initialize( GetSimulationSampleRate(), mSettings.get() );
+        mSimulationInitilized = true;
+    }
 
-	return mSimulationDataGenerator.GenerateSimulationData( minimum_sample_index,
+    return mSimulationDataGenerator.GenerateSimulationData( minimum_sample_index,
                                                             device_sample_rate,
                                                             simulation_channels );
 }
 
 U32 RFFEAnalyzer::GetMinimumSampleRateHz()
 {
-	return 50000000;
+    return 50000000;
 }
 
 const char* RFFEAnalyzer::GetAnalyzerName() const
 {
-	return "RFFEv1.0";
+    return "RFFEv1.0";
 }
 
 const char* GetAnalyzerName()
 {
-	return "RFFEv1.0";
+    return "RFFEv1.0";
 }
 
 Analyzer* CreateAnalyzer()
 {
-	return new RFFEAnalyzer();
+    return new RFFEAnalyzer();
 }
 
 void DestroyAnalyzer( Analyzer* analyzer )
 {
-	delete analyzer;
+    delete analyzer;
 }

@@ -15,54 +15,54 @@ RFFESimulationDataGenerator::~RFFESimulationDataGenerator()
 void RFFESimulationDataGenerator::Initialize( U32 simulation_sample_rate,
                                               RFFEAnalyzerSettings* settings )
 {
-	mSimulationSampleRateHz = simulation_sample_rate;
-	mSettings = settings;
+    mSimulationSampleRateHz = simulation_sample_rate;
+    mSettings = settings;
 
     mClockGenerator.Init( simulation_sample_rate / 10, simulation_sample_rate );
 
     if( settings->mSclkChannel != UNDEFINED_CHANNEL )
-		mSclk = mRffeSimulationChannels.Add( settings->mSclkChannel,
+        mSclk = mRffeSimulationChannels.Add( settings->mSclkChannel,
                                               mSimulationSampleRateHz,
                                               BIT_LOW );
-	else
-		mSclk = NULL;
+    else
+        mSclk = NULL;
 
     if( settings->mSdataChannel != UNDEFINED_CHANNEL )
-		mSdata = mRffeSimulationChannels.Add( settings->mSdataChannel,
+        mSdata = mRffeSimulationChannels.Add( settings->mSdataChannel,
                                               mSimulationSampleRateHz,
                                               BIT_LOW );
-	else
-		mSdata = NULL;
+    else
+        mSdata = NULL;
 
     //insert 10 bit-periods of idle
-	mRffeSimulationChannels.AdvanceAll( mClockGenerator.AdvanceByHalfPeriod( 10.0 ) );
+    mRffeSimulationChannels.AdvanceAll( mClockGenerator.AdvanceByHalfPeriod( 10.0 ) );
 
-	mParityCounter = 0;
+    mParityCounter = 0;
 }
 
-U32 RFFESimulationDataGenerator::GenerateSimulationData( U64 largest_sample_requested, 
-                                                         U32 sample_rate, 
+U32 RFFESimulationDataGenerator::GenerateSimulationData( U64 largest_sample_requested,
+                                                         U32 sample_rate,
                                                          SimulationChannelDescriptor** simulation_channels )
 {
-	U64 adjusted_largest_sample_requested = AnalyzerHelpers::AdjustSimulationTargetSample( largest_sample_requested,
+    U64 adjusted_largest_sample_requested = AnalyzerHelpers::AdjustSimulationTargetSample( largest_sample_requested,
                                                                                            sample_rate,
                                                                                            mSimulationSampleRateHz );
 
-	while( mSclk->GetCurrentSampleNumber() < adjusted_largest_sample_requested )
-	{
-		CreateRffeTransaction();
-        
-		mRffeSimulationChannels.AdvanceAll( mClockGenerator.AdvanceByHalfPeriod( 80.0 ) );
+    while( mSclk->GetCurrentSampleNumber() < adjusted_largest_sample_requested )
+    {
+        CreateRffeTransaction();
+
+        mRffeSimulationChannels.AdvanceAll( mClockGenerator.AdvanceByHalfPeriod( 80.0 ) );
     }
 
-	*simulation_channels = mRffeSimulationChannels.GetArray();
-	return mRffeSimulationChannels.GetCount();
+    *simulation_channels = mRffeSimulationChannels.GetArray();
+    return mRffeSimulationChannels.GetCount();
 }
 
 void RFFESimulationDataGenerator::CreateRffeTransaction()
 {
     U8 cmd;
-    U8 cmd_frames[] = 
+    U8 cmd_frames[] =
     {
         //0x01, //0x07, 0x0F,
         //0x10, //0x1B, 0x1F,
@@ -77,7 +77,7 @@ void RFFESimulationDataGenerator::CreateRffeTransaction()
     {
         0x5, //0x7, 0x8, 0x2
     };
-    
+
     for( U32 adr=0 ; adr < sizeof(sa_addrs)/sizeof(sa_addrs[0]) ; adr++ )
     {
         for ( U32 cmd_idx=0 ; cmd_idx < sizeof(cmd_frames)/sizeof(cmd_frames[0]) ; cmd_idx++ )
@@ -149,22 +149,22 @@ void RFFESimulationDataGenerator::CreateStart()
 {
     if ( mSclk->GetCurrentBitState() == BIT_HIGH )
     {
-		mSclk->Transition();
+        mSclk->Transition();
     }
 
-	if( mSdata->GetCurrentBitState() == BIT_HIGH )
+    if( mSdata->GetCurrentBitState() == BIT_HIGH )
     {
-		mSdata->Transition();
+        mSdata->Transition();
     }
 
-	mRffeSimulationChannels.AdvanceAll( mClockGenerator.AdvanceByHalfPeriod( 2.0 ) );
+    mRffeSimulationChannels.AdvanceAll( mClockGenerator.AdvanceByHalfPeriod( 2.0 ) );
 
     // sdata pulse for 1-clock cycle
     mSdata->Transition();
-	mRffeSimulationChannels.AdvanceAll( mClockGenerator.AdvanceByHalfPeriod( 2.0 ) );
+    mRffeSimulationChannels.AdvanceAll( mClockGenerator.AdvanceByHalfPeriod( 2.0 ) );
     mSdata->Transition();
     // sdata and sclk state low for 1-clock cycle
-	mRffeSimulationChannels.AdvanceAll( mClockGenerator.AdvanceByHalfPeriod( 2.0 ) );
+    mRffeSimulationChannels.AdvanceAll( mClockGenerator.AdvanceByHalfPeriod( 2.0 ) );
 
     mParityCounter = 0;
 }
@@ -174,21 +174,21 @@ void RFFESimulationDataGenerator::CreateSlaveAddress(U8 addr )
     U8 address = addr & 0x0F;
     BitExtractor adr_bits( address, AnalyzerEnums::MsbFirst, 4 );
 
-	for( U32 i=0; i< 4; i++ )
-	{
-		mSclk->Transition();
-		mRffeSimulationChannels.AdvanceAll( mClockGenerator.AdvanceByHalfPeriod( .5 ) );
+    for( U32 i=0; i< 4; i++ )
+    {
+        mSclk->Transition();
+        mRffeSimulationChannels.AdvanceAll( mClockGenerator.AdvanceByHalfPeriod( .5 ) );
 
-		mSdata->TransitionIfNeeded( adr_bits.GetNextBit() );
+        mSdata->TransitionIfNeeded( adr_bits.GetNextBit() );
 
-        if( mSdata->GetCurrentBitState() == BIT_HIGH ) 
+        if( mSdata->GetCurrentBitState() == BIT_HIGH )
             mParityCounter++;
 
-		mRffeSimulationChannels.AdvanceAll( mClockGenerator.AdvanceByHalfPeriod( .5 ) );
-		mSclk->Transition();
+        mRffeSimulationChannels.AdvanceAll( mClockGenerator.AdvanceByHalfPeriod( .5 ) );
+        mSclk->Transition();
 
-    	mRffeSimulationChannels.AdvanceAll( mClockGenerator.AdvanceByHalfPeriod( 1.0 ) );
-	}
+        mRffeSimulationChannels.AdvanceAll( mClockGenerator.AdvanceByHalfPeriod( 1.0 ) );
+    }
 }
 
 void RFFESimulationDataGenerator::CreateByte(U8 cmd)
@@ -196,53 +196,53 @@ void RFFESimulationDataGenerator::CreateByte(U8 cmd)
     BitState     bit;
     BitExtractor cmd_bits( cmd, AnalyzerEnums::MsbFirst, 8 );
 
-	for( U32 i=0; i< 8; i++ )
-	{
-		mSclk->Transition();
-		mRffeSimulationChannels.AdvanceAll( mClockGenerator.AdvanceByHalfPeriod( .5 ) );
+    for( U32 i=0; i< 8; i++ )
+    {
+        mSclk->Transition();
+        mRffeSimulationChannels.AdvanceAll( mClockGenerator.AdvanceByHalfPeriod( .5 ) );
 
         bit = cmd_bits.GetNextBit();
-		mSdata->TransitionIfNeeded( bit );
+        mSdata->TransitionIfNeeded( bit );
 
-        if( bit == BIT_HIGH ) 
+        if( bit == BIT_HIGH )
             mParityCounter++;
 
-		mRffeSimulationChannels.AdvanceAll( mClockGenerator.AdvanceByHalfPeriod( .5 ) );
-		mSclk->Transition();
+        mRffeSimulationChannels.AdvanceAll( mClockGenerator.AdvanceByHalfPeriod( .5 ) );
+        mSclk->Transition();
 
-    	mRffeSimulationChannels.AdvanceAll( mClockGenerator.AdvanceByHalfPeriod( 1.0 ) );
-	}
+        mRffeSimulationChannels.AdvanceAll( mClockGenerator.AdvanceByHalfPeriod( 1.0 ) );
+    }
 }
 
 void RFFESimulationDataGenerator::CreateParity()
 {
-	mSclk->Transition();
-	mRffeSimulationChannels.AdvanceAll( mClockGenerator.AdvanceByHalfPeriod( .5 ) );
+    mSclk->Transition();
+    mRffeSimulationChannels.AdvanceAll( mClockGenerator.AdvanceByHalfPeriod( .5 ) );
 
     if( AnalyzerHelpers::IsEven(mParityCounter) )
     {
-		mSdata->TransitionIfNeeded( BIT_HIGH );
+        mSdata->TransitionIfNeeded( BIT_HIGH );
     }
     else
     {
-		mSdata->TransitionIfNeeded( BIT_LOW );
+        mSdata->TransitionIfNeeded( BIT_LOW );
     }
 
-	mRffeSimulationChannels.AdvanceAll( mClockGenerator.AdvanceByHalfPeriod( .5 ) );
-	mSclk->Transition();
+    mRffeSimulationChannels.AdvanceAll( mClockGenerator.AdvanceByHalfPeriod( .5 ) );
+    mSclk->Transition();
 
     mRffeSimulationChannels.AdvanceAll( mClockGenerator.AdvanceByHalfPeriod( 1.0 ) );
 }
 
 void RFFESimulationDataGenerator::CreateBusPark()
 {
-	mSclk->Transition();
-	mRffeSimulationChannels.AdvanceAll( mClockGenerator.AdvanceByHalfPeriod( .5 ) );
+    mSclk->Transition();
+    mRffeSimulationChannels.AdvanceAll( mClockGenerator.AdvanceByHalfPeriod( .5 ) );
 
-	mSdata->TransitionIfNeeded( BIT_LOW );
+    mSdata->TransitionIfNeeded( BIT_LOW );
 
-	mRffeSimulationChannels.AdvanceAll( mClockGenerator.AdvanceByHalfPeriod( .5 ) );
-	mSclk->Transition();
+    mRffeSimulationChannels.AdvanceAll( mClockGenerator.AdvanceByHalfPeriod( .5 ) );
+    mSclk->Transition();
 
     mRffeSimulationChannels.AdvanceAll( mClockGenerator.AdvanceByHalfPeriod( 1.0 ) );
 }

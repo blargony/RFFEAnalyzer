@@ -6,7 +6,7 @@
 #include "RFFESimulationDataGenerator.h"
 
 #pragma warning( push )
-//warning C4275: non dll-interface class 'Analyzer2' used 
+//warning C4275: non dll-interface class 'Analyzer2' used
 //               as base for dll-interface class 'RFFEAnalyzer'
 #pragma warning( disable : 4275 )
 
@@ -14,18 +14,18 @@ class RFFEAnalyzerSettings;
 class ANALYZER_EXPORT RFFEAnalyzer : public Analyzer2
 {
 public:
-	RFFEAnalyzer();
-	virtual ~RFFEAnalyzer();
-	virtual void SetupResults();
-	virtual void WorkerThread();
+    RFFEAnalyzer();
+    virtual ~RFFEAnalyzer();
+    virtual void SetupResults();
+    virtual void WorkerThread();
 
-	virtual U32 GenerateSimulationData( U64 newest_sample_requested,
+    virtual U32 GenerateSimulationData( U64 newest_sample_requested,
                                         U32 sample_rate,
                                         SimulationChannelDescriptor** simulation_channels );
-	virtual U32 GetMinimumSampleRateHz();
+    virtual U32 GetMinimumSampleRateHz();
 
-	virtual const char* GetAnalyzerName() const;
-	virtual bool NeedsRerun();
+    virtual const char* GetAnalyzerName() const;
+    virtual bool NeedsRerun();
 
 #pragma warning( push )
     //warning C4251: 'RFFEAnalyzer::<...>' : class <...> needs to have dll-interface
@@ -33,20 +33,20 @@ public:
 #pragma warning( disable : 4251 )
 
 protected: //vars
-	std::auto_ptr< RFFEAnalyzerSettings > mSettings;
-	std::auto_ptr< RFFEAnalyzerResults > mResults;
-	AnalyzerChannelData* mSclk;
-	AnalyzerChannelData* mSdata;
+    std::auto_ptr< RFFEAnalyzerSettings > mSettings;
+    std::auto_ptr< RFFEAnalyzerResults > mResults;
+    AnalyzerChannelData* mSclk;
+    AnalyzerChannelData* mSdata;
 
-	RFFESimulationDataGenerator mSimulationDataGenerator;
-	bool mSimulationInitilized;
+    RFFESimulationDataGenerator mSimulationDataGenerator;
+    bool mSimulationInitilized;
 
-	//Serial analysis vars:
-	U32 mSampleRateHz;
+    //Serial analysis vars:
+    U32 mSampleRateHz;
     RFFEAnalyzerResults::RffeTypeFieldType mRffeType;
 
 protected: // functions
-	void AdvanceToBeginningStartBit();
+    void AdvanceToBeginningStartBit();
     S32 FindStartSeqCondition();
     S32 FindSlaveAddrAndCommand();
     void FindParity(bool fromCommandFrame);

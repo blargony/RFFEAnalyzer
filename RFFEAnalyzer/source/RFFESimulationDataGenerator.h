@@ -11,22 +11,22 @@ class RFFEAnalyzerSettings;
 class RFFESimulationDataGenerator
 {
 public:
-	RFFESimulationDataGenerator();
-	~RFFESimulationDataGenerator();
+    RFFESimulationDataGenerator();
+    ~RFFESimulationDataGenerator();
 
-	void Initialize( U32 simulation_sample_rate,
+    void Initialize( U32 simulation_sample_rate,
                      RFFEAnalyzerSettings* settings );
-	U32 GenerateSimulationData( U64 newest_sample_requested,
+    U32 GenerateSimulationData( U64 newest_sample_requested,
                                 U32 sample_rate,
                                 SimulationChannelDescriptor** simulation_channels );
 
 protected:
-	RFFEAnalyzerSettings* mSettings;
-	U32 mSimulationSampleRateHz;
+    RFFEAnalyzerSettings* mSettings;
+    U32 mSimulationSampleRateHz;
 
 protected: // RFFE specific functions
-	void CreateRffeTransaction();
-	void CreateStart();
+    void CreateRffeTransaction();
+    void CreateStart();
     void CreateSlaveAddress(U8 addr);
     void CreateCommandFrame(U8 cmd);
     void CreateByte(U8 cmd);
@@ -36,10 +36,10 @@ protected: // RFFE specific functions
     void CreateAddressFrame( U8 addr );
 
 protected: //RFFE specific vars
-	ClockGenerator mClockGenerator;
-	SimulationChannelDescriptorGroup mRffeSimulationChannels;
-	SimulationChannelDescriptor* mSclk;
-	SimulationChannelDescriptor* mSdata;
+    ClockGenerator mClockGenerator;
+    SimulationChannelDescriptorGroup mRffeSimulationChannels;
+    SimulationChannelDescriptor* mSclk;
+    SimulationChannelDescriptor* mSdata;
 
 private:
     U32 mParityCounter;
