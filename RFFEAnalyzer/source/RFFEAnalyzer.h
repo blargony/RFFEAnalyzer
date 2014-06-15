@@ -43,8 +43,6 @@ protected: //vars
 
 	//Serial analysis vars:
 	U32 mSampleRateHz;
-    U32 mStartOfStopBitOffset;
-	U32 mEndOfStopBitOffset;
     RFFEAnalyzerResults::RffeTypeFieldType mRffeType;
 
 protected: // functions
