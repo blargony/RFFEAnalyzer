@@ -183,7 +183,7 @@ void RFFEAnalyzerResults::GenerateBubbleText( U64 frame_index, Channel& channel,
         {
             char number_str[4];
 		    std::stringstream ss;
-
+            
 		    AnalyzerHelpers::GetNumberString( frame.mData1, Decimal, 1, number_str, 4 );
 
             AddResultString( "P" );
@@ -256,13 +256,13 @@ void RFFEAnalyzerResults::GenerateExportFile( const char* file,
 		AnalyzerHelpers::GetNumberString( i, Decimal, 0, packet_str, 16 );
 
         payload.str( std::string() );
-        sprintf_s( sa_str, 8, "" );
-        sprintf_s( type_str, 8, "" );
-        sprintf_s( addr_str, 8, "" );
-        sprintf_s( parity_str, 8, "" );
-        sprintf_s( parityCmd_str, 8, "" );
-        sprintf_s( bc_str, 8, "" );
-        sprintf_s( data_str, 8, "" );
+        snprintf( sa_str, 8, "" );
+        snprintf( type_str, 8, "" );
+        snprintf( addr_str, 8, "" );
+        snprintf( parity_str, 8, "" );
+        snprintf( parityCmd_str, 8, "" );
+        snprintf( bc_str, 8, "" );
+        snprintf( data_str, 8, "" );
         address = 0xFFFFFFFF;
 
 		GetFramesContainedInPacket( i, &first_frame_id, &last_frame_id );
@@ -290,7 +290,7 @@ void RFFEAnalyzerResults::GenerateExportFile( const char* file,
                 break;
 
             case RffeTypeField:
-                sprintf_s( type_str, sizeof(type_str), "%s", RffeTypeStringMid[frame.mData1] );
+                snprintf( type_str, sizeof(type_str), "%s", RffeTypeStringMid[frame.mData1] );
                 break;
 
             case RffeExByteCountField:
