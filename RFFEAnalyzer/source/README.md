@@ -1,4 +1,4 @@
 RFFEAnalyzer
 ============
 
-Saleae Logic16 plug-in to decode MIPI-RFFE v1.0 packages
+Saleae Logic plug-in to decode MIPI-RFFE v1.10a packages

@@ -7,12 +7,12 @@ RFFEAnalyzerSettings::RFFEAnalyzerSettings()
     mSdataChannel( UNDEFINED_CHANNEL )
 {
     mSclkChannelInterface.reset( new AnalyzerSettingInterfaceChannel() );
-    mSclkChannelInterface->SetTitleAndTooltip( "SCLK", "Specify the SCLK Signal(RFFEv1.0)" );
+    mSclkChannelInterface->SetTitleAndTooltip( "SCLK", "Specify the SCLK Signal(RFFEv1.10a)" );
     mSclkChannelInterface->SetChannel( mSclkChannel );
     AddInterface( mSclkChannelInterface.get() );
 
     mSdataChannelInterface.reset( new AnalyzerSettingInterfaceChannel() );
-    mSdataChannelInterface->SetTitleAndTooltip( "SDATA", "Specify the SDATA Signal(RFFEv1.0)" );
+    mSdataChannelInterface->SetTitleAndTooltip( "SDATA", "Specify the SDATA Signal(RFFEv1.10a)" );
     mSdataChannelInterface->SetChannel( mSdataChannel );
     AddInterface( mSdataChannelInterface.get() );
 
