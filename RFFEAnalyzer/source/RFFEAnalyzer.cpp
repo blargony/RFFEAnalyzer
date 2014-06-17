@@ -175,9 +175,6 @@ U8 RFFEAnalyzer::FindStartSeqCondition()
         sample_dn = mSdata->GetSampleNumber();
         pulse_1   = sample_dn - sample_up;
 
-        // use to scan for more clocks ahead, in samples
-        pulse_width2 = pulse_1 * 2;
-
         did_toggle = mSclk->WouldAdvancingToAbsPositionCauseTransition( sample_dn );
         if( did_toggle )
             continue; // error: found clk toggling
@@ -210,7 +207,6 @@ U8 RFFEAnalyzer::FindStartSeqCondition()
         break;
     }
 
-    gSampleCount = 0;
     return 1;
 }
 
@@ -222,9 +218,6 @@ U8 RFFEAnalyzer::FindSlaveAddrAndCommand()
     U64 SAdr;
     U64 cmd;
     AnalyzerResults::MarkerType sampleDataState[16];
-
-    // normalize samples for debugging
-    gSampleNormalized = mSclk->GetSampleNumber();
 
     // starting at rising edge of clk
     cmd = GetBitStream(12, sampleDataState);
@@ -473,8 +466,7 @@ BitState RFFEAnalyzer::GetNextBit(U32 const idx, U64 *const clk, U64 *const data
     // Previous GetNextBit left us at the rising edge of the SCLK
     // Grab this as the current sample point for delimiting the frame.
     clk[idx] =  mSclk->GetSampleNumber();
-    gSampleClk[gSampleCount] = clk[idx] - gSampleNormalized;
-    
+
     // advance to falling edge of sclk
     // put a marker to indicate that this is the sampled edge
     mSclk->AdvanceToNextEdge();
@@ -482,8 +474,6 @@ BitState RFFEAnalyzer::GetNextBit(U32 const idx, U64 *const clk, U64 *const data
     mResults->AddMarker( data[idx],
                          AnalyzerResults::DownArrow,
                          mSettings->mSclkChannel );
-    gsampleData[gSampleCount] = data[idx] - gSampleNormalized;
-    gSampleCount++;
 
     mSdata->AdvanceToAbsPosition( data[idx] );
     state = mSdata->GetBitState();
@@ -526,18 +516,8 @@ U64 RFFEAnalyzer::GetBitStream(U32 len, AnalyzerResults::MarkerType *states)
 // ==============================================================================
 bool RFFEAnalyzer::CheckClockRate()
 {
-    U32 average;
-    U32 pulse;
-    U32 pulse_lo;
-
-    average = (U32)(gSampleClk[11]/12);
-    pulse   = (U32)(pulse_width2/2);
-    pulse_lo= pulse - 1;
-    if (pulse == 1) return false;
-
-    if ((average < pulse_lo) || (average >  pulse)) {
-            return false;
-    }
+    // TODO:  Compare the clock pulse width based on sample
+    // rate against the spec.
     return true;
 }
 

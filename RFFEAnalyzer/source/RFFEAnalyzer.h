@@ -71,14 +71,8 @@ protected: // functions
 private:
     RFFEAnalyzerResults::RffeTypeFieldType mRffeType;
 
-    U64 pulse_width2;
     U64 sampleClkOffsets[16];
     U64 sampleDataOffsets[16];
-
-    U64 gSampleCount;
-    U64 gSampleNormalized;
-    U64 gSampleClk[256];
-    U64 gsampleData[256];
 
 #pragma warning( pop )
 };
