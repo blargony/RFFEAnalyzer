@@ -378,6 +378,7 @@ void RFFEAnalyzer::FindDataFrame()
 // ------------------------------------------------------------------------------
 void RFFEAnalyzer::FindParity(bool expParity)
 {
+    bool data_parity;
     U64 data;
     U8 flags;
     BitState bitstate;
@@ -388,17 +389,27 @@ void RFFEAnalyzer::FindParity(bool expParity)
     sampleClkOffsets[1] = mSclk->GetSampleNumber();
     mSdata->AdvanceToAbsPosition( sampleClkOffsets[1] );
 
-    if ( bitstate == BIT_HIGH ) {
+    if ( bitstate == BIT_HIGH )
+    {
         data = 1;
+        data_parity = true;
         state = AnalyzerResults::One;
-    } else {
+    }
+    else
+    {
         data = 0;
+        data_parity = false;
         state = AnalyzerResults::Zero;
     }
     
-    if (data != expParity) {
+    if (data_parity != expParity)
+    {
         flags = (DISPLAY_AS_ERROR_FLAG | DISPLAY_AS_WARNING_FLAG | RFFE_PARITY_ERROR_FLAG);
         state = AnalyzerResults::ErrorDot;
+    }
+    else
+    {
+        flags = 0;
     }
 
     FillInFrame( RFFEAnalyzerResults::RffeParityField,
