@@ -76,6 +76,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(ProjectDir)..\..\SaleaeAnalyzerSdk-1.1.14\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Analyzer.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
