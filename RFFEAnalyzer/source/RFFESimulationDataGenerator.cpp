@@ -137,7 +137,7 @@ void RFFESimulationDataGenerator::CreateRffeTransaction()
                 CreateDataFrame( 0x12 );
                 CreateBusPark();
                 break;
-            case RFFEAnalyzerResults::RffeTypeShortWrite:
+            case RFFEAnalyzerResults::RffeTypeWrite0:
                 CreateBusPark();
                 break;
             }

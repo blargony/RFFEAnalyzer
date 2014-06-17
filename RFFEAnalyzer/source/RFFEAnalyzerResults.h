@@ -50,7 +50,7 @@ public:
         RffeTypeExtLongRead,
         RffeTypeNormalWrite,
         RffeTypeNormalRead,
-        RffeTypeShortWrite,
+        RffeTypeWrite0,
     };
     enum RffeAddressFieldSubType
     {

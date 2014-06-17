@@ -99,7 +99,7 @@ void RFFEAnalyzer::WorkerThread()
             FindDataFrame();
             FindBusPark();
             break;
-        case RFFEAnalyzerResults::RffeTypeShortWrite:
+        case RFFEAnalyzerResults::RffeTypeWrite0:
             FindBusPark();
             break;
         }
@@ -362,7 +362,7 @@ S32 RFFEAnalyzer::FindSlaveAddrAndCommand()
                      7, 5,
                      sampleDataState );
         break;
-    case RFFEAnalyzerResults::RffeTypeShortWrite:
+    case RFFEAnalyzerResults::RffeTypeWrite0:
         FillInFrame( RFFEAnalyzerResults::RffeTypeField,
                      mRffeType,
                      0,

@@ -32,7 +32,7 @@ RFFEAnalyzerResults::RffeTypeFieldType  RFFEUtil::decodeRFFECmdFrame(U8 cmd)
     }
     else
     {
-        return RFFEAnalyzerResults::RffeTypeShortWrite;
+        return RFFEAnalyzerResults::RffeTypeWrite0;
     }
 }
 
