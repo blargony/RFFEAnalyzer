@@ -111,13 +111,16 @@ void RFFEAnalyzer::WorkerThread()
 // ==============================================================================
 // Worker thread support methods
 // ==============================================================================
-void RFFEAnalyzer::AdvanceToBeginningStartBit() {
+U64 RFFEAnalyzer::AdvanceToBeginningStartBit() {
+    U64 sample_num;
+    
     while (1) {
         mSdata->AdvanceToNextEdge();
         if(mSdata->GetBitState() == BIT_HIGH) {
-            mSclk->AdvanceToAbsPosition(mSdata->GetSampleNumber());
-            if(mSclk->GetBitState() == BIT_LOW ) {
-                break;
+            sample_num = mSdata->GetSampleNumber();
+            mSclk->AdvanceToAbsPosition(sample_num);
+            if(mSclk->GetBitState() == BIT_LOW) {
+                return sample_num;
             }
         }
     }
@@ -135,10 +138,9 @@ U8 RFFEAnalyzer::FindStartSeqCondition() {
         if(!mSdata->DoMoreTransitionsExistInCurrentData()) return 0;
 
         // Find the next rising edge on SDATA (w/ SCLK low)
-        AdvanceToBeginningStartBit();
-
+        sdata_redge_sample = AdvanceToBeginningStartBit();
+        
         // Get to the falling edge of SDATA
-        sdata_redge_sample = mSdata->GetSampleNumber();
         mSdata->AdvanceToNextEdge();
         sdata_fedge_sample = mSdata->GetSampleNumber();
         // TODO: Here is where we could check RFFE SSC Pulse width, if we were so inclined
@@ -182,24 +184,26 @@ U8 RFFEAnalyzer::FindSlaveAddrAndCommand()
 {
     U8 byte_count = 0;
     U64 SAdr;
-    U64 cmd;
+    U64 RffeCmd;
     AnalyzerResults::MarkerType sampleDataState[16];
 
-    // Get RFFE SA+Command (4 + 8 bits)
-    cmd = GetBitStream(12, sampleDataState);
-
-    SAdr = (cmd & 0xF00) >> 8;
+    // Get RFFE SA+Command (4 + 8 bits) and decode the fields
+    RffeCmd = GetBitStream(12, sampleDataState);
+    
+    SAdr = (RffeCmd & 0xF00) >> 8;
+    mRffeType = RFFEUtil::decodeRFFECmdFrame( (U8)(RffeCmd & 0xFF) );
+    byte_count = RFFEUtil::byteCount( (U8)RffeCmd );
+    
     FillInFrame( RFFEAnalyzerResults::RffeSAField,
                  SAdr,
                  0,
                  sampleClkOffsets[0], sampleClkOffsets[4],
                  0, 4,
+                 0,
                  sampleDataState );
 
-    // decode type
-    mRffeType = RFFEUtil::decodeRFFECmdFrame( (U8)(cmd & 0xFF) );
     
-    switch ( mRffeType )
+    switch (mRffeType)
     {
     case RFFEAnalyzerResults::RffeTypeExtWrite:
         FillInFrame( RFFEAnalyzerResults::RffeTypeField,
@@ -207,14 +211,15 @@ U8 RFFEAnalyzer::FindSlaveAddrAndCommand()
                      0,
                      sampleClkOffsets[4], sampleClkOffsets[8],
                      4, 4,
+                     0,
                      sampleDataState );
         FillInFrame( RFFEAnalyzerResults::RffeExByteCountField,
-                     ( cmd & 0x0F ),
+                     ( RffeCmd & 0x0F ),
                      0,
                      sampleClkOffsets[8], sampleClkOffsets[12],
                      8, 4,
+                     0,
                      sampleDataState );
-        byte_count = RFFEUtil::byteCount( (U8)cmd );
         break;
     case RFFEAnalyzerResults::RffeTypeReserved:
         FillInFrame( RFFEAnalyzerResults::RffeTypeField,
@@ -222,6 +227,7 @@ U8 RFFEAnalyzer::FindSlaveAddrAndCommand()
                      0,
                      sampleClkOffsets[4], sampleClkOffsets[12],
                      4, 8,
+                     0,
                      sampleDataState );
         break;
     case RFFEAnalyzerResults::RffeTypeExtRead:
@@ -230,14 +236,15 @@ U8 RFFEAnalyzer::FindSlaveAddrAndCommand()
                      0,
                      sampleClkOffsets[4], sampleClkOffsets[8],
                      4, 4,
+                     0,
                      sampleDataState );
         FillInFrame( RFFEAnalyzerResults::RffeExByteCountField,
-                     ( cmd & 0x0F ),
+                     ( RffeCmd & 0x0F ),
                      0,
                      sampleClkOffsets[8], sampleClkOffsets[12],
                      8, 4,
+                     0,
                      sampleDataState );
-        byte_count = RFFEUtil::byteCount( (U8)cmd );
         break;
     case RFFEAnalyzerResults::RffeTypeExtLongWrite:
         FillInFrame( RFFEAnalyzerResults::RffeTypeField,
@@ -245,14 +252,15 @@ U8 RFFEAnalyzer::FindSlaveAddrAndCommand()
                      0,
                      sampleClkOffsets[4], sampleClkOffsets[9],
                      4, 5,
+                     0,
                      sampleDataState );
         FillInFrame( RFFEAnalyzerResults::RffeExLongByteCountField,
-                     ( cmd & 0x07 ),
+                     ( RffeCmd & 0x07 ),
                      0,
                      sampleClkOffsets[9], sampleClkOffsets[12],
                      9, 3,
+                     0,
                      sampleDataState );
-        byte_count = RFFEUtil::byteCount( (U8)cmd );
         break;
     case RFFEAnalyzerResults::RffeTypeExtLongRead:
         FillInFrame( RFFEAnalyzerResults::RffeTypeField,
@@ -260,14 +268,15 @@ U8 RFFEAnalyzer::FindSlaveAddrAndCommand()
                      0,
                      sampleClkOffsets[4], sampleClkOffsets[9],
                      4, 5,
+                     0,
                      sampleDataState );
         FillInFrame( RFFEAnalyzerResults::RffeExLongByteCountField,
-                     ( cmd & 0x07 ),
+                     ( RffeCmd & 0x07 ),
                      0,
                      sampleClkOffsets[9], sampleClkOffsets[12],
                      9, 3,
+                     0,
                      sampleDataState );
-        byte_count = RFFEUtil::byteCount( (U8)cmd );
         break;
     case RFFEAnalyzerResults::RffeTypeNormalWrite:
         FillInFrame( RFFEAnalyzerResults::RffeTypeField,
@@ -275,12 +284,14 @@ U8 RFFEAnalyzer::FindSlaveAddrAndCommand()
                      0,
                      sampleClkOffsets[4], sampleClkOffsets[7],
                      4, 3,
+                     0,
                      sampleDataState );
         FillInFrame( RFFEAnalyzerResults::RffeShortAddressField,
-                     ( cmd & 0x1F ),
+                     ( RffeCmd & 0x1F ),
                      0,
                      sampleClkOffsets[7], sampleClkOffsets[12],
                      7, 5,
+                     0,
                      sampleDataState );
         break;
     case RFFEAnalyzerResults::RffeTypeNormalRead:
@@ -289,12 +300,14 @@ U8 RFFEAnalyzer::FindSlaveAddrAndCommand()
                      0,
                      sampleClkOffsets[4], sampleClkOffsets[7],
                      4, 3,
+                     0,
                      sampleDataState );
         FillInFrame( RFFEAnalyzerResults::RffeShortAddressField,
-                     ( cmd & 0x1F ),
+                     ( RffeCmd & 0x1F ),
                      0,
                      sampleClkOffsets[7], sampleClkOffsets[12],
                      7, 5,
+                     0,
                      sampleDataState );
         break;
     case RFFEAnalyzerResults::RffeTypeWrite0:
@@ -303,18 +316,20 @@ U8 RFFEAnalyzer::FindSlaveAddrAndCommand()
                      0,
                      sampleClkOffsets[4], sampleClkOffsets[5],
                      4, 1,
+                     0,
                      sampleDataState );
         FillInFrame( RFFEAnalyzerResults::RffeShortDataField,
-                     ( cmd & 0x7F ) >> 7,
+                     ( RffeCmd & 0x7F ) >> 7,
                      0,
                      sampleClkOffsets[5], sampleClkOffsets[12],
                      5, 7,
+                     0,
                      sampleDataState );
         break;
     }
 
     // Check Parity - this time over the SA/Command field (12 bits)
-    FindParity(true);
+    FindParity(RFFEUtil::CalcParity(RffeCmd));
 
     return byte_count;
 }
@@ -334,9 +349,10 @@ void RFFEAnalyzer::FindAddressFrame(RFFEAnalyzerResults::RffeAddressFieldSubType
                  sampleClkOffsets[0],
                  sampleClkOffsets[8],
                  0, 8,
+                 0,
                  sampleDataState );
 
-    FindParity(false);
+    FindParity(RFFEUtil::CalcParity(addr));
 }
 
 // ------------------------------------------------------------------------------
@@ -344,24 +360,26 @@ void RFFEAnalyzer::FindDataFrame()
 {
     AnalyzerResults::MarkerType sampleDataState[16];
 
-    U64 addr = GetBitStream( 8, sampleDataState );
+    U64 data = GetBitStream( 8, sampleDataState );
 
     // decode data
     FillInFrame( RFFEAnalyzerResults::RffeDataField,
-                 addr,
+                 data,
                  0,
                  sampleClkOffsets[0],
                  sampleClkOffsets[8],
                  0, 8,
+                 0,
                  sampleDataState );
 
-    FindParity(false);
+    FindParity(RFFEUtil::CalcParity(data));
 }
 
 // ------------------------------------------------------------------------------
-void RFFEAnalyzer::FindParity(bool fromCommandFrame)
+void RFFEAnalyzer::FindParity(bool expParity)
 {
     U64 data;
+    U8 flags;
     BitState bitstate;
     AnalyzerResults::MarkerType state;
 
@@ -377,13 +395,19 @@ void RFFEAnalyzer::FindParity(bool fromCommandFrame)
         data = 0;
         state = AnalyzerResults::Zero;
     }
+    
+    if (data != expParity) {
+        flags = (DISPLAY_AS_ERROR_FLAG | DISPLAY_AS_WARNING_FLAG | RFFE_PARITY_ERROR_FLAG);
+        state = AnalyzerResults::ErrorDot;
+    }
 
     FillInFrame( RFFEAnalyzerResults::RffeParityField,
                  data,
-                 (fromCommandFrame ? 1 : 0),
+                 0,
                  sampleClkOffsets[0],
                  sampleClkOffsets[1],
                  0, 1,
+                 flags,
                  &state);
 }
 
@@ -419,6 +443,7 @@ void RFFEAnalyzer::FindBusPark()
                  sampleClkOffsets[0],
                  sampleClkOffsets[1],
                  0, 1,
+                 0,
                  &mark );
 }
 
@@ -497,6 +522,7 @@ void RFFEAnalyzer::FillInFrame( RFFEAnalyzerResults::RffeFrameType type,
                                 U64 ending_sample,
                                 U32 markers_start,
                                 U32 markers_len,
+                                U8 flags,
                                 AnalyzerResults::MarkerType *states )
 {
     Frame frame;
@@ -506,6 +532,7 @@ void RFFEAnalyzer::FillInFrame( RFFEAnalyzerResults::RffeFrameType type,
     frame.mData2                   = frame_data2;
     frame.mStartingSampleInclusive = starting_sample;
     frame.mEndingSampleInclusive   = ending_sample;
+    frame.mFlags                   = flags;
 
     // Add Markers to the SDATA stream while we are creating the Frame
     // That is if the Frame is non-zero length and also merits a marker.

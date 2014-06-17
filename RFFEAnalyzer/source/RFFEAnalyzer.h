@@ -45,10 +45,10 @@ protected: //vars
     U32 mSampleRateHz;
 
 protected: // functions
-    void AdvanceToBeginningStartBit();
+    U64 AdvanceToBeginningStartBit();
     U8 FindStartSeqCondition();
     U8 FindSlaveAddrAndCommand();
-    void FindParity(bool fromCommandFrame);
+    void FindParity(bool expParity);
     void FindDataFrame();
     void FindAddressFrame(RFFEAnalyzerResults::RffeAddressFieldSubType type);
     void FindBusPark();
@@ -65,6 +65,7 @@ protected: // functions
                       U64 ending_sample,
                       U32 markers_start,
                       U32 markers_len,
+                      U8 flags,
                       AnalyzerResults::MarkerType *states);
 
 
