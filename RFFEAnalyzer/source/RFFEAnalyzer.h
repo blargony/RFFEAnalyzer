@@ -41,25 +41,23 @@ protected: //vars
     RFFESimulationDataGenerator mSimulationDataGenerator;
     bool mSimulationInitilized;
 
-    //Serial analysis vars:
+    // 
     U32 mSampleRateHz;
-    RFFEAnalyzerResults::RffeTypeFieldType mRffeType;
 
 protected: // functions
     void AdvanceToBeginningStartBit();
-    S32 FindStartSeqCondition();
-    S32 FindSlaveAddrAndCommand();
+    U8 FindStartSeqCondition();
+    U8 FindSlaveAddrAndCommand();
     void FindParity(bool fromCommandFrame);
     void FindDataFrame();
     void FindAddressFrame(RFFEAnalyzerResults::RffeAddressFieldSubType type);
     void FindBusPark();
+
     U64  GetBitStream(U32 len, AnalyzerResults::MarkerType *states);
-    bool CheckClockRate();
-    void DrawMarkersDotsAndStates( U32 start,
-                                   U32 len,
-                                   AnalyzerResults::MarkerType type,
-                                   AnalyzerResults::MarkerType *states);
     BitState GetNextBit(U32 const idx, U64 *const clk, U64 *const data );
+
+    bool CheckClockRate();
+
     void FillInFrame( RFFEAnalyzerResults::RffeFrameType type,
                       U64 frame_data1,
                       U64 frame_data2,
@@ -68,7 +66,11 @@ protected: // functions
                       U32 markers_start,
                       U32 markers_len,
                       AnalyzerResults::MarkerType *states);
+
+
 private:
+    RFFEAnalyzerResults::RffeTypeFieldType mRffeType;
+
     U64 pulse_width2;
     U64 sampleClkOffsets[16];
     U64 sampleDataOffsets[16];
