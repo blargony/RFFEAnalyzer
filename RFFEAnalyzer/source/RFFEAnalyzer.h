@@ -69,7 +69,9 @@ protected: // functions
 
 
 private:
-    RFFEAnalyzerResults::RffeTypeFieldType mRffeType;
+    // RFFE Parsing state to pass between various methods
+    RFFEAnalyzerResults::RffeTypeFieldType mRffeType;  // RFFE Cmd we are in
+    bool mSSCStart;   // Rising edge of SDATA w/ SCLK=0 detected (first half of an SSC)
 
     U64 sampleClkOffsets[16];
     U64 sampleDataOffsets[16];

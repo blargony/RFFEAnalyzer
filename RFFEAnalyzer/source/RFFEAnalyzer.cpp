@@ -111,102 +111,68 @@ void RFFEAnalyzer::WorkerThread()
 // ==============================================================================
 // Worker thread support methods
 // ==============================================================================
-void RFFEAnalyzer::AdvanceToBeginningStartBit()
-{
-    U64 sample;
-    BitState state;
-
-    for( ; ; )
-    {
+void RFFEAnalyzer::AdvanceToBeginningStartBit() {
+    while (1) {
         mSdata->AdvanceToNextEdge();
-        state = mSdata->GetBitState();
-        if( state == BIT_HIGH )
-        {
-            sample = mSdata->GetSampleNumber();
-            mSclk->AdvanceToAbsPosition( sample );
-            state  = mSclk->GetBitState();
-            if( state == BIT_LOW )
+        if(mSdata->GetBitState() == BIT_HIGH) {
+            mSclk->AdvanceToAbsPosition(mSdata->GetSampleNumber());
+            if(mSclk->GetBitState() == BIT_LOW ) {
                 break;
+            }
         }
     }
 }
 
 // --------------------------------------
-U8 RFFEAnalyzer::FindStartSeqCondition()
-{
+U8 RFFEAnalyzer::FindStartSeqCondition() {
     U64 sample;
-    BitState state;
+    U64 sdata_redge_sample;
+    U64 sdata_fedge_sample;
 
-    U64 sample_up;
-    U64 sample_dn;
-    U64 sample_next;
-    U64 pulse_1, pulse_2;
-    bool did_toggle;
+    while (1) {
+        // Check for no more data, and return error status if none remains
+        if(!mSclk->DoMoreTransitionsExistInCurrentData()) return 0;
+        if(!mSdata->DoMoreTransitionsExistInCurrentData()) return 0;
 
-    // in case that clk is ahead of data
-    sample_up = mSdata->GetSampleNumber();
-    sample_dn =  mSclk->GetSampleNumber();
-    if ( sample_dn > sample_up )
-    {
-        mSdata->AdvanceToAbsPosition( sample_dn );
-    }
+        // Find the next rising edge on SDATA (w/ SCLK low)
+        AdvanceToBeginningStartBit();
 
-    for ( ; ; )
-    {
-        if( ! mSclk->DoMoreTransitionsExistInCurrentData() ) return 0;
-        if( ! mSdata->DoMoreTransitionsExistInCurrentData() ) return 0;
-
-        sample = mSdata->GetSampleNumber();
-        mSclk->AdvanceToAbsPosition( sample );
-        state  = mSdata->GetBitState();
-        if ( state == BIT_LOW )
-        {
-            AdvanceToBeginningStartBit();
-        }
-        else
-        {
-            mSdata->AdvanceToNextEdge();
+        // Get to the falling edge of SDATA
+        sdata_redge_sample = mSdata->GetSampleNumber();
+        mSdata->AdvanceToNextEdge();
+        sdata_fedge_sample = mSdata->GetSampleNumber();
+        // TODO: Here is where we could check RFFE SSC Pulse width, if we were so inclined
+        // ssc_pulse_width_in_samples = sdata_fedge_sample - sdata_redge_sample;
+        
+        // Scan for SCLK transition between SDATA rising and falling edge, if found then this is no SSC
+        if(mSclk->WouldAdvancingToAbsPositionCauseTransition(sdata_fedge_sample)) {
             continue;
         }
 
-        // advance the pulse
-        sample_up = mSdata->GetSampleNumber();
-        mSdata->AdvanceToNextEdge();
-        sample_dn = mSdata->GetSampleNumber();
-        pulse_1   = sample_dn - sample_up;
+        mSclk->AdvanceToAbsPosition(sdata_fedge_sample);
+        // TODO: Here is where we could check SSC to SCLK rising edge width, again, if we were so inclined
+        // ssc_2_sclk_delay_in_samples = mSclk->GetSampleOfNextEdge() - sdata_fedge_sample;
 
-        did_toggle = mSclk->WouldAdvancingToAbsPositionCauseTransition( sample_dn );
-        if( did_toggle )
-            continue; // error: found clk toggling
-
-        // look for idle in clk & data signals
-        mSclk->AdvanceToAbsPosition( sample_dn );
-        sample_next = mSclk->GetSampleOfNextEdge();
-        pulse_2     = sample_next - sample_dn;
-
-        if ( pulse_2 < pulse_1 )
-            continue; // error: idle period too short
-
-        // at rising edge of clk
+        // SSC is complete at the rising edge of the SCLK
         mSclk->AdvanceToNextEdge();
         sample = mSclk->GetSampleNumber();
-        mSdata->AdvanceToAbsPosition( sample );
+        mSdata->AdvanceToAbsPosition(sample);
 
+        // Build the Frame and Markers to for the GUI updates
         Frame frame;
         frame.mType                    = RFFEAnalyzerResults::RffeSSCField;
-        frame.mStartingSampleInclusive = sample_up;
+        frame.mStartingSampleInclusive = sdata_redge_sample;
         frame.mEndingSampleInclusive   = sample;
 
-        mResults->AddMarker( sample_up,
+        mResults->AddMarker( sdata_redge_sample,
                              AnalyzerResults::Start,
                              mSettings->mSdataChannel );
-        mResults->AddFrame( frame );
+        
+        mResults->AddFrame(frame);
         mResults->CommitResults();
-
-        ReportProgress( frame.mEndingSampleInclusive );
+        ReportProgress(frame.mEndingSampleInclusive);
         break;
     }
-
     return 1;
 }
 
@@ -219,7 +185,7 @@ U8 RFFEAnalyzer::FindSlaveAddrAndCommand()
     U64 cmd;
     AnalyzerResults::MarkerType sampleDataState[16];
 
-    // starting at rising edge of clk
+    // Get RFFE SA+Command (4 + 8 bits)
     cmd = GetBitStream(12, sampleDataState);
 
     SAdr = (cmd & 0xF00) >> 8;
@@ -463,7 +429,7 @@ BitState RFFEAnalyzer::GetNextBit(U32 const idx, U64 *const clk, U64 *const data
 {
     BitState state;
 
-    // Previous GetNextBit left us at the rising edge of the SCLK
+    // Previous FindSSC or GetNextBit left us at the rising edge of the SCLK
     // Grab this as the current sample point for delimiting the frame.
     clk[idx] =  mSclk->GetSampleNumber();
 
