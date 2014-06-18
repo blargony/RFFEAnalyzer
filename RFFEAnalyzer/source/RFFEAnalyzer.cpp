@@ -132,6 +132,14 @@ U8 RFFEAnalyzer::FindStartSeqCondition() {
     U64 sdata_redge_sample;
     U64 sdata_fedge_sample;
 
+    // Line up the sample points before we start looking at sample data
+    // This way we won't accidentally try to 'advance' SCLK or SDATA to a
+    // time that they have already moved past.
+    sample = mSclk->GetSampleNumber();
+    if (sample > mSdata->GetSampleNumber()) {
+        mSdata->AdvanceToAbsPosition(sample);
+    }
+
     while (1) {
         // Check for no more data, and return error status if none remains
         if(!mSclk->DoMoreTransitionsExistInCurrentData()) return 0;
