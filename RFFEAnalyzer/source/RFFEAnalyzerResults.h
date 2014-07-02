@@ -7,11 +7,9 @@
     #define snprintf sprintf_s
 #endif
 
-#define RFFE_PARITY_ERROR_FLAG (0x1 << 0)
+#define RFFE_PARITY_ERROR_FLAG      (0x1 << 0)
 #define RFFE_INVALID_CMD_ERROR_FLAG (0x1 << 1)
-#define RFFE_ADDR_PARITY_ERROR_FLAG (0x1 << 2)
-#define RFFE_DATA_PARITY_ERROR_FLAG (0x1 << 3)
-#define RFFE_NO_SSC_ERROR_FLAG (0x1 << 4)
+#define RFFE_INCOMPLETE_PACKET_ERROR_FLAG (0x1 << 2)
 
 class RFFEAnalyzer;
 class RFFEAnalyzerSettings;

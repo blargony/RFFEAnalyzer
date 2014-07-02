@@ -10,6 +10,8 @@
 //               as base for dll-interface class 'RFFEAnalyzer'
 #pragma warning( disable : 4275 )
 
+#define UNEXPECTED_SSC_EXCEPTION 101
+
 class RFFEAnalyzerSettings;
 class ANALYZER_EXPORT RFFEAnalyzer : public Analyzer2
 {
@@ -45,7 +47,6 @@ protected: //vars
     U32 mSampleRateHz;
 
 protected: // functions
-    U64 AdvanceToBeginningStartBit();
     U8 FindStartSeqCondition();
     U8 FindSlaveAddrAndCommand();
     void FindParity(bool expParity);
@@ -53,8 +54,10 @@ protected: // functions
     void FindAddressFrame(RFFEAnalyzerResults::RffeAddressFieldSubType type);
     void FindBusPark();
 
-    U64  GetBitStream(U32 len, AnalyzerResults::MarkerType *states);
-    BitState GetNextBit(U32 const idx, U64 *const clk, U64 *const data );
+    void GotoNextTransition();
+    void GotoSclkEdge(BitState);
+    BitState GetNextBit(U8 idx);
+    U64 GetBitStream(U8 len);
 
     bool CheckClockRate();
 
@@ -72,10 +75,32 @@ protected: // functions
 private:
     // RFFE Parsing state to pass between various methods
     RFFEAnalyzerResults::RffeTypeFieldType mRffeType;  // RFFE Cmd we are in
-    bool mSSCStart;   // Rising edge of SDATA w/ SCLK=0 detected (first half of an SSC)
 
-    U64 sampleClkOffsets[16];
-    U64 sampleDataOffsets[16];
+    // --------------------------------------
+    // The sampling and storing of chunks of
+    // RFFE Data are managed in member variables.
+    // These get handed back and forth between
+    // a variety of methods so keep them here as
+    // a common working set of variables
+    // --------------------------------------
+    // Used to store the current and previous state of the bus
+    // (on a transition by transition basis)
+    U64  mSamplePosition;
+    
+    BitState mSclkCurrent;
+    BitState mSdataCurrent;
+    BitState mSclkPrevious;
+    BitState mSdataPrevious;
+    
+    bool mUnexpectedSSC;
+
+    // Used to store sample offsets that need to be handed to the AnalyzerResults
+    // objects to indicate the start/stop sample points for annotations in the
+    // waveform display.
+    // Member Variables so we don't have to pass them around so much
+    U64 mSampleClkOffsets[16];
+    U64 mSampleDataOffsets[16];
+    AnalyzerResults::MarkerType mSampleDataState[16];
 
 #pragma warning( pop )
 };
