@@ -93,6 +93,7 @@ private:
     BitState mSdataPrevious;
     
     bool mUnexpectedSSC;
+    U64 mUnexpectedSSCStart;
 
     // Used to store sample offsets that need to be handed to the AnalyzerResults
     // objects to indicate the start/stop sample points for annotations in the

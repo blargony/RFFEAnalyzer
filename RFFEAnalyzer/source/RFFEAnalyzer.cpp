@@ -140,6 +140,7 @@ U8 RFFEAnalyzer::FindStartSeqCondition() {
     // Scan for an SSC
     if (mUnexpectedSSC) {
         mUnexpectedSSC = false;  // Skip the scanning portion, we already ran into an SSC
+        sdata_redge_sample = mUnexpectedSSCStart;  // We saved the sdata rising edge position as well
     } else {
         while (1) {
             GotoNextTransition();
@@ -511,6 +512,7 @@ void RFFEAnalyzer::GotoSclkEdge(BitState edge_type)
         if (mSclkCurrent == BIT_HIGH) {
             ssc_possible = 0;
         } else if (mSclkCurrent == BIT_LOW && mSclkPrevious == BIT_LOW && mSdataCurrent == BIT_HIGH && mSdataPrevious == BIT_LOW){
+            mUnexpectedSSCStart = mSamplePosition;
             ssc_possible = 1;
         } else if (ssc_possible && mSclkCurrent == BIT_LOW && mSdataCurrent == BIT_LOW) {
             mUnexpectedSSC = true;  // !!!
