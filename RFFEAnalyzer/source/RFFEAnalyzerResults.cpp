@@ -10,8 +10,8 @@ static const char *RffeTypeStringShort[] =
     "EW",
     "-",
     "ER",
-    "ELW",
-    "ELR",
+    "EWL",
+    "ERL",
     "W",
     "R",
     "W0",
@@ -20,11 +20,11 @@ static const char *RffeTypeStringShort[] =
 static const char *RffeTypeStringMid[] =
 {
     "ExtWr",
-    "Rsv",
+    "Rsvd",
     "ExtRd",
-    "ExtLngWr",
-    "ExtLngRd",
-    "Wr",
+    "ExtWrLng",
+    "ExtRdLng",
+    "Wr", 
     "Rd",
     "Wr0",
 };
