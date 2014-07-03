@@ -106,12 +106,12 @@ void RFFEAnalyzerResults::GenerateBubbleText( U64 frame_index, Channel& channel,
         }
         break;
 
-    case RffeShortAddressField:
+    case RffeAddressField:
         {
             char number_str[8];
             std::stringstream ss;
 
-            AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 5, number_str, 8 );
+            AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, number_str, 8 );
 
             AddResultString( "A" );
 
@@ -120,34 +120,31 @@ void RFFEAnalyzerResults::GenerateBubbleText( U64 frame_index, Channel& channel,
         }
         break;
 
-    case RffeAddressField:
+    case RffeAddressHiField:
         {
             char number_str[8];
             std::stringstream ss;
 
             AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, number_str, 8 );
 
-            switch( frame.mData2 )
-            {
-            case RffeAddressHiField:
-                AddResultString( "A" );
+            AddResultString( "A" );
+            ss << "AH:" << number_str;
+            AddResultString( ss.str().c_str() );
+            
+        }
+        break;
+            
+    case RffeAddressLoField:
+        {
+            char number_str[8];
+            std::stringstream ss;
 
-                ss << "AH:" << number_str;
-                AddResultString( ss.str().c_str() );
-                break;
-            case RffeAddressLoField:
-                AddResultString( "A" );
+            AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, number_str, 8 );
 
-                ss << "AL:" << number_str;
-                AddResultString( ss.str().c_str() );
-                break;
-            case RffeAddressNormalField:
-            default:
-                AddResultString( "A" );
+            AddResultString( "A" );
 
-                ss << "A:" << number_str;
-                AddResultString( ss.str().c_str() );
-            }
+            ss << "AL:" << number_str;
+            AddResultString( ss.str().c_str() );
         }
         break;
 
@@ -309,24 +306,16 @@ void RFFEAnalyzerResults::GenerateExportFile( const char* file,
                                                   8 );
                 break;
 
-            case RffeShortAddressField:
+            case RffeAddressField:
                 address = frame.mData1;
                 break;
 
-            case RffeAddressField:
-                switch( frame.mData2 )
-                {
-                case RffeAddressHiField:
-                    address = (frame.mData1<<8);
-                    break;
-                case RffeAddressLoField:
-                    address |= frame.mData1;
-                    break;
-                case RffeAddressNormalField:
-                default:
-                    address = frame.mData1;
-                    break;
-                }
+            case RffeAddressHiField:
+                address = (frame.mData1<<8);
+                break;
+                    
+            case RffeAddressLoField:
+                address |= frame.mData1;
                 break;
 
             case RffeShortDataField:
@@ -399,18 +388,20 @@ void RFFEAnalyzerResults::GenerateExportFile( const char* file,
         if ( address == 0xFFFFFFFF )
         {
             ss << ",,," << payload.str().c_str();
-            if ( show_parity ) ss << " P" << parityCmd_str;
-        }
-        else
-        {
+            if (show_parity) {
+                ss << " P" << parityCmd_str;
+            }
+        } else {
             AnalyzerHelpers::GetNumberString( address,
                                               display_base,
-                                              8,
+                                              16,
                                               addr_str,
-                                              8 );
+                                              16 );
 
             ss << "," << addr_str;
-            if ( show_parity )  ss <<" P" << parityCmd_str;
+            if (show_parity) {
+                ss << " P" << parityCmd_str;
+            }
             ss << "," << bc_str << "," << payload.str().c_str();
         }
         ss << std::endl;

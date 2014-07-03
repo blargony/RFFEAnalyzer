@@ -51,7 +51,7 @@ protected: // functions
     U8 FindSlaveAddrAndCommand();
     void FindParity(bool expParity);
     void FindDataFrame();
-    void FindAddressFrame(RFFEAnalyzerResults::RffeAddressFieldSubType type);
+    void FindAddressFrame(RFFEAnalyzerResults::RffeFrameType type);
     void FindBusPark();
 
     void GotoNextTransition();
@@ -62,14 +62,11 @@ protected: // functions
     bool CheckClockRate();
 
     void FillInFrame( RFFEAnalyzerResults::RffeFrameType type,
-                      U64 frame_data1,
-                      U64 frame_data2,
-                      U64 starting_sample,
-                      U64 ending_sample,
-                      U32 markers_start,
-                      U32 markers_len,
-                      U8 flags,
-                      AnalyzerResults::MarkerType *states);
+                      U64 frame_data,
+                      U32 idx_start,
+                      U32 idx_end,
+                      U8 flags
+                      );
 
 
 private:
@@ -101,7 +98,7 @@ private:
     // Member Variables so we don't have to pass them around so much
     U64 mSampleClkOffsets[16];
     U64 mSampleDataOffsets[16];
-    AnalyzerResults::MarkerType mSampleDataState[16];
+    AnalyzerResults::MarkerType mSampleMarker[16];
 
 #pragma warning( pop )
 };

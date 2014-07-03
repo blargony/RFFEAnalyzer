@@ -28,23 +28,23 @@ public:
     virtual void GenerateTransactionTabularText( U64 transaction_id, DisplayBase display_base );
 
 public:
-    enum RffeFrameType
-    {
+    enum RffeFrameType {
         RffeSSCField,
         RffeSAField,
         RffeTypeField,
         RffeExByteCountField,
         RffeExLongByteCountField,
-        RffeShortAddressField,
         RffeAddressField,
+        RffeAddressHiField,
+        RffeAddressLoField,
         RffeShortDataField,
         RffeDataField,
         RffeParityField,
         RffeBusParkField,
         RffeErrorCaseField,
     };
-    enum RffeTypeFieldType
-    {
+
+    enum RffeTypeFieldType {
         RffeTypeExtWrite,
         RffeTypeReserved,
         RffeTypeExtRead,
@@ -53,12 +53,6 @@ public:
         RffeTypeNormalWrite,
         RffeTypeNormalRead,
         RffeTypeWrite0,
-    };
-    enum RffeAddressFieldSubType
-    {
-        RffeAddressNormalField,
-        RffeAddressHiField,
-        RffeAddressLoField,
     };
 
 protected: //functions
