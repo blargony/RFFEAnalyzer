@@ -191,6 +191,7 @@ U8 RFFEAnalyzer::FindStartSeqCondition() {
 U8 RFFEAnalyzer::FindSlaveAddrAndCommand()
 {
     U8 byte_count = 0;
+    U8 flags=0;
     U64 RffeCmd;
 
     // Get RFFE SA+Command (4 + 8 bits) and decode the fields
@@ -208,42 +209,43 @@ U8 RFFEAnalyzer::FindSlaveAddrAndCommand()
     switch (mRffeType) {
         case RFFEAnalyzerResults::RffeTypeExtWrite:
             // 4 bit command w/ 4 bit Byte Count
-            FillInFrame(RFFEAnalyzerResults::RffeTypeField, mRffeType, 4, 8, 0);
-            FillInFrame(RFFEAnalyzerResults::RffeExByteCountField, (RffeCmd & 0x0F), 8, 12, 0);
+            FillInFrame(RFFEAnalyzerResults::RffeTypeField, mRffeType, 4, 8, flags);
+            FillInFrame(RFFEAnalyzerResults::RffeExByteCountField, (RffeCmd & 0x0F), 8, 12, flags);
             break;
         case RFFEAnalyzerResults::RffeTypeReserved:
             // 8 Bit Reserved Cmd Type
-            FillInFrame(RFFEAnalyzerResults::RffeTypeField, mRffeType, 4, 12, 0);
+            flags = (DISPLAY_AS_ERROR_FLAG | DISPLAY_AS_WARNING_FLAG | RFFE_INVALID_CMD_ERROR_FLAG);
+            FillInFrame(RFFEAnalyzerResults::RffeTypeField, mRffeType, 4, 12, flags);
             break;
         case RFFEAnalyzerResults::RffeTypeExtRead:
             // 4 Bit Command w/ 4 bit Byte Count
-            FillInFrame(RFFEAnalyzerResults::RffeTypeField, mRffeType, 4, 8, 0);
-            FillInFrame(RFFEAnalyzerResults::RffeExByteCountField, (RffeCmd & 0x0F), 8, 12, 0);
+            FillInFrame(RFFEAnalyzerResults::RffeTypeField, mRffeType, 4, 8, flags);
+            FillInFrame(RFFEAnalyzerResults::RffeExByteCountField, (RffeCmd & 0x0F), 8, 12, flags);
             break;
         case RFFEAnalyzerResults::RffeTypeExtLongWrite:
             // 5 Bit Command w/ 3 bit Byte Count
-            FillInFrame(RFFEAnalyzerResults::RffeTypeField, mRffeType, 4, 9, 0);
-            FillInFrame(RFFEAnalyzerResults::RffeExLongByteCountField, (RffeCmd & 0x07), 9, 12, 0);
+            FillInFrame(RFFEAnalyzerResults::RffeTypeField, mRffeType, 4, 9, flags);
+            FillInFrame(RFFEAnalyzerResults::RffeExLongByteCountField, (RffeCmd & 0x07), 9, 12, flags);
             break;
         case RFFEAnalyzerResults::RffeTypeExtLongRead:
             // 5 Bit Command w/ 3 bit Byte Count
-            FillInFrame(RFFEAnalyzerResults::RffeTypeField, mRffeType, 4, 9, 0);
-            FillInFrame(RFFEAnalyzerResults::RffeExLongByteCountField, (RffeCmd & 0x07), 9, 12, 0);
+            FillInFrame(RFFEAnalyzerResults::RffeTypeField, mRffeType, 4, 9, flags);
+            FillInFrame(RFFEAnalyzerResults::RffeExLongByteCountField, (RffeCmd & 0x07), 9, 12, flags);
             break;
         case RFFEAnalyzerResults::RffeTypeNormalWrite:
             // 3 Bit Command w/ 5 bit Addr
-            FillInFrame(RFFEAnalyzerResults::RffeTypeField, mRffeType, 4, 7, 0);
-            FillInFrame(RFFEAnalyzerResults::RffeAddressField, (RffeCmd & 0x1F), 7, 12, 0);
+            FillInFrame(RFFEAnalyzerResults::RffeTypeField, mRffeType, 4, 7, flags);
+            FillInFrame(RFFEAnalyzerResults::RffeAddressField, (RffeCmd & 0x1F), 7, 12, flags);
             break;
         case RFFEAnalyzerResults::RffeTypeNormalRead:
             // 3 Bit Command w/ 5 bit Addr
-            FillInFrame(RFFEAnalyzerResults::RffeTypeField, mRffeType, 4, 7, 0);
-            FillInFrame(RFFEAnalyzerResults::RffeAddressField, (RffeCmd & 0x1F), 7, 12, 0);
+            FillInFrame(RFFEAnalyzerResults::RffeTypeField, mRffeType, 4, 7, flags);
+            FillInFrame(RFFEAnalyzerResults::RffeAddressField, (RffeCmd & 0x1F), 7, 12, flags);
             break;
         case RFFEAnalyzerResults::RffeTypeWrite0:
             // 1 Bit Command w/ 7 bit Write Data
-            FillInFrame(RFFEAnalyzerResults::RffeTypeField, mRffeType, 4, 5, 0);
-            FillInFrame(RFFEAnalyzerResults::RffeShortDataField, (RffeCmd & 0x7F), 5, 12, 0);
+            FillInFrame(RFFEAnalyzerResults::RffeTypeField, mRffeType, 4, 5, flags);
+            FillInFrame(RFFEAnalyzerResults::RffeShortDataField, (RffeCmd & 0x7F), 5, 12, flags);
             break;
     }
 
