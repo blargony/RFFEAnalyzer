@@ -129,21 +129,18 @@ void RFFEAnalyzer::WorkerThread()
 // ==============================================================================
 U8 RFFEAnalyzer::FindStartSeqCondition() {
     bool ssc_possible = 0;
-    U64 sdata_redge_sample;
-    U64 sdata_fedge_sample;
+    U8 flags=0;
 
     // Check for no more data, and return error status if none remains
     if(!mSclk->DoMoreTransitionsExistInCurrentData()) return 0;
     if(!mSdata->DoMoreTransitionsExistInCurrentData()) return 0;
-
-    // Initialize our variables to the current sample position
-    sdata_redge_sample = mSamplePosition;
-    sdata_fedge_sample = mSamplePosition;
     
     // Scan for an SSC
     if (mUnexpectedSSC) {
-        mUnexpectedSSC = false;  // Skip the scanning portion, we already ran into an SSC
-        sdata_redge_sample = mUnexpectedSSCStart;  // We saved the sdata rising edge position as well
+        flags |= (DISPLAY_AS_ERROR_FLAG | DISPLAY_AS_WARNING_FLAG | RFFE_INCOMPLETE_PACKET_ERROR_FLAG);
+        mUnexpectedSSC = false;                      // Reset our unexpected SSC state
+        mSampleClkOffsets[0] = mUnexpectedSSCStart;  // The unexpected SSC logic saved the sdata rising edge position
+        mSampleDataOffsets[0] = mUnexpectedSSCStart; // For the Marker
     } else {
         while (1) {
             GotoNextTransition();
@@ -152,9 +149,9 @@ U8 RFFEAnalyzer::FindStartSeqCondition() {
                 ssc_possible = 0;
             } else if (mSclkCurrent == BIT_LOW && mSclkPrevious == BIT_LOW && mSdataCurrent == BIT_HIGH && mSdataPrevious == BIT_LOW){
                 ssc_possible = 1;
-                sdata_redge_sample = mSamplePosition;
+                mSampleClkOffsets[0] = mSamplePosition;    // For the Frame Boundaries
+                mSampleDataOffsets[0] = mSamplePosition;   // For the Marker
             } else if (ssc_possible && mSclkCurrent == BIT_LOW && mSdataCurrent == BIT_LOW) {
-                sdata_fedge_sample = mSamplePosition;
                 break;  // SSC!
             }
         }
@@ -166,22 +163,14 @@ U8 RFFEAnalyzer::FindStartSeqCondition() {
 
     // SSC is complete at the rising edge of the SCLK
     GotoSclkEdge(BIT_HIGH);
+    mSampleClkOffsets[1] = mSamplePosition;
+    
     // TODO: Here is where we could check SSC to SCLK rising edge width, again, if we were so inclined
     // ssc_2_sclk_delay_in_samples = mSamplePosition - sdata_fedge_sample;
 
-    // Build the Frame and Markers to for the GUI updates
-    Frame frame;
-    frame.mType                    = RFFEAnalyzerResults::RffeSSCField;
-    frame.mStartingSampleInclusive = sdata_redge_sample;
-    frame.mEndingSampleInclusive   = mSamplePosition;
-
-    mResults->AddMarker( sdata_redge_sample,
-                         AnalyzerResults::Start,
-                         mSettings->mSdataChannel );
-    
-    mResults->AddFrame(frame);
-    mResults->CommitResults();
-    ReportProgress(frame.mEndingSampleInclusive);
+    // Setup the 'Start' Marker and send off the Frame to the AnalyzerResults
+    mSampleMarker[0] = AnalyzerResults::Start;
+    FillInFrame(RFFEAnalyzerResults::RffeSSCField, 0, 0, 1, flags);
     
     return 1;
 }
@@ -214,7 +203,7 @@ U8 RFFEAnalyzer::FindSlaveAddrAndCommand()
             break;
         case RFFEAnalyzerResults::RffeTypeReserved:
             // 8 Bit Reserved Cmd Type
-            flags = (DISPLAY_AS_ERROR_FLAG | DISPLAY_AS_WARNING_FLAG | RFFE_INVALID_CMD_ERROR_FLAG);
+            flags |= (DISPLAY_AS_ERROR_FLAG | DISPLAY_AS_WARNING_FLAG | RFFE_INVALID_CMD_ERROR_FLAG);
             FillInFrame(RFFEAnalyzerResults::RffeTypeField, mRffeType, 4, 12, flags);
             break;
         case RFFEAnalyzerResults::RffeTypeExtRead:
@@ -275,10 +264,10 @@ void RFFEAnalyzer::FindDataFrame()
 // ------------------------------------------------------------------------------
 void RFFEAnalyzer::FindParity(bool expParity)
 {
+    BitState bitstate;
     bool data_parity;
     U64 parity_value;
-    U8 flags;
-    BitState bitstate;
+    U8 flags=0;
 
     // Get the Parity Bit on the next sample clock
     bitstate = GetNextBit(0);
@@ -297,10 +286,8 @@ void RFFEAnalyzer::FindParity(bool expParity)
     }
     
     if (data_parity != expParity) {
-        flags = (DISPLAY_AS_ERROR_FLAG | DISPLAY_AS_WARNING_FLAG | RFFE_PARITY_ERROR_FLAG);
+        flags |= (DISPLAY_AS_ERROR_FLAG | DISPLAY_AS_WARNING_FLAG | RFFE_PARITY_ERROR_FLAG);
         mSampleMarker[0] = AnalyzerResults::ErrorDot;
-    } else {
-        flags = 0;
     }
 
     FillInFrame(RFFEAnalyzerResults::RffeParityField, parity_value, 0, 1, flags);
@@ -479,7 +466,7 @@ void RFFEAnalyzer::FillInFrame(
     frame.mData1                   = frame_data;
     frame.mData2                   = 0;  // No Additional Data (could be used for AnalyzerResults if required
     frame.mStartingSampleInclusive = mSampleClkOffsets[idx_start];
-    frame.mEndingSampleInclusive   = mSampleClkOffsets[idx_end]; // Inclusive, so add 1
+    frame.mEndingSampleInclusive   = mSampleClkOffsets[idx_end];
     frame.mFlags                   = flags;
 
     // Add Markers to the SDATA stream while we are creating the Frame
