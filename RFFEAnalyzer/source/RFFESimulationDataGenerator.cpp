@@ -6,6 +6,7 @@
 
 RFFESimulationDataGenerator::RFFESimulationDataGenerator()
 {
+    mLSFRData = 0xE1;  // Must be non-zero (or we get stuck)
 }
 
 RFFESimulationDataGenerator::~RFFESimulationDataGenerator()
@@ -62,38 +63,23 @@ U32 RFFESimulationDataGenerator::GenerateSimulationData( U64 largest_sample_requ
 void RFFESimulationDataGenerator::CreateRffeTransaction()
 {
     U8 cmd;
-    U8 cmd_frames[] =
-    {
-        //0x01, //0x07, 0x0F,
-        //0x10, //0x1B, 0x1F,
-        //0x21, //0x23, 0x2F,
-        //0x31, //0x36, 0x37,
-        //0x39, //0x3D, 0x3F,
-        0x43, //0x43, 0x55, 0x5F,
-        0x64, //0x64, 0x78, 0x7F,
-        0x84, //0x91, 0xA3, 0xBC, 0xC1, 0xD9, 0xEF, 0xF2, 0xFF
-    };
-    U8 sa_addrs[] =
-    {
-        0x5, //0x7, 0x8, 0x2
-    };
+    U8 sa_addrs[] = { 0x5 };
 
     for( U32 adr=0 ; adr < sizeof(sa_addrs)/sizeof(sa_addrs[0]) ; adr++ )
     {
-        for ( U32 cmd_idx=0 ; cmd_idx < sizeof(cmd_frames)/sizeof(cmd_frames[0]) ; cmd_idx++ )
+        for (U32 i=0; i < 256; i += 1)
         {
             CreateStart();
             CreateSlaveAddress( sa_addrs[adr] );
-            cmd = cmd_frames[cmd_idx];
+            cmd = i & 0xff;
             CreateCommandFrame( cmd );
 
             switch ( RFFEUtil::decodeRFFECmdFrame( cmd ) )
             {
             case RFFEAnalyzerResults::RffeTypeExtWrite:
-                CreateAddressFrame( 0x65 );
-                for( U32 i = RFFEUtil::byteCount( cmd ) ; i != 0; i-- )
-                {
-                    CreateDataFrame( 0x11 );
+                CreateAddressFrame( CreateRandomData() );
+                for(U32 i = 0; i <= RFFEUtil::byteCount(cmd); i += 1) {
+                    CreateDataFrame( CreateRandomData() );
                 }
                 CreateBusPark();
                 break;
@@ -101,40 +87,37 @@ void RFFESimulationDataGenerator::CreateRffeTransaction()
                 CreateBusPark();
                 break;
             case RFFEAnalyzerResults::RffeTypeExtRead:
-                CreateAddressFrame( 0x4C );
+                CreateAddressFrame( CreateRandomData() );
                 CreateBusPark();
-                for( U32 i = RFFEUtil::byteCount( cmd ) ; i != 0; i-- )
-                {
-                    CreateDataFrame( 0x11 );
+                for(U32 i = 0; i <= RFFEUtil::byteCount(cmd); i += 1) {
+                    CreateDataFrame( CreateRandomData() );
                 }
                 CreateBusPark();
                 break;
             case RFFEAnalyzerResults::RffeTypeExtLongWrite:
-                CreateAddressFrame( 0x5A );
-                CreateAddressFrame( 0x94 );
-                for( U32 i = RFFEUtil::byteCount( cmd ) ; i != 0; i-- )
-                {
-                    CreateDataFrame( 0x11 );
+                CreateAddressFrame( CreateRandomData() );
+                CreateAddressFrame( CreateRandomData() );
+                for(U32 i = 0; i <= RFFEUtil::byteCount(cmd); i += 1) {
+                    CreateDataFrame( CreateRandomData() );
                 }
                 CreateBusPark();
                 break;
             case RFFEAnalyzerResults::RffeTypeExtLongRead:
-                CreateAddressFrame( 0x12 );
-                CreateAddressFrame( 0x34 );
+                CreateAddressFrame( CreateRandomData() );
+                CreateAddressFrame( CreateRandomData() );
                 CreateBusPark();
-                for( U32 i = RFFEUtil::byteCount( cmd ) ; i != 0; i-- )
-                {
-                    CreateDataFrame( 0x11 );
+                for(U32 i = 0; i <= RFFEUtil::byteCount(cmd); i += 1) {
+                    CreateDataFrame( CreateRandomData() );
                 }
                 CreateBusPark();
                 break;
             case RFFEAnalyzerResults::RffeTypeNormalWrite:
-                CreateDataFrame( 0x12 );
+                CreateDataFrame( CreateRandomData() );
                 CreateBusPark();
                 break;
             case RFFEAnalyzerResults::RffeTypeNormalRead:
                 CreateBusPark();
-                CreateDataFrame( 0x12 );
+                CreateDataFrame( CreateRandomData() );
                 CreateBusPark();
                 break;
             case RFFEAnalyzerResults::RffeTypeWrite0:
@@ -266,5 +249,17 @@ void RFFESimulationDataGenerator::CreateDataFrame( U8 data )
     mParityCounter = 0;
     CreateByte( data );
     CreateParity();
+}
+
+U8 RFFESimulationDataGenerator::CreateRandomData()
+{
+    U8 lsb;
+    
+    lsb = mLSFRData & 0x1;
+    mLSFRData >>= 1;
+    if (lsb) {
+        mLSFRData ^= 0xB8;  // Maximum period polynomial for Galois LSFR of 8 bits
+    }
+    return mLSFRData;
 }
 

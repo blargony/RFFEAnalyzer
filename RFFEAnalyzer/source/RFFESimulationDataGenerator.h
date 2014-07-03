@@ -34,6 +34,7 @@ protected: // RFFE specific functions
     void CreateBusPark();
     void CreateDataFrame( U8 data );
     void CreateAddressFrame( U8 addr );
+    U8   CreateRandomData();
 
 protected: //RFFE specific vars
     ClockGenerator mClockGenerator;
@@ -43,5 +44,6 @@ protected: //RFFE specific vars
 
 private:
     U32 mParityCounter;
+    U8 mLSFRData;
 };
 #endif //RFFE_SIMULATION_DATA_GENERATOR
