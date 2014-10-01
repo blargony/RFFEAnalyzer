@@ -12,25 +12,29 @@
 	<dict>
 		<key>BDAAD90B-09A1-4E71-B4D0-AEA5FD67394B</key>
 		<string>svn://digsvn/saleae</string>
+		<key>b242a16d-804b-4e6a-a70a-7a35d463ab92++505</key>
+		<string>svn://digsvn/saleae/trunk</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>trunk/RFFEAnalyzer/RFFEAnalyzer.xcodeproj/project.xcworkspace</string>
+	<string>RFFEAnalyzer/RFFEAnalyzer.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>BDAAD90B-09A1-4E71-B4D0-AEA5FD67394B</key>
-		<string>../../../..</string>
+		<string>../../../../saleae</string>
+		<key>b242a16d-804b-4e6a-a70a-7a35d463ab92++505</key>
+		<string>../../..</string>
 	</dict>
 	<key>IDESourceControlProjectRepositoryRootDictionary</key>
 	<dict>
-		<key>BDAAD90B-09A1-4E71-B4D0-AEA5FD67394B</key>
+		<key>b242a16d-804b-4e6a-a70a-7a35d463ab92++505</key>
 		<string>svn://digsvn/saleae</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
 	<string>svn://digsvn/saleae/trunk/RFFEAnalyzer/RFFEAnalyzer.xcodeproj</string>
 	<key>IDESourceControlProjectVersion</key>
-	<integer>110</integer>
+	<integer>111</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>BDAAD90B-09A1-4E71-B4D0-AEA5FD67394B</string>
+	<string>b242a16d-804b-4e6a-a70a-7a35d463ab92++505</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
 		<dict>
@@ -40,6 +44,14 @@
 			<string>BDAAD90B-09A1-4E71-B4D0-AEA5FD67394B</string>
 			<key>IDESourceControlWCCName</key>
 			<string>saleae</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.subversion</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>b242a16d-804b-4e6a-a70a-7a35d463ab92++505</string>
+			<key>IDESourceControlWCCName</key>
+			<string>saleae_trunk</string>
 		</dict>
 	</array>
 </dict>

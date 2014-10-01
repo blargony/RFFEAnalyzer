@@ -227,11 +227,11 @@
 				EXECUTABLE_PREFIX = lib;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"../SaleaeAnalyzerSdk-1.1.14/include",
+					"../SaleaeAnalyzerSdk/include",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 				);
 				LIBRARY_SEARCH_PATHS = (
-					"../SaleaeAnalyzerSdk-1.1.14/lib",
+					"../SaleaeAnalyzerSdk/lib",
 					"$(inherited)",
 				);
 				PRIVATE_HEADERS_FOLDER_PATH = /usr/local/lib;
@@ -247,11 +247,11 @@
 				EXECUTABLE_PREFIX = lib;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"../SaleaeAnalyzerSdk-1.1.14/include",
+					"../SaleaeAnalyzerSdk/include",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 				);
 				LIBRARY_SEARCH_PATHS = (
-					"../SaleaeAnalyzerSdk-1.1.14/lib",
+					"../SaleaeAnalyzerSdk/lib",
 					"$(inherited)",
 				);
 				ONLY_ACTIVE_ARCH = YES;
