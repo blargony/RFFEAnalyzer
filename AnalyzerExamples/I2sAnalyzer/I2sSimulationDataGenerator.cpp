@@ -1,9 +1,13 @@
 #include "I2sSimulationDataGenerator.h"
 #include <math.h>
 
+#include <algorithm>
+#include <fstream>
+#include <iostream>
+
 I2sSimulationDataGenerator::I2sSimulationDataGenerator()
 :	mNumPaddingBits( 0 ),
-	mAudioSampleRate( 48000.0 ),
+	mAudioSampleRate( 44000*2 ),
 	mUseShortFrames( false )
 {
 }
@@ -213,6 +217,7 @@ BitState I2sSimulationDataGenerator::GetNextAudioBit()
 		break;
 	default:
 		AnalyzerHelpers::Assert("unexpected");
+		return BIT_LOW; //eliminate warning
 		break;
 	}
 }

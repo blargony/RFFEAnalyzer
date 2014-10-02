@@ -17,6 +17,7 @@ public:
 protected:
 
 	U64 UsToSamples( U64 us );
+	U64 UsToSamples( double us );
 	U64 SamplesToUs( U64 samples );
 
 	void SimWriteByte( U64 value );

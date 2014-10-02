@@ -1,7 +1,7 @@
 #include "I2cAnalyzerSettings.h"
 
 #include <AnalyzerHelpers.h>
-//#include <sstream>
+#include <cstring>
 
 I2cAnalyzerSettings::I2cAnalyzerSettings()
 :	mSdaChannel( UNDEFINED_CHANNEL ),

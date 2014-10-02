@@ -19,7 +19,7 @@ ManchesterAnalyzerResults::~ManchesterAnalyzerResults()
 
 }
 
-void ManchesterAnalyzerResults::GenerateBubbleText( U64 frame_index, Channel& channel, DisplayBase display_base )
+void ManchesterAnalyzerResults::GenerateBubbleText( U64 frame_index, Channel& /*channel*/, DisplayBase display_base )
 {
 	Frame frame = GetFrame( frame_index );
 	ClearResultStrings();
@@ -29,7 +29,7 @@ void ManchesterAnalyzerResults::GenerateBubbleText( U64 frame_index, Channel& ch
 	AddResultString( number_str );
 }
 
-void ManchesterAnalyzerResults::GenerateExportFile( const char* file, DisplayBase display_base, U32 export_type_user_id )
+void ManchesterAnalyzerResults::GenerateExportFile( const char* file, DisplayBase display_base, U32 /*export_type_user_id*/ )
 {
 	std::stringstream ss;
 	void* f = AnalyzerHelpers::StartFile( file );
@@ -49,7 +49,7 @@ void ManchesterAnalyzerResults::GenerateExportFile( const char* file, DisplayBas
 		AnalyzerHelpers::GetTimeString( frame.mStartingSampleInclusive, trigger_sample, sample_rate, time_str, 128 );
 
 		char number_str[128];
-		AnalyzerHelpers::GetNumberString( frame.mData1, display_base, mSettings->mBitsPerTransfer, number_str, 128 );
+		AnalyzerHelpers::GetNumberString( frame.mData1, display_base, mSettings->mBitsPerTransfer, number_str, 128);
 
 		ss << time_str << "," << number_str;
 		ss << std::endl;
@@ -69,15 +69,19 @@ void ManchesterAnalyzerResults::GenerateExportFile( const char* file, DisplayBas
 
 void ManchesterAnalyzerResults::GenerateFrameTabularText(U64 frame_index, DisplayBase display_base )
 {
-
+	Frame frame = GetFrame( frame_index );
+	
+	char number_str[128];
+	AnalyzerHelpers::GetNumberString( frame.mData1, display_base, mSettings->mBitsPerTransfer, number_str, 128 );
+	AddTabularText( number_str );
 }
 
-void ManchesterAnalyzerResults::GeneratePacketTabularText( U64 packet_id, DisplayBase display_base )
+void ManchesterAnalyzerResults::GeneratePacketTabularText( U64 /*packet_id*/, DisplayBase /*display_base*/ )
 {
 
 }
 
-void ManchesterAnalyzerResults::GenerateTransactionTabularText( U64 transaction_id, DisplayBase display_base )
+void ManchesterAnalyzerResults::GenerateTransactionTabularText( U64 /*transaction_id*/, DisplayBase /*display_base*/ )
 {
 
 }

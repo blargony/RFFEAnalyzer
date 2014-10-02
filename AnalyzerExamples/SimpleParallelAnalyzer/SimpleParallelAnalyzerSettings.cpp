@@ -1,5 +1,6 @@
 #include "SimpleParallelAnalyzerSettings.h"
 #include <AnalyzerHelpers.h>
+#include <stdio.h>
 
 
 #pragma warning( disable : 4996 ) //warning C4996: 'sprintf': This function or variable may be unsafe
@@ -9,7 +10,7 @@ SimpleParallelAnalyzerSettings::SimpleParallelAnalyzerSettings()
 	mClockChannel( UNDEFINED_CHANNEL ),
 	mClockEdge( AnalyzerEnums::PosEdge )
 {
-	U32 count = 8;
+	U32 count = 16;
 	for( U32 i=0; i<count; i++ )
 	{
 		mDataChannels.push_back( UNDEFINED_CHANNEL );

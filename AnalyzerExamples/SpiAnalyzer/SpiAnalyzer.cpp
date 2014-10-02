@@ -279,7 +279,7 @@ void SpiAnalyzer::GetWord()
 	result_frame.mData1 = mosi_word;
 	result_frame.mData2 = miso_word;
 	result_frame.mFlags = 0;
-	U64 frame_id = mResults->AddFrame( result_frame );
+	mResults->AddFrame( result_frame );
 	
 	mResults->CommitResults();
 

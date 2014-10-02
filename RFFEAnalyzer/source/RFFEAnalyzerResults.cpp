@@ -4,6 +4,8 @@
 #include "RFFEAnalyzerSettings.h"
 #include <iostream>
 #include <sstream>
+#include <stdio.h>
+
 
 static const char *RffeTypeStringShort[] =
 {

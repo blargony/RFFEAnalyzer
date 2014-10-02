@@ -2,6 +2,8 @@
 
 #include <AnalyzerHelpers.h>
 #include <sstream>
+#include <cstring>
+#include <stdio.h>
 
 #pragma warning(disable: 4996) //warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead.
 
@@ -17,7 +19,8 @@ I2sAnalyzerSettings::I2sAnalyzerSettings()
 	mWordAlignment( LEFT_ALIGNED ),
 	mFrameType( FRAME_TRANSITION_ONCE_EVERY_WORD ),
 	mBitAlignment( BITS_SHIFTED_RIGHT_1 ),
-	mSigned( AnalyzerEnums::UnsignedInteger )
+	mSigned( AnalyzerEnums::UnsignedInteger ),
+	mWordSelectInverted( WS_NOT_INVERTED )
 {
 	mClockChannelInterface.reset( new AnalyzerSettingInterfaceChannel() );
 	mClockChannelInterface->SetTitleAndTooltip( "CLOCK", "Clock, aka I2S SCK - Continuous Serial Clock, aka Bit Clock" );
@@ -85,6 +88,13 @@ I2sAnalyzerSettings::I2sAnalyzerSettings()
 	mSignedInterface->AddNumber( AnalyzerEnums::SignedInteger, "Samples are signed (two's compliment)", "Interpret samples as signed integers -- only when display type is set to decimal" );
 	mSignedInterface->SetNumber( mSigned );
 
+
+	mWordSelectInvertedInterface.reset( new AnalyzerSettingInterfaceNumberList() );
+	mWordSelectInvertedInterface->SetTitleAndTooltip("", "Select weather WS high is channel 1 or channel 2");
+	mWordSelectInvertedInterface->AddNumber( WS_NOT_INVERTED, "Word select high is channel 2 (right) (I2S typical)", "when word select (FRAME) is logic 1, data is channel 2.");
+	mWordSelectInvertedInterface->AddNumber( WS_INVERTED, "Word select high is channel 1 (left) (inverted)", "when word select (FRAME) is logic 1, data is channel 1.");
+	mWordSelectInvertedInterface->SetNumber( mWordSelectInverted );
+
 	AddInterface( mClockChannelInterface.get() );
 	AddInterface( mFrameChannelInterface.get() );
 	AddInterface( mDataChannelInterface.get() );
@@ -95,6 +105,7 @@ I2sAnalyzerSettings::I2sAnalyzerSettings()
 	AddInterface( mWordAlignmentInterface.get() );
 	AddInterface( mBitAlignmentInterface.get() );
 	AddInterface( mSignedInterface.get() );
+	AddInterface( mWordSelectInvertedInterface.get() );
 
 	//AddExportOption( 0, "Export as text/csv file", "text (*.txt);;csv (*.csv)" );
 	AddExportOption( 0, "Export as text/csv file" );
@@ -126,6 +137,8 @@ void I2sAnalyzerSettings::UpdateInterfacesFromSettings()
 	mBitAlignmentInterface->SetNumber( mBitAlignment );
 
 	mSignedInterface->SetNumber( mSigned );
+
+	mWordSelectInvertedInterface->SetNumber( mWordSelectInverted );
 }
 
 bool I2sAnalyzerSettings::SetSettingsFromInterfaces()
@@ -171,6 +184,8 @@ bool I2sAnalyzerSettings::SetSettingsFromInterfaces()
 
 	mSigned = AnalyzerEnums::Sign( U32( mSignedInterface->GetNumber() ) );
 
+	mWordSelectInverted = PcmWordSelectInverted( U32( mWordSelectInvertedInterface->GetNumber() ) );
+
 	//AddExportOption( 0, "Export as text/csv file", "text (*.txt);;csv (*.csv)" );
 
 	ClearChannels();
@@ -208,6 +223,10 @@ void I2sAnalyzerSettings::LoadSettings( const char* settings )
 	if( text_archive >> *(U32*)&sign )
 		mSigned = sign;
 
+	PcmWordSelectInverted word_inverted;
+	if( text_archive >> *(U32*)&word_inverted )
+		mWordSelectInverted = word_inverted;
+
 	ClearChannels();
 	AddChannel( mClockChannel, "PCM CLOCK", true );
 	AddChannel( mFrameChannel, "PCM FRAME", true );
@@ -235,6 +254,8 @@ const char* I2sAnalyzerSettings::SaveSettings()
 	text_archive << mBitAlignment;
 
 	text_archive << mSigned;
+
+	text_archive << mWordSelectInverted;
 
 	return SetReturnString( text_archive.GetString() );
 }	

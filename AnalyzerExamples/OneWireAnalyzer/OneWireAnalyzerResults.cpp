@@ -182,7 +182,7 @@ void OneWireAnalyzerResults::GenerateExportFile( const char* file, DisplayBase d
 		ss << time_str << ",";
 		//RestartPulse, PresencePulse, ReadRomFrame, SkipRomFrame, SearchRomFrame, MatchRomFrame, OverdriveSkipRomFrame, OverdriveMatchRomFrame, CRC, FamilyCode, Rom, Byte, Bit
 		char number_str[128];
-		AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, number_str, 128 );
+		AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, number_str, 128);
 		switch( (OneWireFrameType)frame.mType )
 		{
 		case RestartPulse:
@@ -280,7 +280,6 @@ void OneWireAnalyzerResults::GenerateExportFile( const char* file, DisplayBase d
 void OneWireAnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBase display_base )
 {
 	Frame frame = GetFrame( frame_index );
-	ClearResultStrings();
 
 	bool warning_flag = false;
 	if( ( frame.mFlags & DISPLAY_AS_WARNING_FLAG ) != 0 )
@@ -297,82 +296,82 @@ void OneWireAnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayB
 		{
 			if( warning_flag == false )
 			{
-				AddResultString( "reset" );
+				AddTabularText( "RESET condition" );
 			}
 			else
 			{
-				AddResultString( "Reset Pulse ( out of spec )" );
+				AddTabularText( "RESET - warning, pulse shorter than 480us" );	
 			}
 		}
 		break;
 	case PresencePulse:
 		{
-			AddResultString( "Presence Pulse" );
-
+			AddTabularText( "PRESENCE condition" );
 		}
 		break;
 	case ReadRomFrame:
 		{
-			AddResultString( "Read Rom Command, ", number_str );
+			AddTabularText( "READ ROM command: [", number_str, "]" );
 		}
 		break;
 	case SkipRomFrame:
 		{
-			AddResultString( "Skip Rom command, ", number_str );
+			AddTabularText( "SKIP ROM command: [", number_str, "]" );
 		}
 		break;
 	case SearchRomFrame:
 		{
-			AddResultString( "Search Rom command, [", number_str );
+			AddTabularText( "SEARCH ROM command: [", number_str, "]" );
 		}
 		break;
 	case MatchRomFrame:
 		{
-			AddResultString( "Match Rom command, ", number_str );
+			AddTabularText( "MATCH ROM command: [", number_str, "]" );
 		}
 		break;
 	case OverdriveSkipRomFrame:
 		{
-			AddResultString( "Overdrive skip Rom command, ", number_str );
+			AddTabularText( "OVERDRIVE SKIP ROM command: [", number_str, "]" );
 		}
 		break;
 	case OverdriveMatchRomFrame:
 		{
-			AddResultString( "Overdrive match Rom command, ", number_str );
+			AddTabularText( "OVERDRIVE MATCH ROM command: [", number_str, "]" );
 		}
 		break;
 	case CRC:
 		{
-			AddResultString( "ROM CRC, ", number_str );
+			AddTabularText( "CRC section from ROM: [", number_str, "]" );
 		}
 		break;
 	case FamilyCode:
 		{
-			AddResultString( "ROM family code, ", number_str );
+			AddTabularText( "FAMILY CODE section from ROM: [", number_str, "]" );
 		}
 		break;
 	case Rom:
 		{
 			AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 48, number_str, 128 );
-			AddResultString( "ROM code, ", number_str );
+			AddTabularText( "ROM CODE section from ROM: [", number_str, "]" );
 		}
 		break;
 	case Byte:
 		{
-			AddResultString( "data, ", number_str );
+			AddTabularText( "DATA: [", number_str, "]" );
 		}
 		break;
 	case Bit:
 		{
-			AddResultString( "bit?" );
+			AddTabularText( "BIT - ERROR." );
 		}
 		break;
 	case InvalidRomCommandFrame:
 		{
-			AddResultString( "Invalid Rom command, ", number_str );
+			AddTabularText( "Invalid ROM command: [", number_str, "]" );
 		}
 		break;
 	}
+
 }
 
 void OneWireAnalyzerResults::GeneratePacketTabularText( U64 /*packet_id*/, DisplayBase /*display_base*/ )  //unrefereced vars commented out to remove warnings.

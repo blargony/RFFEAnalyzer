@@ -4,6 +4,9 @@
 #include "I2sAnalyzerSettings.h"
 #include <iostream>
 #include <sstream>
+#include <stdio.h>
+#include <cstring>
+
 #pragma warning(disable: 4996) //warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead.
 
 
@@ -155,6 +158,59 @@ void I2sAnalyzerResults::GenerateExportFile( const char* file, DisplayBase displ
 
 void I2sAnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBase display_base )
 {
+	
+	Frame frame = GetFrame( frame_index );
+
+	switch( I2sResultType( frame.mType ) )
+	{
+	case Channel1:
+		{
+			char number_str[128];
+			if( ( display_base == Decimal ) && ( mSettings->mSigned == AnalyzerEnums::SignedInteger ) ) 
+			{
+				S64 signed_number = AnalyzerHelpers::ConvertToSignedNumber( frame.mData1, mSettings->mBitsPerWord );
+				std::stringstream ss;
+				ss << signed_number;
+				strcpy( number_str, ss.str().c_str() );
+			}else
+			{
+				AnalyzerHelpers::GetNumberString( frame.mData1, display_base, mSettings->mBitsPerWord, number_str, 128 );
+			}
+			
+			AddTabularText( "Ch 1: ", number_str );
+		}
+		break;
+	case Channel2:
+		{
+			char number_str[128];
+			if( ( display_base == Decimal ) && ( mSettings->mSigned == AnalyzerEnums::SignedInteger ) ) 
+			{
+				S64 signed_number = AnalyzerHelpers::ConvertToSignedNumber( frame.mData1, mSettings->mBitsPerWord );
+				std::stringstream ss;
+				ss << signed_number;
+				strcpy( number_str, ss.str().c_str() );
+			}else
+			{
+				AnalyzerHelpers::GetNumberString( frame.mData1, display_base, mSettings->mBitsPerWord, number_str, 128 );
+			}
+			
+			AddTabularText( "Ch 2: ", number_str );
+		}
+		break;
+	case ErrorTooFewBits:
+		{
+			char bits_per_word[32];
+			sprintf( bits_per_word, "%d", mSettings->mBitsPerWord );
+
+			AddTabularText( "Error: too few bits, expecting ", bits_per_word );
+		}
+		break;
+	case ErrorDoesntDivideEvenly:
+		{
+			AddTabularText( "Error: bits don't divide evenly between subframes" );
+		}
+		break;
+	}
 }
 
 void I2sAnalyzerResults::GeneratePacketTabularText( U64 /*packet_id*/, DisplayBase /*display_base*/ )  //unrefereced vars commented out to remove warnings.

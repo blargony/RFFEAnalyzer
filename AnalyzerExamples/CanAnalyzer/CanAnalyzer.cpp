@@ -28,14 +28,14 @@ void CanAnalyzer::WorkerThread()
 {
 	mSampleRateHz = GetSampleRate();
 	mCan = GetAnalyzerChannelData( mSettings->mCanChannel );
-
+	
 	InitSampleOffsets();
 	WaitFor7RecessiveBits();  //first of all, let's get at least 7 recessive bits in a row, to make sure we're in-between frames.
 	
 	//now let's pull in the frames, one at a time.
 	for( ; ; )
 	{
-		if( mCan->GetBitState() == RECESSIVE )
+		if( mCan->GetBitState() == mSettings->Recessive() )
 			mCan->AdvanceToNextEdge();
 
 		//we're at the first DOMINANT edge of the frame
@@ -98,7 +98,7 @@ void CanAnalyzer::InitSampleOffsets()
 
 void CanAnalyzer::WaitFor7RecessiveBits()
 {
-	if( mCan->GetBitState() == DOMINANT )
+	if( mCan->GetBitState() == mSettings->Dominant() )
 		mCan->AdvanceToNextEdge();
 
 	for( ; ; )
@@ -118,7 +118,7 @@ void CanAnalyzer::GetRawFrame()
 	mDominantCount = 0;
 	mRawBitResults.clear();
 
-	if( mCan->GetBitState() != DOMINANT )
+	if( mCan->GetBitState() != mSettings->Dominant() )
 		AnalyzerHelpers::Assert( "GetFrameOrError assumes we start DOMINANT" );
 
 	mStartOfFrame = mCan->GetSampleNumber();
@@ -127,15 +127,21 @@ void CanAnalyzer::GetRawFrame()
 	//what we're going to do now is capture a sequence up until we get 7 recessive bits in a row.
 	for( ; ; )
 	{
+		if( i > 255 )
+		{
+			//we are in garbage data most likely, lets get out of here.
+			return;
+		}
+
 		mCan->AdvanceToAbsPosition( mStartOfFrame + mSampleOffsets[i] );
 		i++;
 
-		if( mCan->GetBitState() == DOMINANT )
+		if( mCan->GetBitState() == mSettings->Dominant() )
 		{
 			//the bit is DOMINANT
 			mDominantCount++;
 			mRecessiveCount = 0;
-			mRawBitResults.push_back( DOMINANT );
+			mRawBitResults.push_back( mSettings->Dominant() );
 
 			if( mDominantCount == 6 )
 			{
@@ -165,7 +171,7 @@ void CanAnalyzer::GetRawFrame()
 			//the bit is RECESSIVE
 			mRecessiveCount++;
 			mDominantCount = 0;
-			mRawBitResults.push_back( RECESSIVE );
+			mRawBitResults.push_back( mSettings->Recessive() );
 
 			if( mRecessiveCount == 7 )
 			{
@@ -205,7 +211,7 @@ void CanAnalyzer::AnalizeRawFrame()
 			return;
 		mArbitrationField.push_back( bit );
 
-		if( bit == RECESSIVE )
+		if( bit == mSettings->Recessive() )
 			mIdentifier |= 1;
 	}
 
@@ -225,7 +231,7 @@ void CanAnalyzer::AnalizeRawFrame()
 
 	Frame frame;
 
-	if( bit1 == DOMINANT )
+	if( bit1 == mSettings->Dominant() )
 	{
 		//11-bit CAN
 
@@ -240,7 +246,7 @@ void CanAnalyzer::AnalizeRawFrame()
 		frame.mEndingSampleInclusive = last_sample;
 		frame.mType = IdentifierField;
 
-		if( bit0 == RECESSIVE ) //since this is 11-bit CAN, we know that bit0 is the RTR bit
+		if( bit0 == mSettings->Recessive() ) //since this is 11-bit CAN, we know that bit0 is the RTR bit
 		{	
 			mRemoteFrame = true;
 			frame.mFlags = REMOTE_FRAME;
@@ -270,7 +276,7 @@ void CanAnalyzer::AnalizeRawFrame()
 				return;
 			mArbitrationField.push_back( bit );
 
-			if( bit == RECESSIVE )
+			if( bit == mSettings->Recessive() )
 				mIdentifier |= 1;
 		}
 
@@ -296,7 +302,7 @@ void CanAnalyzer::AnalizeRawFrame()
 		frame.mEndingSampleInclusive = last_sample;
 		frame.mType = IdentifierFieldEx;
 
-		if( rtr == RECESSIVE )
+		if( rtr == mSettings->Recessive() )
 		{	
 			mRemoteFrame = true;
 			frame.mFlags = REMOTE_FRAME;
@@ -327,7 +333,7 @@ void CanAnalyzer::AnalizeRawFrame()
 
 		mControlField.push_back( bit );
 
-		if( bit == RECESSIVE )
+		if( bit == mSettings->Recessive() )
 			mNumDataBytes |= mask;
 
 		mask >>= 1;
@@ -362,7 +368,7 @@ void CanAnalyzer::AnalizeRawFrame()
 			if( done == true ) 
 				return;
 
-			if( bit == RECESSIVE )
+			if( bit == mSettings->Recessive() )
 				data |= mask;
 
 			mask >>= 1;
@@ -393,7 +399,7 @@ void CanAnalyzer::AnalizeRawFrame()
 
 		mCrcFieldWithoutDelimiter.push_back( bit );
 
-		if( bit == RECESSIVE )
+		if( bit == mSettings->Recessive() )
 			mCrcValue |= 1;
 	}
 
@@ -403,7 +409,7 @@ void CanAnalyzer::AnalizeRawFrame()
 	frame.mData1 = mCrcValue;
 	mResults->AddFrame( frame );
 
-	done = GetFixedFormFrameBit( mCrcDelimiter, first_sample );
+	done = UnstuffRawFrameBit( mCrcDelimiter, first_sample );
 
 	if( done == true ) 
 		return;
@@ -412,7 +418,7 @@ void CanAnalyzer::AnalizeRawFrame()
 	done = GetFixedFormFrameBit( ack, first_sample );
 
 	mAckField.push_back( ack );
-	if( ack == DOMINANT )
+	if( ack == mSettings->Dominant() )
 		mAck = true;
 	else
 		mAck = false; 
@@ -479,7 +485,7 @@ bool CanAnalyzer::UnstuffRawFrameBit( BitState& result, U64& sample, bool reset 
 	
 	result = mRawBitResults[ mRawFrameIndex ];
 
-	if( result == RECESSIVE )
+	if( result == mSettings->Recessive() )
 	{
 		mRecessiveCount++;
 		mDominantCount = 0;

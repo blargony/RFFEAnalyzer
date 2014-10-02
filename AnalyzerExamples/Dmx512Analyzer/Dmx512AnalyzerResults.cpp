@@ -16,7 +16,7 @@ Dmx512AnalyzerResults::~Dmx512AnalyzerResults()
 {
 }
 
-void Dmx512AnalyzerResults::GenerateBubbleText( U64 frame_index, Channel& channel, DisplayBase display_base )
+void Dmx512AnalyzerResults::GenerateBubbleText( U64 frame_index, Channel& /*channel*/, DisplayBase display_base )
 {
 	ClearResultStrings();
 	Frame frame = GetFrame( frame_index );
@@ -45,14 +45,16 @@ void Dmx512AnalyzerResults::GenerateBubbleText( U64 frame_index, Channel& channe
 		}
 		break;
 	case Dmx512Analyzer::START_CODE:
+		AnalyzerHelpers::GetNumberString( frame.mData2, display_base, 8, value_str, 128 );
+		AddResultString( "START CODE: ", value_str );
 		AddResultString( "START CODE" );
 		AddResultString( "START" );
 		AddResultString( "ST" );
 		AddResultString( "S" );
 		break;
 	case Dmx512Analyzer::DATA:
-		AnalyzerHelpers::GetNumberString( frame.mData1, Decimal, 9, number_str, 4 );
-		AnalyzerHelpers::GetNumberString( frame.mData2, Decimal, 9, value_str, 4 );
+		AnalyzerHelpers::GetNumberString( frame.mData1, Decimal, 9, number_str, 128 );
+		AnalyzerHelpers::GetNumberString( frame.mData2, display_base, 8, value_str, 128 );
 		AddResultString( "Slot ", number_str, ": ", value_str );
 		AddResultString( number_str, ": ", value_str );
 		AddResultString( number_str );
@@ -80,7 +82,7 @@ void Dmx512AnalyzerResults::GenerateBubbleText( U64 frame_index, Channel& channe
 	}
 }
 
-void Dmx512AnalyzerResults::GenerateExportFile( const char* file, DisplayBase display_base, U32 export_type_user_id )
+void Dmx512AnalyzerResults::GenerateExportFile( const char* file, DisplayBase /*display_base*/, U32 /*export_type_user_id*/ )
 {
 	std::ofstream file_stream( file, std::ios::out );
 	
@@ -132,20 +134,51 @@ void Dmx512AnalyzerResults::GenerateExportFile( const char* file, DisplayBase di
 void Dmx512AnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBase display_base )
 {
 	Frame frame = GetFrame( frame_index );
-	ClearResultStrings();
 	
 	char number_str[128];
-	AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, number_str, 128 );
-	AddResultString( number_str );
+	char value_str[128];
+	//	AddResultString( number_str );
+	switch (frame.mType) {
+	case Dmx512Analyzer::BREAK:
+		AddTabularText( "BREAK" );
+		break;
+	case Dmx512Analyzer::MAB:
+		if( frame.mFlags & DISPLAY_AS_ERROR_FLAG )
+		{
+			AddTabularText( "!Warning: MAB is too short" );
+		} else
+		{
+			AddTabularText( "Mark After Break" );
+		}
+		break;
+	case Dmx512Analyzer::START_CODE:
+		AnalyzerHelpers::GetNumberString( frame.mData2, display_base, 8, value_str, 128 );
+		AddTabularText( "START CODE: ", value_str );
+		break;
+	case Dmx512Analyzer::DATA:
+		AnalyzerHelpers::GetNumberString( frame.mData1, Decimal, 9, number_str, 128 );
+		AnalyzerHelpers::GetNumberString( frame.mData2, display_base, 8, value_str, 128 );
+		AddTabularText( "Slot ", number_str, ": ", value_str );
+		break;
+	case Dmx512Analyzer::MARK:
+		AddTabularText( "MARK Time after Slot" );
+		break;
+	case Dmx512Analyzer::STOP:
+		AddTabularText( "stop bits" );
+		break;
+	case Dmx512Analyzer::START:
+		AddTabularText( "start bit" );
+		break;
+	}
 }
 
-void Dmx512AnalyzerResults::GeneratePacketTabularText( U64 packet_id, DisplayBase display_base )
+void Dmx512AnalyzerResults::GeneratePacketTabularText( U64 /*packet_id*/, DisplayBase /*display_base*/ )
 {
 	ClearResultStrings();
 	AddResultString( "not supported" );
 }
 
-void Dmx512AnalyzerResults::GenerateTransactionTabularText( U64 transaction_id, DisplayBase display_base )
+void Dmx512AnalyzerResults::GenerateTransactionTabularText( U64 /*transaction_id*/, DisplayBase /*display_base*/ )
 {
 	ClearResultStrings();
 	AddResultString( "not supported" );

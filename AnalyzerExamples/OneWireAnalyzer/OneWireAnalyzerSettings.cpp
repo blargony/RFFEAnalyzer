@@ -2,6 +2,7 @@
 
 #include <AnalyzerHelpers.h>
 #include <sstream>
+#include <cstring>
 
 OneWireAnalyzerSettings::OneWireAnalyzerSettings()
 :	mOneWireChannel ( UNDEFINED_CHANNEL )

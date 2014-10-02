@@ -1,7 +1,8 @@
-#ifndef ANALYZER_RESULTS
+﻿#ifndef ANALYZER_RESULTS
 #define ANALYZER_RESULTS
 
 #include <LogicPublicTypes.h>
+#include <string>
 
 #define DISPLAY_AS_ERROR_FLAG ( 1 << 7 )
 #define DISPLAY_AS_WARNING_FLAG ( 1 << 6 )
@@ -24,7 +25,12 @@ public:
 };
 
 #define INVALID_RESULT_INDEX 0xFFFFFFFFFFFFFFFFull
+
+
 struct AnalyzerResultsData;
+
+
+
 class LOGICAPI AnalyzerResults
 {
 public:
@@ -42,7 +48,7 @@ public:
 public:  //adding/setting data
 	void AddMarker( U64 sample_number, MarkerType marker_type, Channel& channel );
 	
-	U64 AddFrame( Frame& frame );
+    U64 AddFrame(const Frame &frame );
 	U64 CommitPacketAndStartNewPacket();
 	void CancelPacketAndStartNewPacket();
 	void AddPacketToTransaction( U64 transaction_id, U64 packet_id );
@@ -59,7 +65,7 @@ public:  //data access
 	U64 GetPacketContainingFrameSequential( U64 frame_id );
 	void GetFramesContainedInPacket( U64 packet_id, U64* first_frame_id, U64* last_frame_id );
 
-	U32 GetTransactionContainingPacket( U64 packet_id );
+	U64 GetTransactionContainingPacket( U64 packet_id );
 	void GetPacketsContainedInTransaction( U64 transaction_id, U64** packet_id_array, U64* packet_id_count );
 
 	
@@ -87,9 +93,17 @@ public:  //don't use
 	double GetProgress();
 	void StartExportThread( const char* file, DisplayBase display_base, U32 export_type_user_id );
 
-
 protected:
 	struct AnalyzerResultsData* mData;
+
+public:	
+	
+	const char* BuildSearchData( U64 FrameID, DisplayBase disp_base, int channel_list_index, char* result);
+
+	std::string GetStringForDisplayBase(U64 frame_id, Channel channel, DisplayBase disp_base);
+	void AddTabularText(const char* str1, const char* str2 = NULL, const char* str3 = NULL, const char* str4 = NULL, const char* str5 = NULL, const char* str6 = NULL);
+	std::string GetTabularTextString();
+	
 };
 
 

@@ -17,7 +17,7 @@
 class ManchesterAnalyzerSettings;
 
 
-class ManchesterAnalyzer : public Analyzer2
+class ANALYZER_EXPORT ManchesterAnalyzer : public Analyzer2
 {
 public:
 	ManchesterAnalyzer();
@@ -29,6 +29,8 @@ public:
 	virtual bool NeedsRerun();
 	virtual const char* GetAnalyzerName() const;
 	
+#pragma warning( push )
+#pragma warning( disable : 4251 ) //warning C4251: 'ManchesterAnalyzer::<...>' : class <...> needs to have dll-interface to be used by clients of class
 protected:
 
 	void ProcessBiPhaseData();
@@ -53,13 +55,13 @@ protected:
 
 	U32 mT;
 	U32 mTError;
-	std::vector< std::pair< U32, U64 > > mBitsForNextByte; //value, location
+	std::vector< std::pair< U64, U64 > > mBitsForNextByte; //value, location
 	std::vector<U64> mUnsyncedLocations;
 	bool mSynchronized;
 	U32 mIgnoreBitCount;
-
+#pragma warning( pop )
 };
-extern "C" EXPORT const char* __cdecl GetAnalyzerName();
-extern "C" EXPORT Analyzer* __cdecl CreateAnalyzer( );
-extern "C" EXPORT void __cdecl DestroyAnalyzer( Analyzer* analyzer );
+extern "C" ANALYZER_EXPORT const char* __cdecl GetAnalyzerName( );
+extern "C" ANALYZER_EXPORT Analyzer* __cdecl CreateAnalyzer( );
+extern "C" ANALYZER_EXPORT void __cdecl DestroyAnalyzer( Analyzer* analyzer );
 #endif //MANCHESTER_ANALYZER

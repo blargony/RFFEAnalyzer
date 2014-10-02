@@ -2,9 +2,9 @@
 
 #include <AnalyzerHelpers.h>
 #include <sstream>
+#include <cstring>
 
 #pragma warning(disable: 4800) //warning C4800: 'U32' : forcing value to bool 'true' or 'false' (performance warning)
-#pragma warning(disable: 4996) //warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead.
 
 SerialAnalyzerSettings::SerialAnalyzerSettings()
 :	mInputChannel( UNDEFINED_CHANNEL ),
@@ -23,12 +23,12 @@ SerialAnalyzerSettings::SerialAnalyzerSettings()
 
 	mBitRateInterface.reset( new AnalyzerSettingInterfaceInteger() );
 	mBitRateInterface->SetTitleAndTooltip( "Bit Rate (Bits/S)",  "Specify the bit rate in bits per second." );
-	mBitRateInterface->SetMax( 6000000 );
+	mBitRateInterface->SetMax( 100000000 );
 	mBitRateInterface->SetMin( 1 );
 	mBitRateInterface->SetInteger( mBitRate );
 
 	mUseAutobaudInterface.reset( new AnalyzerSettingInterfaceBool() );
-	mUseAutobaudInterface->SetTitleAndTooltip( "", "With Autobaud turned on, the analyzer will run as usual, with the current bit rate.  At the same time, it will also keep track of the shortest pulse it detects.  After analyzing all the data, if the bit rate implied by this shortest pulse is different by more than 10% from the specified bit rate, the bit rate will be changed and the analysis run again." );
+	mUseAutobaudInterface->SetTitleAndTooltip( "", "With Autobaud turned on, the analyzer will run as usual, with the current bit rate.  At the same time, it will also keep track of the shortest pulse it detects. \nAfter analyzing all the data, if the bit rate implied by this shortest pulse is different by more than 10% from the specified bit rate, the bit rate will be changed and the analysis run again." );
 	mUseAutobaudInterface->SetCheckBoxText( "Use Autobaud" );
 	mUseAutobaudInterface->SetValue( mUseAutobaud );
 

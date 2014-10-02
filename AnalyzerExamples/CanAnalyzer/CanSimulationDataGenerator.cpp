@@ -17,7 +17,7 @@ void CanSimulationDataGenerator::Initialize( U32 simulation_sample_rate, CanAnal
 	mClockGenerator.Init( mSettings->mBitRate, simulation_sample_rate );
 	mCanSimulationData.SetChannel( mSettings->mCanChannel );
 	mCanSimulationData.SetSampleRate( simulation_sample_rate );
-	mCanSimulationData.SetInitialBitState( BIT_HIGH );
+	mCanSimulationData.SetInitialBitState( mSettings->Recessive() );
 
 	mCanSimulationData.Advance( mClockGenerator.AdvanceByHalfPeriod( 10.0 ) );  //insert 10 bit-periods of idle
 
@@ -94,7 +94,7 @@ void CanSimulationDataGenerator::CreateDataOrRemoteFrame( U32 identifier, bool u
 	//Spacing). All stations have to synchronize to the leading edge caused by START OF
 	//FRAME (see HARD SYNCHRONIZATION) of the station starting transmission first.
 
-	mFakeStartOfFrameField.push_back( DOMINANT );
+	mFakeStartOfFrameField.push_back( mSettings->Dominant() );
 
 	//ARBITRATION FIELD
 	//The format of the ARBITRATION FIELD is different for Standard Format and
@@ -127,9 +127,9 @@ void CanSimulationDataGenerator::CreateDataOrRemoteFrame( U32 identifier, bool u
 		for( U32 i=0; i<11; i++ )
 		{
 			if( ( mask & identifier ) == 0 )
-				mFakeArbitrationField.push_back( DOMINANT );
+				mFakeArbitrationField.push_back( mSettings->Dominant() );
 			else
-				mFakeArbitrationField.push_back( RECESSIVE );
+				mFakeArbitrationField.push_back( mSettings->Recessive() );
 
 			mask >>= 1;
 		}
@@ -143,7 +143,7 @@ void CanSimulationDataGenerator::CreateDataOrRemoteFrame( U32 identifier, bool u
 		//Extended IDENTIFIER below) of which is the same as the Standard Frames Identifier,
 		//are resolved in such a way that the Standard Frame prevails the Extended Frame.
 
-		mFakeArbitrationField.push_back( RECESSIVE );  //SSR bit
+		mFakeArbitrationField.push_back( mSettings->Recessive() );  //SSR bit
 
 		//the next bit is IDE
 		//IDE BIT (Extended Format)
@@ -154,15 +154,15 @@ void CanSimulationDataGenerator::CreateDataOrRemoteFrame( U32 identifier, bool u
 		//The IDE bit in the Standard Format is transmitted dominant, whereas in the Extended
 		//Format the IDE bit is recessive.
 
-		mFakeArbitrationField.push_back( RECESSIVE ); //IDE bit
+		mFakeArbitrationField.push_back( mSettings->Recessive() ); //IDE bit
 
 		//18 bits of identifier:
 		for( U32 i=0; i<18; i++ )
 		{
 			if( ( mask & identifier ) == 0 )
-				mFakeArbitrationField.push_back( DOMINANT );
+				mFakeArbitrationField.push_back( mSettings->Dominant() );
 			else
-				mFakeArbitrationField.push_back( RECESSIVE );
+				mFakeArbitrationField.push_back( mSettings->Recessive() );
 
 			mask >>= 1;
 		}
@@ -174,9 +174,9 @@ void CanSimulationDataGenerator::CreateDataOrRemoteFrame( U32 identifier, bool u
 		//RTR BIT has to be recessive.
 		
 		if( remote_frame == true )
-			mFakeArbitrationField.push_back( RECESSIVE ); //RTR bit
+			mFakeArbitrationField.push_back( mSettings->Recessive() ); //RTR bit
 		else
-			mFakeArbitrationField.push_back( DOMINANT ); //RTR bit
+			mFakeArbitrationField.push_back( mSettings->Dominant() ); //RTR bit
 
 
 		//next is the control field.  r1, r0, DLC3, DLC2, DLC1, DLC0
@@ -189,8 +189,8 @@ void CanSimulationDataGenerator::CreateDataOrRemoteFrame( U32 identifier, bool u
 		//LENGTH CODE and two reserved bits r1 and r0. The reserved bits have to be sent
 		//dominant, but receivers accept dominant and recessive bits in all combinations.
 		
-		mFakeControlField.push_back( RECESSIVE ); //r1 bit
-		mFakeControlField.push_back( RECESSIVE ); //r0 bit
+		mFakeControlField.push_back( mSettings->Recessive() ); //r1 bit
+		mFakeControlField.push_back( mSettings->Recessive() ); //r0 bit
 	}else
 	{
 		//IDENTIFIER
@@ -211,9 +211,9 @@ void CanSimulationDataGenerator::CreateDataOrRemoteFrame( U32 identifier, bool u
 		for( U32 i=0; i<11; i++ )
 		{
 			if( ( mask & identifier ) == 0 )
-				mFakeArbitrationField.push_back( DOMINANT );
+				mFakeArbitrationField.push_back( mSettings->Dominant() );
 			else
-				mFakeArbitrationField.push_back( RECESSIVE );
+				mFakeArbitrationField.push_back( mSettings->Recessive() );
 
 			mask >>= 1;
 		}
@@ -225,9 +225,9 @@ void CanSimulationDataGenerator::CreateDataOrRemoteFrame( U32 identifier, bool u
 		//RTR BIT has to be recessive.
 		
 		if( remote_frame == true )
-			mFakeArbitrationField.push_back( RECESSIVE ); //RTR bit
+			mFakeArbitrationField.push_back( mSettings->Recessive() ); //RTR bit
 		else
-			mFakeArbitrationField.push_back( DOMINANT ); //RTR bit
+			mFakeArbitrationField.push_back( mSettings->Dominant() ); //RTR bit
 
 		//next is the control field.  r1, r0, DLC3, DLC2, DLC1, DLC0
 
@@ -239,8 +239,8 @@ void CanSimulationDataGenerator::CreateDataOrRemoteFrame( U32 identifier, bool u
 		//LENGTH CODE and two reserved bits r1 and r0. The reserved bits have to be sent
 		//dominant, but receivers accept dominant and recessive bits in all combinations.
 		
-		mFakeControlField.push_back( DOMINANT ); //IDE bit
-		mFakeControlField.push_back( DOMINANT ); //r0 bit
+		mFakeControlField.push_back( mSettings->Dominant() ); //IDE bit
+		mFakeControlField.push_back( mSettings->Dominant() ); //r0 bit
 	}
 
 
@@ -257,9 +257,9 @@ void CanSimulationDataGenerator::CreateDataOrRemoteFrame( U32 identifier, bool u
 	for( U32 i=0; i<4; i++ )
 	{
 		if( ( mask & data_size ) == 0 )
-			mFakeControlField.push_back( DOMINANT );
+			mFakeControlField.push_back( mSettings->Dominant() );
 		else
-			mFakeControlField.push_back( RECESSIVE );
+			mFakeControlField.push_back( mSettings->Recessive() );
 
 		mask >>= 1;
 	}
@@ -279,9 +279,9 @@ void CanSimulationDataGenerator::CreateDataOrRemoteFrame( U32 identifier, bool u
 			for( U32 j=0; j<8; j++ )
 			{
 				if( ( mask & dat ) == 0 )
-					mFakeDataField.push_back( DOMINANT );
+					mFakeDataField.push_back( mSettings->Dominant() );
 				else
-					mFakeDataField.push_back( RECESSIVE );
+					mFakeDataField.push_back( mSettings->Recessive() );
 
 				mask >>= 1;
 			}
@@ -305,23 +305,23 @@ void CanSimulationDataGenerator::CreateDataOrRemoteFrame( U32 identifier, bool u
 	//SLOT by superscribing the recessive bit of the TRANSMITTER by a dominant bit.
 
 	if( get_ack_in_response == true )
-		mFakeAckField.push_back( DOMINANT );
+		mFakeAckField.push_back( mSettings->Dominant() );
 	else
-		mFakeAckField.push_back( RECESSIVE );
+		mFakeAckField.push_back( mSettings->Recessive() );
 
 	//ACK DELIMITER
 	//The ACK DELIMITER is the second bit of the ACK FIELD and has to be a recessive
 	//bit. As a consequence, the ACK SLOT is surrounded by two recessive bits (CRC
 	//DELIMITER, ACK DELIMITER).
 
-	mFakeAckField.push_back( RECESSIVE );
+	mFakeAckField.push_back( mSettings->Recessive() );
 
 	//END OF FRAME (Standard Format as well as Extended Format)
 	//Each DATA FRAME and REMOTE FRAME is delimited by a flag sequence consisting
 	//of seven recessive bits.
 
 	for( U32 i=0; i<7; i++ )
-		mFakeEndOfFrame.push_back( RECESSIVE );
+		mFakeEndOfFrame.push_back( mSettings->Recessive() );
 
 
 	mFakeFixedFormBits.insert( mFakeFixedFormBits.end(), mFakeAckField.begin(), mFakeAckField.end() );
@@ -341,9 +341,9 @@ void CanSimulationDataGenerator::AddCrc()
 	for( U32 i=0; i<15; i++ )
 	{
 		if( ( mask & crc ) == 0 )
-			mFakeCrcFieldWithoutDelimiter.push_back( DOMINANT );
+			mFakeCrcFieldWithoutDelimiter.push_back( mSettings->Dominant() );
 		else
-			mFakeCrcFieldWithoutDelimiter.push_back( RECESSIVE );
+			mFakeCrcFieldWithoutDelimiter.push_back( mSettings->Recessive() );
 
 		mask >>= 1;
 	}
@@ -354,7 +354,7 @@ void CanSimulationDataGenerator::AddCrc()
 	//The CRC SEQUENCE is followed by the CRC DELIMITER which consists of a single
 	//recessive bit.
 
-	mFakeFixedFormBits.push_back( RECESSIVE );
+	mFakeFixedFormBits.push_back( mSettings->Recessive() );
 }
 
 U16 CanSimulationDataGenerator::ComputeCrc( std::vector<BitState>& bits, U32 num_bits )
@@ -404,7 +404,7 @@ U16 CanSimulationDataGenerator::ComputeCrc( std::vector<BitState>& bits, U32 num
 		
 		crc_result <<= 1;
 
-		if( next_bit == BIT_HIGH )
+		if( next_bit == mSettings->Recessive() ) //normally bit high.
 			crc_result ^= 0x4599;
 	}
 
@@ -455,7 +455,7 @@ void CanSimulationDataGenerator::WriteFrame( bool error )
 
 		BitState bit = mFakeStuffedBits[i];
 
-		if( bit == RECESSIVE )
+		if( bit == mSettings->Recessive() )
 		{	
 			recessive_count++;
 			dominant_count = 0;
@@ -471,7 +471,7 @@ void CanSimulationDataGenerator::WriteFrame( bool error )
 
 	if( error == true )
 	{	
-		if( mCanSimulationData.GetCurrentBitState() != DOMINANT )
+		if( mCanSimulationData.GetCurrentBitState() != mSettings->Dominant() )
 		{
 			mCanSimulationData.Advance( mClockGenerator.AdvanceByHalfPeriod( 1.0 ) );
 			mCanSimulationData.Transition(); //to DOMINANT

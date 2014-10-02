@@ -30,9 +30,30 @@ U32 I2cSimulationDataGenerator::GenerateSimulationData( U64 largest_sample_reque
 
 	while( mScl->GetCurrentSampleNumber() < adjusted_largest_sample_requested )
 	{
-		CreateI2cTransaction( 0xA0, I2C_READ, mValue++ );
+		mI2cSimulationChannels.AdvanceAll( mClockGenerator.AdvanceByHalfPeriod( 500 ) );
 
-		mI2cSimulationChannels.AdvanceAll( mClockGenerator.AdvanceByHalfPeriod( 20.0 ) ); //insert 20 bit-periods of idle
+
+		if( rand() % 20 == 0 )
+		{
+			CreateStart( );
+			CreateI2cByte( 0x24, I2C_NAK );
+			CreateStop( );
+			mI2cSimulationChannels.AdvanceAll( mClockGenerator.AdvanceByHalfPeriod( 80 ) );
+		}
+		
+
+		CreateI2cTransaction( 0xA0, I2C_WRITE, mValue++ + 12 );
+		mI2cSimulationChannels.AdvanceAll( mClockGenerator.AdvanceByHalfPeriod( 80 ) );
+		CreateI2cTransaction( 0xA0, I2C_READ, mValue++ - 43 + ( rand( ) % 100 ) );
+		mI2cSimulationChannels.AdvanceAll( mClockGenerator.AdvanceByHalfPeriod( 50 ) );
+		CreateI2cTransaction( 0x24, I2C_READ, mValue++ + (rand() % 100) );
+
+		mI2cSimulationChannels.AdvanceAll( mClockGenerator.AdvanceByHalfPeriod( 2000 ) ); //insert 20 bit-periods of idle
+
+		CreateI2cTransaction( 0x24, I2C_READ, mValue++ + 16 + ( rand( ) % 100 ) );
+		
+		mI2cSimulationChannels.AdvanceAll( mClockGenerator.AdvanceByHalfPeriod( 100 ) );
+
 	}
 
 	*simulation_channels = mI2cSimulationChannels.GetArray();

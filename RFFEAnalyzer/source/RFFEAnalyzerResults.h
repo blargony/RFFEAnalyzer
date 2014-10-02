@@ -3,10 +3,6 @@
 
 #include <AnalyzerResults.h>
 
-#ifdef _MSC_VER
-    #define snprintf sprintf_s
-#endif
-
 #define RFFE_PARITY_ERROR_FLAG      (0x1 << 0)
 #define RFFE_INVALID_CMD_ERROR_FLAG (0x1 << 1)
 #define RFFE_INCOMPLETE_PACKET_ERROR_FLAG (0x1 << 2)

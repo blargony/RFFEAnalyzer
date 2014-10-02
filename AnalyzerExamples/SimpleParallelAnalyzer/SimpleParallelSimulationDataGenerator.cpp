@@ -23,7 +23,8 @@ void SimpleParallelSimulationDataGenerator::Initialize( U32 simulation_sample_ra
 	for( U32 i=0; i<count; i++ )
 	{
 		mData.push_back( mSimulationData.Add( mSettings->mDataChannels[i], mSimulationSampleRateHz, BIT_LOW ) );
-		mDataMasks.push_back( 1 << i );	
+		U16 val = 1 << i;
+		mDataMasks.push_back( val );
 	}
 
 	if( mSettings->mClockEdge == AnalyzerEnums::NegEdge )

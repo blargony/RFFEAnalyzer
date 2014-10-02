@@ -2,6 +2,7 @@
 
 #include <AnalyzerHelpers.h>
 #include <sstream>
+#include <cstring>
 
 #pragma warning(disable: 4800) //warning C4800: 'U32' : forcing value to bool 'true' or 'false' (performance warning)
 #pragma warning(disable: 4996) //warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead.
@@ -64,7 +65,7 @@ ManchesterAnalyzerSettings::ManchesterAnalyzerSettings()
 
 	mNumBitsIgnoreInterface.reset( new AnalyzerSettingInterfaceInteger() );
 	mNumBitsIgnoreInterface->SetTitleAndTooltip( "Preamble bits to ignore",  "Specify the number of preamble bits to ignore." );
-	mNumBitsIgnoreInterface->SetMax( 100 );
+	mNumBitsIgnoreInterface->SetMax( 1000 );
 	mNumBitsIgnoreInterface->SetMin( 0 );
 	mNumBitsIgnoreInterface->SetInteger( mBitsToIgnore );
 

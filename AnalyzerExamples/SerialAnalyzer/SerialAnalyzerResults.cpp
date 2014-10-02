@@ -4,7 +4,7 @@
 #include "SerialAnalyzerSettings.h"
 #include <iostream>
 #include <sstream>
-#pragma warning(disable: 4996) //warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead.
+#include <stdio.h>
 
 SerialAnalyzerResults::SerialAnalyzerResults( SerialAnalyzer* analyzer, SerialAnalyzerSettings* settings )
 :	AnalyzerResults(),
@@ -51,18 +51,18 @@ void SerialAnalyzerResults::GenerateBubbleText( U64 frame_index, Channel& /*chan
 
 		if( framing_error == false )
 		{
-			sprintf( result_str, "Addr: %s", number_str );
+			snprintf( result_str, sizeof(result_str), "Addr: %s", number_str );
 			AddResultString( result_str );
 
-			sprintf( result_str, "Address: %s", number_str );
+			snprintf( result_str, sizeof(result_str), "Address: %s", number_str );
 			AddResultString( result_str );
 
 		}else
 		{
-			sprintf( result_str, "Addr: %s (framing error)", number_str );
+			snprintf( result_str, sizeof(result_str), "Addr: %s (framing error)", number_str );
 			AddResultString( result_str );
 
-			sprintf( result_str, "Address: %s (framing error)", number_str );
+			snprintf( result_str, sizeof(result_str), "Address: %s (framing error)", number_str );
 			AddResultString( result_str );
 		}
 		return;
@@ -73,16 +73,16 @@ void SerialAnalyzerResults::GenerateBubbleText( U64 frame_index, Channel& /*chan
 	{
 		AddResultString( "!" );
 
-		sprintf( result_str, "%s (error)", number_str );
+		snprintf( result_str, sizeof(result_str), "%s (error)", number_str );
 		AddResultString( result_str );
 
 		if( parity_error == true && framing_error == false )
-			sprintf( result_str, "%s (parity error)", number_str );
+			snprintf( result_str, sizeof(result_str), "%s (parity error)", number_str );
 		else
 		if( parity_error == false && framing_error == true )
-			sprintf( result_str, "%s (framing error)", number_str );
+			snprintf( result_str, sizeof(result_str), "%s (framing error)", number_str );
 		else
-			sprintf( result_str, "%s (framing error & parity error)", number_str );
+			snprintf( result_str, sizeof(result_str), "%s (framing error & parity error)", number_str );
 
 		AddResultString( result_str );
 			
@@ -117,7 +117,7 @@ void SerialAnalyzerResults::GenerateExportFile( const char* file, DisplayBase di
 			AnalyzerHelpers::GetTimeString( frame.mStartingSampleInclusive, trigger_sample, sample_rate, time_str, 128 );
 
 			char number_str[128];
-			AnalyzerHelpers::GetNumberString( frame.mData1, display_base, mSettings->mBitsPerTransfer, number_str, 128 );
+			AnalyzerHelpers::GetNumberString( frame.mData1, display_base, mSettings->mBitsPerTransfer, number_str, 128);
 
 			ss << time_str << "," << number_str;
 
@@ -199,7 +199,6 @@ void SerialAnalyzerResults::GenerateExportFile( const char* file, DisplayBase di
 void SerialAnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBase display_base )
 {
 	Frame frame = GetFrame( frame_index );
-	ClearResultStrings();
 
 	bool framing_error = false;
 	if( ( frame.mFlags & FRAMING_ERROR_FLAG ) != 0 )
@@ -209,28 +208,50 @@ void SerialAnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBa
 	if( ( frame.mFlags & PARITY_ERROR_FLAG ) != 0 )
 		parity_error = true;
 
+	U32 bits_per_transfer = mSettings->mBitsPerTransfer;
+	if( mSettings->mSerialMode != SerialAnalyzerEnums::Normal )
+		bits_per_transfer--;
+
 	char number_str[128];
-	AnalyzerHelpers::GetNumberString( frame.mData1, display_base, mSettings->mBitsPerTransfer, number_str, 128 );
+	AnalyzerHelpers::GetNumberString( frame.mData1, display_base, bits_per_transfer, number_str, 128 );
 
 	char result_str[128];
 
-	if( parity_error == false && framing_error == false )
+	//MP mode address case:
+	bool mp_mode_address_flag = false;
+	if( ( frame.mFlags & MP_MODE_ADDRESS_FLAG ) != 0 )
 	{
-		AddResultString( number_str );
+		mp_mode_address_flag = true;
+
+		if( framing_error == false )
+		{
+			snprintf( result_str, sizeof(result_str), "Address: %s", number_str );
+			AddTabularText( result_str );
+
+		}else
+		{
+			snprintf( result_str, sizeof(result_str), "Address: %s (framing error)", number_str );
+			AddTabularText( result_str );
+		}
+		return;
+	}
+
+	//normal case:
+	if( ( parity_error == true ) || ( framing_error == true ) )
+	{
+		if( parity_error == true && framing_error == false )
+			snprintf( result_str, sizeof(result_str), "%s (parity error)", number_str );
+		else
+		if( parity_error == false && framing_error == true )
+			snprintf( result_str, sizeof(result_str), "%s (framing error)", number_str );
+		else
+			snprintf( result_str, sizeof(result_str), "%s (framing error & parity error)", number_str );
+
+		AddTabularText( result_str );
+			
 	}else
-	if( parity_error == true && framing_error == false )
 	{
-		sprintf( result_str, "%s (parity error)", number_str );
-		AddResultString( result_str );
-	}else
-	if( parity_error == false && framing_error == true )
-	{
-		sprintf( result_str, "%s (framing error)", number_str );
-		AddResultString( result_str );
-	}else
-	{
-		sprintf( result_str, "%s (framing error & parity error)", number_str );
-		AddResultString( result_str );
+		AddTabularText( number_str );
 	}
 }
 

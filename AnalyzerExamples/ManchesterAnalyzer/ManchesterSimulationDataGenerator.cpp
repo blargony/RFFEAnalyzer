@@ -21,11 +21,18 @@ void ManchesterSimulationDataGenerator::Initialize( U32 simulation_sample_rate, 
 
 	mManchesterSimulationData.SetInitialBitState( BIT_LOW );
 
-	double half_peroid = 1.0 / double( mSettings->mBitRate * 2 );
-	half_peroid *= 1000000.0;
-	mT = UsToSamples( half_peroid );
-	mSimValue = 0;
-	mManchesterSimulationData.Advance( mT * 8 );
+	double half_period = 1.0 / double( mSettings->mBitRate * 2 );
+	half_period *= 1000000.0;
+	mT = UsToSamples( half_period );
+	mSimValue = 1;
+
+	if ( mSettings->mBitsPerTransfer > 32 )
+	{
+		mSimValue = 0xFFFFFFFF;
+
+	}
+
+	mManchesterSimulationData.Advance( U32(mT * 8) );
 }
 
 U32 ManchesterSimulationDataGenerator::GenerateSimulationData( U64 newest_sample_requested, U32 sample_rate, SimulationChannelDescriptor** simulation_channels )
@@ -39,7 +46,7 @@ U32 ManchesterSimulationDataGenerator::GenerateSimulationData( U64 newest_sample
 		SimWriteByte( mSimValue++ );
 		SimWriteByte( mSimValue++ );
 		SimWriteByte( mSimValue++ );
-		mManchesterSimulationData.Advance( mT * 8 );
+		mManchesterSimulationData.Advance( U32(mT * 8) );
 	}
 	*simulation_channels = &mManchesterSimulationData;
 	return 1;
@@ -48,6 +55,11 @@ U32 ManchesterSimulationDataGenerator::GenerateSimulationData( U64 newest_sample
 U64 ManchesterSimulationDataGenerator::UsToSamples( U64 us )
 {
 	return ( mSimulationSampleRateHz * us ) / 1000000;
+}
+
+U64 ManchesterSimulationDataGenerator::UsToSamples( double us )
+{
+	return U64(( mSimulationSampleRateHz * us ) / 1000000.0);
 }
 
 U64 ManchesterSimulationDataGenerator::SamplesToUs( U64 samples )
@@ -93,36 +105,36 @@ void ManchesterSimulationDataGenerator::SimWriteBit( U32 bit )
 				else if( ( bit == 0 ) && ( start_bit_state == BIT_LOW ) )
 					mManchesterSimulationData.Transition(); 
 			}
-				mManchesterSimulationData.Advance( mT );
+				mManchesterSimulationData.Advance( U32(mT) );
 				mManchesterSimulationData.Transition();
-				mManchesterSimulationData.Advance( mT );
+				mManchesterSimulationData.Advance( U32(mT) );
 		}
 		break;
 	case DIFFERENTIAL_MANCHESTER:
 		{
 			if( bit == 0 )
 				mManchesterSimulationData.Transition();
-			mManchesterSimulationData.Advance( mT );
+			mManchesterSimulationData.Advance( U32(mT) );
 			mManchesterSimulationData.Transition();
-			mManchesterSimulationData.Advance( mT );
+			mManchesterSimulationData.Advance( U32(mT) );
 		}
 		break;
 	case BI_PHASE_MARK:
 		{
 			mManchesterSimulationData.Transition();
-			mManchesterSimulationData.Advance( mT );
+			mManchesterSimulationData.Advance( U32(mT) );
 			if( bit == 1 )
 				mManchesterSimulationData.Transition();
-			mManchesterSimulationData.Advance( mT );
+			mManchesterSimulationData.Advance( U32(mT) );
 		}
 		break;
 	case BI_PHASE_SPACE:
 		{
 			mManchesterSimulationData.Transition();
-			mManchesterSimulationData.Advance( mT );
+			mManchesterSimulationData.Advance( U32(mT) );
 			if( bit == 0 )
 				mManchesterSimulationData.Transition();
-			mManchesterSimulationData.Advance( mT );
+			mManchesterSimulationData.Advance( U32(mT) );
 		}
 		break;
 	}

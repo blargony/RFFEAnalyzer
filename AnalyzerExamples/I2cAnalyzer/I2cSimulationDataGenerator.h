@@ -1,9 +1,9 @@
-#ifndef SERIAL_SIMULATION_DATA_GENERATOR
+﻿#ifndef SERIAL_SIMULATION_DATA_GENERATOR
 #define SERIAL_SIMULATION_DATA_GENERATOR
 
 #include <AnalyzerHelpers.h>
 #include "I2cAnalyzerSettings.h"
-
+#include <stdlib.h>
 
 class I2cSimulationDataGenerator
 {

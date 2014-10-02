@@ -2,6 +2,7 @@
 
 #include <AnalyzerHelpers.h>
 #include <sstream>
+#include <cstring>
 
 UnioAnalyzerSettings::UnioAnalyzerSettings()
 :	mScioChannel ( UNDEFINED_CHANNEL )

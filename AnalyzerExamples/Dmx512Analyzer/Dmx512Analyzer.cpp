@@ -109,7 +109,7 @@ U64 Dmx512Analyzer::ReadSlot( U64 start, U8 type, int count )
 U64 Dmx512Analyzer::ReadByte( U64 cursor, U8 type, U64 count )
 {
 	U8 value = 0;
-	for ( int i=7; i >= 0; --i ) {
+	for ( int i=0; i <= 7; ++i ) {
 		mSerial->Advance( mClockGenerator.AdvanceByHalfPeriod( .5 ) );
 		AnalyzerResults::MarkerType marker;
 		if( mSerial->GetBitState() == BIT_HIGH )

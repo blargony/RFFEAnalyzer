@@ -17,14 +17,14 @@ public:
 protected:
 	SimpleParallelAnalyzerSettings* mSettings;
 	U32 mSimulationSampleRateHz;
-	U8 mValue;
+	U16 mValue;
 
 protected:
 
 	SimulationChannelDescriptorGroup mSimulationData;
 
 	std::vector< SimulationChannelDescriptor* > mData;
-	std::vector< U8 > mDataMasks;
+	std::vector< U16 > mDataMasks;
 	SimulationChannelDescriptor* mClock;
 };
 #endif //SIMPLEPARALLEL_SIMULATION_DATA_GENERATOR

@@ -88,20 +88,7 @@ U32 UnioAnalyzer::GetNumEdgesBeforeSampleIgnoreSpikes( U64 sample )
 	return edge_count;
 }
 
-/*
-bool UnioAnalyzer::WouldAdvancingToAbsPositionCauseTransitionIgnoreSpikes( U64 sample )
-{
-	if( mScio->GetBitState() == BIT_HIGH )
-		return mScio->WouldAdvancingToAbsPositionCauseTransition( sample );
 
-	U64 next_edge = mScio->GetSampleOfNextEdge();
-	if( next_edge > sample )
-		return false;
-
-
-
-}
-*/
 void UnioAnalyzer::MoveToFallingEdgeOfStandbyPulse()
 {
 	if( mScio->GetBitState() == BIT_LOW )

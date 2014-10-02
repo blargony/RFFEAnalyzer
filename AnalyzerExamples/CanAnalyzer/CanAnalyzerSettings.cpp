@@ -2,10 +2,12 @@
 
 #include <AnalyzerHelpers.h>
 #include <sstream>
+#include <cstring>
 
 CanAnalyzerSettings::CanAnalyzerSettings()
 :	mCanChannel ( UNDEFINED_CHANNEL ),
-	mBitRate ( 1000000 )
+	mBitRate ( 1000000 ),
+	mInverted( false )
 {
 	mCanChannelInterface.reset( new AnalyzerSettingInterfaceChannel() );
 	mCanChannelInterface->SetTitleAndTooltip( "CAN", "Controller Area Network - Input" );
@@ -17,8 +19,14 @@ CanAnalyzerSettings::CanAnalyzerSettings()
 	mBitRateInterface->SetMin( 10000 );
 	mBitRateInterface->SetInteger( mBitRate );
 
+	mCanChannelInvertedInterface.reset( new AnalyzerSettingInterfaceBool( ) );
+	mCanChannelInvertedInterface->SetTitleAndTooltip( "Inverted (CAN High)", "Use this option when recording CAN High directly" );
+	mCanChannelInvertedInterface->SetValue( mInverted );
+
+
 	AddInterface( mCanChannelInterface.get() );
 	AddInterface( mBitRateInterface.get() );
+	AddInterface( mCanChannelInvertedInterface.get() );
 
 	//AddExportOption( 0, "Export as text/csv file", "text (*.txt);;csv (*.csv)" );
 	AddExportOption( 0, "Export as text/csv file" );
@@ -44,6 +52,7 @@ bool CanAnalyzerSettings::SetSettingsFromInterfaces()
 	}
 	mCanChannel = can_channel;
 	mBitRate = mBitRateInterface->GetInteger();
+	mInverted = mCanChannelInvertedInterface->GetValue();
 
 	ClearChannels();
 	AddChannel( mCanChannel, "CAN", true );
@@ -63,6 +72,7 @@ void CanAnalyzerSettings::LoadSettings( const char* settings )
 
 	text_archive >>  mCanChannel;
 	text_archive >>  mBitRate;
+	text_archive >> mInverted; //SimpleArchive catches exception and returns false if it fails.
 
 	ClearChannels();
 	AddChannel( mCanChannel, "CAN", true );
@@ -77,6 +87,8 @@ const char* CanAnalyzerSettings::SaveSettings()
 	text_archive <<  "SaleaeCANAnalyzer";
 	text_archive <<  mCanChannel;
 	text_archive << mBitRate;
+	text_archive << mInverted; 
+
 
 	return SetReturnString( text_archive.GetString() );
 }
@@ -85,4 +97,18 @@ void CanAnalyzerSettings::UpdateInterfacesFromSettings()
 {
 	mCanChannelInterface->SetChannel( mCanChannel );
 	mBitRateInterface->SetInteger( mBitRate );
+	mCanChannelInvertedInterface->SetValue( mInverted );
+}
+
+BitState CanAnalyzerSettings::Recessive()
+{
+	if( mInverted )
+		return BIT_LOW;
+	return BIT_HIGH;
+}
+BitState CanAnalyzerSettings::Dominant()
+{
+	if( mInverted )
+		return BIT_HIGH;
+	return BIT_LOW;
 }

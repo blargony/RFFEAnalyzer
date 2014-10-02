@@ -1,13 +1,14 @@
 #include "I2cAnalyzer.h"
 #include "I2cAnalyzerSettings.h"
 #include <AnalyzerChannelData.h>
-
+#include "LogicDebug.h"
 I2cAnalyzer::I2cAnalyzer()
 :	Analyzer2(),  
 	mSettings( new I2cAnalyzerSettings() ),
 	mSimulationInitilized( false )
 {
 	SetAnalyzerSettings( mSettings.get() );
+	LogicDebug::StartPrintService();  //required if you want debug print statements from the analyzer.
 }
 
 I2cAnalyzer::~I2cAnalyzer()
@@ -149,9 +150,11 @@ void I2cAnalyzer::RecordStartStopBit()
 		//posedge -> STOP
 		mResults->AddMarker( mSda->GetSampleNumber(), AnalyzerResults::Stop, mSettings->mSdaChannel );
 	}
-	mResults->CommitResults();
+	
 	mNeedAddress = true;
 	mResults->CommitPacketAndStartNewPacket();
+	mResults->CommitResults( );
+
 }
 
 void I2cAnalyzer::AdvanceToStartBit()

@@ -91,7 +91,7 @@ void ManchesterAnalyzer::WorkerThread()
 			break;
 		}
 		//mManchester->AdvanceToNextEdge();
-		mResults->CommitResults();
+		//mResults->CommitResults();
 		ReportProgress( mManchester->GetSampleNumber() );
 		CheckIfThreadShouldExit();
 
@@ -172,7 +172,7 @@ void ManchesterAnalyzer::SynchronizeBiPhase()
 		{
 			mUnsyncedLocations.push_back( edge_location );
 			mSynchronized = true;
-			U32 bit_value;
+			U32 bit_value = 0;
 			if( mSettings->mMode == BI_PHASE_MARK ) //FM1
 				bit_value = 1;
 			else if( mSettings->mMode == BI_PHASE_SPACE ) //FM0
@@ -233,7 +233,7 @@ void ManchesterAnalyzer::ProcessManchesterData()
 			mManchester->AdvanceToNextEdge();
 			next_edge_location = mManchester->GetSampleNumber();
 			edge_distance = next_edge_location - edge_location;
-			if( ( edge_distance > ( mT - mTError ) ) && ( edge_distance < ( mT + mTError ) ) )
+			if( ( edge_distance > ( mT - mTError ) ) && ( edge_distance < ( mT + mTError ) ) ) //second short (good)
 				return;
 			else
 			{
@@ -272,7 +272,7 @@ void ManchesterAnalyzer::SynchronizeManchester()
 			mSynchronized = true;
 			BitState current_bit_state = mManchester->GetBitState();
 			bool inverted = mSettings->mInverted;
-			U32 bit_value;
+			U32 bit_value = 0;
 			if( ( inverted == true ) && ( current_bit_state == BIT_LOW ) ) //we are on a neg edge with inverted true
 				bit_value = 1;	//the old marker will be the opposite of the current value.
 			else if( ( inverted == true ) && ( current_bit_state == BIT_HIGH ) )
@@ -400,7 +400,7 @@ void ManchesterAnalyzer::SynchronizeDifferential()
 void ManchesterAnalyzer::SaveBit( U64 location, U32 value )
 {
 	if( mIgnoreBitCount == 0 )
-		mBitsForNextByte.push_back( std::pair< U32, U64>( value, location ) );
+		mBitsForNextByte.push_back( std::pair< U64, U64 >( value, location ) );
 	else
 		--mIgnoreBitCount;
 	if( value == 1 )
@@ -428,6 +428,8 @@ void ManchesterAnalyzer::SaveBit( U64 location, U32 value )
 		frame.mData1 = byte;
 		mResults->AddFrame( frame );
 		mBitsForNextByte.clear();
+		mResults->CommitResults();
+		ReportProgress( mManchester->GetSampleNumber() );
 	}
 }
 
@@ -508,7 +510,7 @@ U32 ManchesterAnalyzer::GenerateSimulationData( U64 newest_sample_requested, U32
 
 U32 ManchesterAnalyzer::GetMinimumSampleRateHz()
 {
-	return mSettings->mBitRate * 4;
+	return mSettings->mBitRate * 8;
 }
 
 bool ManchesterAnalyzer::NeedsRerun()

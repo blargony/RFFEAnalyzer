@@ -143,7 +143,12 @@ void I2sAnalyzer::AnalyzeSubFrame( U32 starting_index, U32 num_bits, U32 subfram
 	Frame frame;
 	frame.mData1 = result;
 
-	if( ( subframe_index & 0x1 ) == 0 )
+
+	U32 channel_1_polarity = 1;
+	if( mSettings->mWordSelectInverted == WS_INVERTED )
+		channel_1_polarity = 0;
+
+	if( ( subframe_index & 0x1 ) == channel_1_polarity )
 		frame.mType = U8( Channel1 );
 	else
 		frame.mType = U8( Channel2 );
@@ -156,7 +161,6 @@ void I2sAnalyzer::AnalyzeSubFrame( U32 starting_index, U32 num_bits, U32 subfram
 
 void I2sAnalyzer::SetupForGettingFirstFrame()
 {
-	U64 sample_number = 0;
 	GetNextBit( mLastData, mLastFrame, mLastSample ); //we have to throw away one bit to get enough history on the FRAME line.
 
 	for( ; ; )

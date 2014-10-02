@@ -46,10 +46,10 @@ void SerialSimulationDataGenerator::Initialize( U32 simulation_sample_rate, Seri
 	}
 
 	if( mSettings->mSerialMode == SerialAnalyzerEnums::MpModeMsbOneMeansAddress )
-		mMpModeAddressMask = 0x1 << ( mSettings->mBitsPerTransfer );
+		mMpModeAddressMask = 0x1ull << ( mSettings->mBitsPerTransfer );
 
 	if( mSettings->mSerialMode == SerialAnalyzerEnums::MpModeMsbZeroMeansAddress )
-		mMpModeDataMask = 0x1 << ( mSettings->mBitsPerTransfer );
+		mMpModeDataMask = 0x1ull << ( mSettings->mBitsPerTransfer );
 }
 
 U32 SerialSimulationDataGenerator::GenerateSimulationData( U64 largest_sample_requested, U32 sample_rate, SimulationChannelDescriptor** simulation_channels )

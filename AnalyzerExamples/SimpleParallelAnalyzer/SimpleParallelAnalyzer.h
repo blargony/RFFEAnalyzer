@@ -29,7 +29,7 @@ protected: //vars
 	std::auto_ptr< SimpleParallelAnalyzerResults > mResults;
 
 	std::vector< AnalyzerChannelData* > mData;
-	std::vector< U8 > mDataMasks;
+	std::vector< U16 > mDataMasks;
 	std::vector< Channel > mDataChannels;
 	AnalyzerChannelData* mClock;
 

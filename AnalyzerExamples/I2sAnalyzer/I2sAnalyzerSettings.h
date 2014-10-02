@@ -7,6 +7,7 @@
 enum PcmFrameType { FRAME_TRANSITION_TWICE_EVERY_WORD, FRAME_TRANSITION_ONCE_EVERY_WORD, FRAME_TRANSITION_TWICE_EVERY_FOUR_WORDS };
 enum PcmWordAlignment { LEFT_ALIGNED, RIGHT_ALIGNED };
 enum PcmBitAlignment { BITS_SHIFTED_RIGHT_1, NO_SHIFT };
+enum PcmWordSelectInverted { WS_INVERTED, WS_NOT_INVERTED };
 
 class I2sAnalyzerSettings : public AnalyzerSettings
 {
@@ -33,6 +34,9 @@ public:
 	PcmBitAlignment mBitAlignment;
 	AnalyzerEnums::Sign mSigned;
 
+
+	PcmWordSelectInverted mWordSelectInverted;
+
 protected:
 	std::auto_ptr< AnalyzerSettingInterfaceChannel > mClockChannelInterface;
 	std::auto_ptr< AnalyzerSettingInterfaceChannel > mFrameChannelInterface;
@@ -47,5 +51,7 @@ protected:
 	std::auto_ptr< AnalyzerSettingInterfaceNumberList > mBitAlignmentInterface;
 
 	std::auto_ptr< AnalyzerSettingInterfaceNumberList > mSignedInterface;
+
+	std::auto_ptr< AnalyzerSettingInterfaceNumberList > mWordSelectInvertedInterface;
 };
 #endif //I2S_ANALYZER_SETTINGS

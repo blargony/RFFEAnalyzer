@@ -6,7 +6,7 @@
 #include "I2sSimulationDataGenerator.h"
 
 class I2sAnalyzerSettings;
-class I2sAnalyzer : public Analyzer2
+class ANALYZER_EXPORT I2sAnalyzer : public Analyzer2
 {
 public:
 	I2sAnalyzer();
@@ -19,6 +19,9 @@ public:
 
 	const char* GetAnalyzerName() const;
 	virtual bool NeedsRerun();
+
+#pragma warning( push )
+#pragma warning( disable : 4251 ) //warning C4251: 'I2sAnalyzer::<...>' : class <...> needs to have dll-interface to be used by clients of class
 
 protected: //functions
 	void AnalyzeSubFrame( U32 starting_index, U32 num_bits, U32 subframe_index );
@@ -50,6 +53,7 @@ protected:
 
 	std::vector<BitState> mDataBits;
 	std::vector<U64> mDataValidEdges;
+#pragma warning( pop )
 };
 
 extern "C" ANALYZER_EXPORT const char* __cdecl GetAnalyzerName();

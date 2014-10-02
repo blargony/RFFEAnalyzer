@@ -7,7 +7,7 @@ if platform.system().lower() == "darwin":
 else:
     dylib_ext = ".so"
     
-print "Running on " + platform.system()
+print("Running on " + platform.system())
 
 #make sure the release folder exists, and clean out any .o/.so file if there are any
 if not os.path.exists( "release" ):
@@ -66,9 +66,9 @@ for cpp_file in cpp_files:
     debug_command += "\"" + "source/" + cpp_file + "\"" #the cpp file to compile
 
     #run the commands from the command line
-    print release_command
+    print(release_command)
     os.system( release_command )
-    print debug_command
+    print(debug_command)
     os.system( debug_command )
     
 #lastly, link
@@ -111,9 +111,9 @@ for cpp_file in cpp_files:
     debug_command += "debug/" + cpp_file.replace( ".cpp", ".o" ) + " "
     
 #run the commands from the command line
-print release_command
+print(release_command)
 os.system( release_command )
-print debug_command
+print(debug_command)
 os.system( debug_command )
 
         

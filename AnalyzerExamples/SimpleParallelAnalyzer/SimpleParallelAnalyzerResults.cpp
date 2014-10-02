@@ -4,6 +4,7 @@
 #include "SimpleParallelAnalyzerSettings.h"
 #include <iostream>
 #include <sstream>
+#include <stdio.h>
 
 SimpleParallelAnalyzerResults::SimpleParallelAnalyzerResults( SimpleParallelAnalyzer* analyzer, SimpleParallelAnalyzerSettings* settings )
 :	AnalyzerResults(),
@@ -22,7 +23,7 @@ void SimpleParallelAnalyzerResults::GenerateBubbleText( U64 frame_index, Channel
 	Frame frame = GetFrame( frame_index );
 
 	char number_str[128];
-	AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, number_str, 128 );
+	AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 16, number_str, 128 );
 	AddResultString( number_str );
 }
 
@@ -45,7 +46,7 @@ void SimpleParallelAnalyzerResults::GenerateExportFile( const char* file, Displa
 		AnalyzerHelpers::GetTimeString( frame.mStartingSampleInclusive, trigger_sample, sample_rate, time_str, 128 );
 
 		char number_str[128];
-		AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, number_str, 128 );
+		AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 16, number_str, 128 );
 
 		ss << time_str << "," << number_str << std::endl;
 
@@ -65,8 +66,11 @@ void SimpleParallelAnalyzerResults::GenerateExportFile( const char* file, Displa
 
 void SimpleParallelAnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBase display_base )
 {
-	ClearResultStrings();
-	AddResultString( "not supported" );
+	Frame frame = GetFrame( frame_index );
+
+	char number_str[128];
+	AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 16, number_str, 128 );
+	AddTabularText( number_str );
 }
 
 void SimpleParallelAnalyzerResults::GeneratePacketTabularText( U64 packet_id, DisplayBase display_base )

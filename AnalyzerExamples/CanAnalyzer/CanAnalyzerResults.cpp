@@ -1,4 +1,4 @@
-#include "CanAnalyzerResults.h"
+﻿#include "CanAnalyzerResults.h"
 #include <AnalyzerHelpers.h>
 #include "CanAnalyzer.h"
 #include "CanAnalyzerSettings.h"
@@ -44,7 +44,7 @@ void CanAnalyzerResults::GenerateBubbleText( U64 frame_index, Channel& /*channel
 			AddResultString( ss.str().c_str() );
 			ss.str("");
 
-			ss << "Indentifier: " << number_str;
+            ss << "Identifier: " << number_str;
 			AddResultString( ss.str().c_str() );
 			ss.str("");
 
@@ -133,106 +133,6 @@ void CanAnalyzerResults::GenerateBubbleText( U64 frame_index, Channel& /*channel
 	}
 }
 
-/*
-const char* CanAnalyzer::GetSimpleExportText( DisplayBase display_base )
-{
-	if( !mProgressManager )
-		LogicAssert( "called GetSimpleExportText at invalid time" );
-
-	if( mResultBubbles.size() != 1 )
-		LogicAssert( "mResultBubbles has size other than 1" );
-
-	std::map< Channel, ChunkedArray<ResultBubble> >::iterator it = mResultBubbles.begin();
-
-	ChunkedArray<ResultBubble>& result_bubbles = it->second;
-
-	if( mProgressManager->IsTriggered() == false )
-		LogicAssert( "we are not triggered" );
-
-	U64 trigger_sample = mProgressManager->GetTriggerSample();
-
-	std::stringstream ss;
-	ss.precision( 15 );
-
-	ss << "Time [s],Event,Value" << std::endl;
-
-	U64 count = result_bubbles.safe_size();
-	for( U64 i=0; i < count; i++ )
-	{
-		ResultBubble& bubble = result_bubbles[i];
-
-		AnalyzerHelpers::GetTimeString( bubble.mStartingSampleInclusive, trigger_sample, mSampleRateHz, ss );
-		ss << ",";
-
-		CanFrameType type = CanFrameType( bubble.mData1 );
-
-		switch( type )
-		{
-		case IdentifierField:
-		case IdentifierFieldEx:
-			{
-				U32 identifier = U32( bubble.mData2 );
-				std::string identifier_str;
-
-				if( type == IdentifierField )
-					identifier_str = AnalyzerHelpers::GetNumberString( identifier, display_base, 12 );
-				else
-					identifier_str = AnalyzerHelpers::GetNumberString( identifier, display_base, 32 );
-
-				if( type == IdentifierField )
-				{
-					ss << "Standard CAN Identifier," << identifier_str << std::endl;
-				}
-				else
-				{
-					ss << "Extended CAN Identifier," << identifier_str << std::endl;
-				}
-			}
-			break;
-		case ControlField:
-			{
-				U32 num_bytes = U32( bubble.mData2 );
-				std::string num_bytes_str = AnalyzerHelpers::GetNumberString( num_bytes, display_base, 4 );
-				ss << "Control Field [byte count]," << num_bytes_str << std::endl;
-			}
-			break;
-		case DataField:
-			{
-				U32 byte = U32( bubble.mData2 );
-				std::string byte_str = AnalyzerHelpers::GetNumberString( byte, display_base, 8 );
-				ss << "Data Field Byte," << byte_str << std::endl;
-			}
-			break;
-		case CrcField:
-			{
-				U32 crc = U32( bubble.mData2 );
-				std::string crc_str = AnalyzerHelpers::GetNumberString( crc, display_base, 16 );
-				ss << "CRC value," << crc_str << std::endl;
-			}
-			break;	
-		case AckField:
-			{
-				bool ack = bool( bubble.mData2 );
-
-				if( ack == true )
-					ss << "ACK" << std::endl;
-				else
-					ss << "NAK" << std::endl;
-			}
-			break;	
-		case CanError:
-			{
-				ss << "Error" << std::endl;
-			}
-			break;	
-		}
-	}
-	
-	mSimpleExportText = ss.str();
-	return mSimpleExportText.c_str();
-}
-
-*/
 
 void CanAnalyzerResults::GenerateExportFile( const char* file, DisplayBase display_base, U32 /*export_type_user_id*/ )
 {
@@ -282,7 +182,7 @@ void CanAnalyzerResults::GenerateExportFile( const char* file, DisplayBase displ
 		else
 			ss << time_str << "," << packet_str << ",REMOTE";
 		
-		U32 frame_id = first_frame_id;
+		U64 frame_id = first_frame_id;
 
 		frame = GetFrame( frame_id );
 
@@ -290,7 +190,7 @@ void CanAnalyzerResults::GenerateExportFile( const char* file, DisplayBase displ
 
 		if( frame.mType == IdentifierField )
 		{
-			AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 12, number_str, 128 );
+			AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 12, number_str, 128);
 			ss << "," << number_str;
 			++frame_id;
 		}
@@ -311,7 +211,7 @@ void CanAnalyzerResults::GenerateExportFile( const char* file, DisplayBase displ
 		frame = GetFrame( frame_id );
 		if( frame.mType == ControlField )
 		{
-			AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 4, number_str, 128 );
+			AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 4, number_str, 128);
 			ss << "," << number_str;
 			++frame_id;
 		}
@@ -345,7 +245,7 @@ void CanAnalyzerResults::GenerateExportFile( const char* file, DisplayBase displ
 		frame = GetFrame( frame_id );
 		if( frame.mType == CrcField )
 		{
-			AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 15, number_str, 128 );
+			AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 15, number_str, 128);
 			ss << "," << number_str;
 			++frame_id;
 		}else
@@ -376,7 +276,6 @@ void CanAnalyzerResults::GenerateExportFile( const char* file, DisplayBase displ
 
 void CanAnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBase display_base )
 {
-	ClearResultStrings();
 	Frame frame = GetFrame( frame_index );
 
 	switch( frame.mType )
@@ -385,18 +284,30 @@ void CanAnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBase 
 	case IdentifierFieldEx:
 		{
 			char number_str[128];
-			std::stringstream ss;
 
 			if( frame.mType == IdentifierField )
-			{
 				AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 12, number_str, 128 );
-				ss << "Standard CAN Identifier: " << number_str;
+			else
+				AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 32, number_str, 128 );
+
+			std::stringstream ss;
+
+			
+			if( frame.HasFlag( REMOTE_FRAME ) == false )
+			{
+				if( frame.mType == IdentifierField )
+					ss << "Standard CAN Identifier: " << number_str;
+				else
+					ss << "Extended CAN Identifier: " << number_str;
 			}else
 			{
-				AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 32, number_str, 128 );
-				ss << "Extended CAN Identifier: " << number_str;
+				if( frame.mType == IdentifierField )
+					ss << "Standard CAN Identifier: " << number_str << " (RTR)";
+				else
+					ss << "Extended CAN Identifier: " << number_str << " (RTR)";
 			}
-			AddResultString( ss.str().c_str() );
+
+			AddTabularText( ss.str().c_str() );
 		}
 		break;
 	case ControlField:
@@ -405,8 +316,11 @@ void CanAnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBase 
 			AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 4, number_str, 128 );
 
 			std::stringstream ss;
-			ss << "Control Field: " << number_str << " bytes";
-			AddResultString( ss.str().c_str() );
+			
+			ss << "Control Field: " << number_str;
+			ss << " bytes";
+			AddTabularText( ss.str().c_str() );
+
 		}
 		break;
 	case DataField:
@@ -415,31 +329,33 @@ void CanAnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBase 
 			AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, number_str, 128 );
 
 			std::stringstream ss;
+			
 			ss << "Data Field Byte: " << number_str;
-			AddResultString( ss.str().c_str() );
+			AddTabularText( ss.str().c_str() );
 		}
 		break;
 	case CrcField:
 		{
 			char number_str[128];
-			AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 16, number_str, 128 );
-
+			AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 15, number_str, 128 );
+						
 			std::stringstream ss;
+			
 			ss << "CRC value: " << number_str;
-			AddResultString( ss.str().c_str() );
+			AddTabularText( ss.str().c_str() );
 		}
 		break;	
 	case AckField:
 		{
 			if( bool( frame.mData1 ) == true )
-				AddResultString( "ACK" );
+				AddTabularText( "ACK" );
 			else
-				AddResultString( "NAK" );
+				AddTabularText( "NAK" );
 		}
 		break;	
 	case CanError:
 		{
-			AddResultString( "Error" );
+			AddTabularText( "Error" );
 		}
 		break;
 	}

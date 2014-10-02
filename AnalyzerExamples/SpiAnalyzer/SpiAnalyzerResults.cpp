@@ -108,7 +108,6 @@ void SpiAnalyzerResults::GenerateExportFile( const char* file, DisplayBase displ
 void SpiAnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBase display_base )
 {
 	Frame frame = GetFrame( frame_index );
-	ClearResultStrings();
 
 	bool mosi_used = true;
 	bool miso_used = true;
@@ -143,7 +142,7 @@ void SpiAnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBase 
 		}
 	}
 
-	AddResultString( ss.str().c_str() );
+	AddTabularText( ss.str().c_str() );
 }
 
 void SpiAnalyzerResults::GeneratePacketTabularText( U64 /*packet_id*/, DisplayBase /*display_base*/ )  //unrefereced vars commented out to remove warnings.

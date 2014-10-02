@@ -2,6 +2,7 @@
 
 #include <AnalyzerHelpers.h>
 #include <sstream>
+#include <cstring>
 
 SpiAnalyzerSettings::SpiAnalyzerSettings()
 :	mMosiChannel( UNDEFINED_CHANNEL ),

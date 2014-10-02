@@ -1,8 +1,8 @@
 #ifndef DMX512_ANALYZER_H
 #define DMX512_ANALYZER_H
 
-#include "Analyzer.h"
-#include "AnalyzerHelpers.h"
+#include <Analyzer.h>
+#include <AnalyzerHelpers.h>
 #include "Dmx512AnalyzerResults.h"
 #include "Dmx512SimulationDataGenerator.h"
 
@@ -21,6 +21,9 @@ public:
 	virtual bool NeedsRerun();
 
 	enum { BREAK, MAB, START_CODE, DATA, MBB, MARK, STOP, START } data_type;
+
+#pragma warning( push )
+#pragma warning( disable : 4251 ) //warning C4251: 'SerialAnalyzer::<...>' : class <...> needs to have dll-interface to be used by clients of class
 protected: //vars
 	std::auto_ptr< Dmx512AnalyzerSettings > mSettings;
 	std::auto_ptr< Dmx512AnalyzerResults > mResults;
@@ -43,6 +46,7 @@ protected: //vars
 	void PassFrame(U64 data,U8 type,U8 flag,U64 start,U64 end,U8); // helper
 	// Would make more sense to re-order the parameters
 	//void PassFrame(U8 type, U64 start, U64 end, U8 flag, U64 data, U8 data2); // helper
+#pragma warning( pop )
 };
 
 extern "C" ANALYZER_EXPORT const char* __cdecl GetAnalyzerName();

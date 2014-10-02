@@ -93,7 +93,7 @@ U32 Dmx512SimulationDataGenerator::MBBLength( void )
 U32 Dmx512SimulationDataGenerator::GenerateSimulationData( U64 largest_sample_requested, U32 sample_rate, SimulationChannelDescriptor** simulation_channel )
 {
 	U64 adjusted_largest_sample_requested = AnalyzerHelpers::AdjustSimulationTargetSample( largest_sample_requested, sample_rate, mSimulationSampleRateHz );
-	U32 samples_per_bit = mSimulationSampleRateHz / mSettings->mBitRate;
+	//U32 samples_per_bit = mSimulationSampleRateHz / mSettings->mBitRate;
 	
 	while( mSerialSimulationData.GetCurrentSampleNumber() < adjusted_largest_sample_requested )
 	{

@@ -37,17 +37,17 @@ U32 OneWireSimulationDataGenerator::GenerateSimulationData( U64 largest_sample_r
 		else
 			delay = 250;
 
-		mOneWireSimulationData.Advance( UsToSamples(delay * 3 ) );
+		mOneWireSimulationData.Advance( U32(UsToSamples(delay * 3 )) );
 		//mSimulationSampleIndex += UsToSamples(delay * 3, true);
 
 		SimResetPacket();
 		SimReadRom(0x8877665544332211ull);
 
 		//mSimulationSampleIndex += UsToSamples(delay, true);
-		mOneWireSimulationData.Advance( UsToSamples(delay ) );
+		mOneWireSimulationData.Advance( U32( UsToSamples(delay ) ) );
 		SimWriteByte(0x37);
 		//mSimulationSampleIndex += UsToSamples(delay, true);
-		mOneWireSimulationData.Advance( UsToSamples(delay ) );
+		mOneWireSimulationData.Advance( U32( UsToSamples(delay ) ) );
 		SimWriteByte(0xF0);
 
 		std::vector<U64> device_ROMs;
@@ -59,26 +59,26 @@ U32 OneWireSimulationDataGenerator::GenerateSimulationData( U64 largest_sample_r
 		found_device = SimSearchRom( device_ROMs );
 
 		//mSimulationSampleIndex += UsToSamples(delay, true);
-		mOneWireSimulationData.Advance( UsToSamples(delay ) );
+		mOneWireSimulationData.Advance( U32( UsToSamples(delay ) ) );
 		SimWriteByte(0x0F);
 		//mSimulationSampleIndex += UsToSamples(delay, true);
-		mOneWireSimulationData.Advance( UsToSamples(delay ) );
+		mOneWireSimulationData.Advance( U32( UsToSamples(delay ) ) );
 		SimWriteByte(0xF0);
 		//mSimulationSampleIndex += UsToSamples(delay, true);
-		mOneWireSimulationData.Advance( UsToSamples(delay ) );
+		mOneWireSimulationData.Advance( U32( UsToSamples(delay ) ) );
 		SimWriteByte(0x55);
 		//mSimulationSampleIndex += UsToSamples(delay, true);
-		mOneWireSimulationData.Advance( UsToSamples(delay ) );
+		mOneWireSimulationData.Advance( U32( UsToSamples(delay ) ) );
 		SimWriteByte(0x18);
 		
 		SimResetPacket();
 		SimMatchRom(0xF0E1D2C3B4A59687ull);
 
 		//mSimulationSampleIndex += UsToSamples(delay, true);
-		mOneWireSimulationData.Advance( UsToSamples(delay ) );
+		mOneWireSimulationData.Advance( U32( UsToSamples(delay ) ) );
 		SimWriteByte(0x55);
 		//mSimulationSampleIndex += UsToSamples(delay, true);
-		mOneWireSimulationData.Advance( UsToSamples(delay ) );
+		mOneWireSimulationData.Advance( U32( UsToSamples(delay ) ) );
 		SimWriteByte(0x18);
 				
 		if( mSimOverdrive == true )
@@ -219,19 +219,19 @@ void OneWireSimulationDataGenerator::SimResetPacket()
 	//mOneWireTransitions->push_back(mSimulationSampleIndex);
 	mOneWireSimulationData.Transition();
 	//mSimulationSampleIndex += UsToSamples(reset_pulse_length );		//Reset Pulse Length
-	mOneWireSimulationData.Advance( UsToSamples( reset_pulse_length ) );
+	mOneWireSimulationData.Advance( U32( UsToSamples( reset_pulse_length ) ) );
 	//mOneWireTransitions->push_back(mSimulationSampleIndex);
 	mOneWireSimulationData.Transition();
 	//mSimulationSampleIndex += UsToSamples(device_responce_delay );		//Typical delay before responce
-	mOneWireSimulationData.Advance( UsToSamples( device_responce_delay ) );
+	mOneWireSimulationData.Advance( U32( UsToSamples( device_responce_delay ) ) );
 	//mOneWireTransitions->push_back(mSimulationSampleIndex);
 	mOneWireSimulationData.Transition();
 	//mSimulationSampleIndex += UsToSamples(device_responce_length );		//Typical responce length
-	mOneWireSimulationData.Advance( UsToSamples( device_responce_length ) );
+	mOneWireSimulationData.Advance( U32( UsToSamples( device_responce_length ) ) );
 	//mOneWireTransitions->push_back(mSimulationSampleIndex);
 	mOneWireSimulationData.Transition();
 	//mSimulationSampleIndex += UsToSamples( reset_window_length - reset_pulse_length - device_responce_delay - device_responce_length, true );	//Required Time for Reset and Presence opperation.
-	mOneWireSimulationData.Advance( UsToSamples( reset_window_length - reset_pulse_length - device_responce_delay - device_responce_length ) );
+	mOneWireSimulationData.Advance( U32( UsToSamples( reset_window_length - reset_pulse_length - device_responce_delay - device_responce_length ) ) );
 }
 
 void OneWireSimulationDataGenerator::SimWriteBit( U32 bit )
@@ -251,20 +251,20 @@ void OneWireSimulationDataGenerator::SimWriteBit( U32 bit )
 	if ( bit == BIT_LOW ) //0 (long)
 	{
 		//mSimulationSampleIndex += UsToSamples(logic_low_length );
-		mOneWireSimulationData.Advance( UsToSamples( logic_low_length ) );
+		mOneWireSimulationData.Advance( U32( UsToSamples( logic_low_length ) ) );
 		//mOneWireTransitions->push_back(mSimulationSampleIndex);
 		mOneWireSimulationData.Transition();
 		//mSimulationSampleIndex += UsToSamples(slot_length - logic_low_length );
-		mOneWireSimulationData.Advance( UsToSamples( slot_length - logic_low_length ) );
+		mOneWireSimulationData.Advance( U32( UsToSamples( slot_length - logic_low_length ) ) );
 	}
 	else if( bit == BIT_HIGH ) //1 (short)
 	{
 		//mSimulationSampleIndex += UsToSamples(logic_high_length );
-		mOneWireSimulationData.Advance( UsToSamples( logic_high_length ) );
+		mOneWireSimulationData.Advance( U32( UsToSamples( logic_high_length ) ) );
 		//mOneWireTransitions->push_back(mSimulationSampleIndex);
 		mOneWireSimulationData.Transition();
 		//mSimulationSampleIndex += UsToSamples(slot_length - logic_high_length );
-		mOneWireSimulationData.Advance( UsToSamples( slot_length - logic_high_length ) );
+		mOneWireSimulationData.Advance( U32( UsToSamples( slot_length - logic_high_length ) ) );
 	}
 }
 
@@ -283,10 +283,10 @@ void OneWireSimulationDataGenerator::SimWriteByte( U32 byte )
 	}
 	if( mSimOverdrive == true )
 		//mSimulationSampleIndex += UsToSamples( 12 );
-		mOneWireSimulationData.Advance( UsToSamples( 12 ) );
+		mOneWireSimulationData.Advance( U32( UsToSamples( 12 ) ) );
 	else
 		//mSimulationSampleIndex += UsToSamples(120 );
-		mOneWireSimulationData.Advance( UsToSamples( 120 ) );
+		mOneWireSimulationData.Advance( U32( UsToSamples( 120 ) ) );
 }
 
 U64 OneWireSimulationDataGenerator::UsToSamples( U64 us )

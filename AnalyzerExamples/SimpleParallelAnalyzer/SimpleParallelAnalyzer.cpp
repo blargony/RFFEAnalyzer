@@ -72,7 +72,7 @@ void SimpleParallelAnalyzer::WorkerThread()
 		U64 sample = mClock->GetSampleNumber();
 		mResults->AddMarker( sample, clock_arrow, mSettings->mClockChannel );
 
-		U8 result = 0;
+		U16 result = 0;
 
 		for( U32 i=0; i<num_data_lines; i++ )
 		{
