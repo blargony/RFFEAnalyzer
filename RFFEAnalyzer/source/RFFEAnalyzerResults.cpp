@@ -420,12 +420,170 @@ void RFFEAnalyzerResults::GenerateExportFile( const char* file,
 
 void RFFEAnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBase display_base )
 {
-    //Frame frame = GetFrame( frame_index );
-    frame_index = frame_index;
-    display_base = display_base;
+    char time_str[16];
+    char sa_str[8];
+    char type_str[16];
+    char parity_str[8];
+    char parityCmd_str[8];
+    char addr_str[8];
+    char bc_str[8];
+    char data_str[8];
+    std::stringstream payload;
+    std::stringstream ss;
+    Frame frame;
 
-    ClearResultStrings();
-    AddResultString( "not supported yet" );
+    U64 trigger_sample  = mAnalyzer->GetTriggerSample();
+    U32 sample_rate     = mAnalyzer->GetSampleRate();
+
+    frame = GetFrame( frame_index );
+
+    switch( frame.mType )
+    {
+    case RffeSSCField:
+        // starting time using SSC as marker
+        AnalyzerHelpers::GetTimeString( frame.mStartingSampleInclusive,
+                                        trigger_sample,
+                                        sample_rate,
+                                        time_str,
+                                        16 );
+        ss << "SSC";
+        AddTabularText(ss.str().c_str());
+        break;
+
+    case RffeSAField:
+        AnalyzerHelpers::GetNumberString( frame.mData1,
+                                          display_base,
+                                          4,
+                                          sa_str,
+                                          8 );
+        ss << "SA: " << sa_str;
+        AddTabularText(ss.str().c_str());
+        break;
+
+    case RffeTypeField:
+        snprintf( type_str, sizeof(type_str), "%s", RffeTypeStringMid[frame.mData1] );
+        ss << "Type: " << type_str;
+        AddTabularText(ss.str().c_str());
+        break;
+
+    case RffeExByteCountField:
+        AnalyzerHelpers::GetNumberString( frame.mData1,
+                                          display_base,
+                                          4,
+                                          bc_str,
+                                          8 );
+        ss << "ExByteCount: " << bc_str;
+        AddTabularText(ss.str().c_str());
+        break;
+
+    case RffeExLongByteCountField:
+        AnalyzerHelpers::GetNumberString( frame.mData1,
+                                          display_base,
+                                          3,
+                                          bc_str,
+                                          8 );
+        ss << "ExLongByteCount: " << bc_str;
+        AddTabularText(ss.str().c_str());
+        break;
+
+    case RffeAddressField:
+        AnalyzerHelpers::GetNumberString( frame.mData1,
+                                          display_base,
+                                          8,
+                                          addr_str,
+                                          8 );
+        ss << "Addr: " << addr_str;
+        AddTabularText(ss.str().c_str());
+        break;
+
+    case RffeAddressHiField:
+        AnalyzerHelpers::GetNumberString( frame.mData1,
+                                          display_base,
+                                          8,
+                                          addr_str,
+                                          8 );
+        ss << "AddrHi: " << addr_str;
+        AddTabularText(ss.str().c_str());
+        break;
+
+    case RffeAddressLoField:
+        AnalyzerHelpers::GetNumberString( frame.mData1,
+                                          display_base,
+                                          8,
+                                          addr_str,
+                                          8 );
+        ss << "AddrLo: " << addr_str;
+        AddTabularText(ss.str().c_str());
+        break;
+
+    case RffeShortDataField:
+        AnalyzerHelpers::GetNumberString( frame.mData1,
+                                          display_base,
+                                          7,
+                                          data_str,
+                                          8 );
+        ss << "DataShort: " << data_str;
+        AddTabularText(ss.str().c_str());
+        break;
+
+    case RffeDataField:
+        AnalyzerHelpers::GetNumberString( frame.mData1,
+            display_base,
+            8,
+            data_str,
+            8 );
+        ss << "Data: " << data_str;
+        AddTabularText(ss.str().c_str());
+        break;
+
+    case RffeParityField:
+        if ( frame.mData2 == 0 )
+        {
+            AnalyzerHelpers::GetNumberString( frame.mData1,
+                Decimal,
+                1,
+                parity_str,
+                4 );
+            ss << "DataParity: " << parity_str;
+            AddTabularText(ss.str().c_str());
+        }
+        else
+        {
+            AnalyzerHelpers::GetNumberString( frame.mData1,
+                Decimal,
+                1,
+                parityCmd_str,
+                4 );
+            ss << "CmdParity: " << parityCmd_str;
+            AddTabularText(ss.str().c_str());
+        }
+        break;
+
+    case RffeBusParkField:
+        ss << "BP";
+        AddTabularText(ss.str().c_str());
+        break;
+
+    case RffeErrorCaseField:
+    default:
+        char number1_str[20];
+        char number2_str[20];
+
+        AnalyzerHelpers::GetNumberString( frame.mData1,
+            Hexadecimal,
+            32,
+            number1_str,
+            10 );
+        AnalyzerHelpers::GetNumberString( frame.mData2,
+            Hexadecimal,
+            32,
+            number2_str,
+            10 );
+        ss << "ERROR:" << number1_str << " - " << number2_str << " ";
+        AddTabularText(ss.str().c_str());
+        break;
+    }
+
 }
 
 void RFFEAnalyzerResults::GeneratePacketTabularText( U64 packet_id, DisplayBase display_base )
