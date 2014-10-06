@@ -258,7 +258,7 @@ U8 RFFESimulationDataGenerator::CreateRandomData()
     lsb = mLSFRData & 0x1;
     mLSFRData >>= 1;
     if (lsb) {
-        mLSFRData ^= 0xB8;  // Maximum period polynomial for Galois LSFR of 8 bits
+        mLSFRData ^= 0xB8;  // Maximum period polynomial for Galois LFSR of 8 bits
     }
     return mLSFRData;
 }
