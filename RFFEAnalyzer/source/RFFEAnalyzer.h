@@ -13,6 +13,7 @@
 #define UNEXPECTED_SSC_EXCEPTION 101
 
 class RFFEAnalyzerSettings;
+
 class ANALYZER_EXPORT RFFEAnalyzer : public Analyzer2
 {
 public:

@@ -434,6 +434,8 @@ void RFFEAnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBase
 
     U64 trigger_sample  = mAnalyzer->GetTriggerSample();
     U32 sample_rate     = mAnalyzer->GetSampleRate();
+    
+    ClearTabularText();
 
     frame = GetFrame( frame_index );
 
