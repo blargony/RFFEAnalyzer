@@ -276,6 +276,8 @@ void CanAnalyzerResults::GenerateExportFile( const char* file, DisplayBase displ
 
 void CanAnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBase display_base )
 {
+    ClearTabularText();
+
 	Frame frame = GetFrame( frame_index );
 
 	switch( frame.mType )

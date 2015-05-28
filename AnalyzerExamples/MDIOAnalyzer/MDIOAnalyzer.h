@@ -18,7 +18,7 @@ struct PacketType
 };
 
 class MDIOAnalyzerSettings;
-class ANALYZER_EXPORT MDIOAnalyzer : public Analyzer
+class ANALYZER_EXPORT MDIOAnalyzer : public Analyzer2
 {
 public:
 	MDIOAnalyzer();
@@ -30,7 +30,7 @@ public:
 
 	virtual const char* GetAnalyzerName() const;
 	virtual bool NeedsRerun();
-	
+    virtual void SetupResults();
 protected: 
 	void AdvanceToStartFrame();
 	

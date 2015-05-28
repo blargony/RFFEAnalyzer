@@ -3,7 +3,7 @@
 #include <AnalyzerChannelData.h>
 
 HD44780Analyzer::HD44780Analyzer()
-:	Analyzer(),
+:	Analyzer2(),
 	mSettings( new HD44780AnalyzerSettings() ),
 	mSimulationInitilized( false ),
   bitmode8(true),
@@ -220,10 +220,6 @@ void HD44780Analyzer::WorkerThread()
 {
   U32 dbline;
 
-	mResults.reset( new HD44780AnalyzerResults( this, mSettings.get() ) );
-	SetAnalyzerResults( mResults.get() );
-	mResults->AddChannelBubblesWillAppearOn( mSettings->mEChannel );
-
   //get sample rate
 	mSampleRateHz = GetSampleRate();
 
@@ -258,6 +254,13 @@ void HD44780Analyzer::WorkerThread()
       GetTransfer();
       CheckIfThreadShouldExit();
     }
+}
+
+void HD44780Analyzer::SetupResults()
+{
+    mResults.reset( new HD44780AnalyzerResults( this, mSettings.get() ) );
+    SetAnalyzerResults( mResults.get() );
+    mResults->AddChannelBubblesWillAppearOn( mSettings->mEChannel );
 }
 
 bool HD44780Analyzer::NeedsRerun()

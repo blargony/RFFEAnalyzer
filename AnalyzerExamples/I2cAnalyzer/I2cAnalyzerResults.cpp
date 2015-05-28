@@ -193,6 +193,8 @@ void I2cAnalyzerResults::GenerateExportFile( const char* file, DisplayBase displ
 
 void I2cAnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBase display_base )
 {
+    ClearTabularText();
+
 	Frame frame = GetFrame( frame_index );
 
 	char ack[32];

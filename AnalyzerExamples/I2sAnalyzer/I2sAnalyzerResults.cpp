@@ -158,6 +158,7 @@ void I2sAnalyzerResults::GenerateExportFile( const char* file, DisplayBase displ
 
 void I2sAnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBase display_base )
 {
+    ClearTabularText();
 	
 	Frame frame = GetFrame( frame_index );
 

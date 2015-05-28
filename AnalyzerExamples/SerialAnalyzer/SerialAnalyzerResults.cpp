@@ -198,6 +198,7 @@ void SerialAnalyzerResults::GenerateExportFile( const char* file, DisplayBase di
 
 void SerialAnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBase display_base )
 {
+    ClearTabularText();
 	Frame frame = GetFrame( frame_index );
 
 	bool framing_error = false;

@@ -56,11 +56,8 @@ void JtagAnalyzer::AdvanceTck(Frame& frm, JtagShiftedData& shifted_data)
 }
 
 void JtagAnalyzer::Setup()
-{
-	mResults.reset(new JtagAnalyzerResults(this, &mSettings));
-	SetAnalyzerResults(mResults.get());
-
-	// get the channel data pointers
+{	
+    // get the channel data pointers
 	mTms = GetAnalyzerChannelData(mSettings.mTmsChannel);
 	mTck = GetAnalyzerChannelData(mSettings.mTckChannel);
 	if (mSettings.mTdiChannel != UNDEFINED_CHANNEL)
@@ -77,13 +74,6 @@ void JtagAnalyzer::Setup()
 		mTrst = GetAnalyzerChannelData(mSettings.mTrstChannel);
 	else
 		mTrst = NULL;
-
-	// set which channels will carry bubbles
-	mResults->AddChannelBubblesWillAppearOn(mSettings.mTmsChannel);
-	if (mTdi != NULL)
-		mResults->AddChannelBubblesWillAppearOn(mSettings.mTdiChannel);
-	if (mTdo != NULL)
-		mResults->AddChannelBubblesWillAppearOn(mSettings.mTdoChannel);
 }
 
 void JtagAnalyzer::CloseFrame(Frame& frm, JtagShiftedData& shifted_data, U64 ending_sample_number)
@@ -111,7 +101,7 @@ void JtagAnalyzer::CloseFrame(Frame& frm, JtagShiftedData& shifted_data, U64 end
 
 void JtagAnalyzer::WorkerThread()
 {
-	Setup();
+    Setup();
 
 	// make sure that we enter the loop on TRST high (inactive)
 	if (mTrst != NULL  &&   mTrst->GetBitState() == BIT_LOW)
@@ -188,7 +178,20 @@ void JtagAnalyzer::WorkerThread()
 
 bool JtagAnalyzer::NeedsRerun()
 {
-	return false;
+    return false;
+}
+
+void JtagAnalyzer::SetupResults()
+{
+    mResults.reset(new JtagAnalyzerResults(this, &mSettings));
+    SetAnalyzerResults(mResults.get());
+
+    // set which channels will carry bubbles
+    mResults->AddChannelBubblesWillAppearOn(mSettings.mTmsChannel);
+    if (mTdi != NULL)
+        mResults->AddChannelBubblesWillAppearOn(mSettings.mTdiChannel);
+    if (mTdo != NULL)
+        mResults->AddChannelBubblesWillAppearOn(mSettings.mTdoChannel);
 }
 
 U32 JtagAnalyzer::GenerateSimulationData(U64 minimum_sample_index, U32 device_sample_rate, SimulationChannelDescriptor** simulation_channels)

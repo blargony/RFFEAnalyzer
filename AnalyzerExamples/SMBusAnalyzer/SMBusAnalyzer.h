@@ -9,7 +9,7 @@
 
 #include "SMBusTypes.h"
 
-class SMBusAnalyzer : public Analyzer
+class SMBusAnalyzer : public Analyzer2
 {
 public:
 	SMBusAnalyzer();
@@ -21,6 +21,7 @@ public:
 
 	virtual const char* GetAnalyzerName() const;
 	virtual bool NeedsRerun();
+    virtual void SetupResults();
 
 	// helpers
 	AnalyzerChannelData* GetNearestTransitionChannel();

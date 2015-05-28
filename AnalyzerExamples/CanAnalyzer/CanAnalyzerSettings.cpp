@@ -15,7 +15,7 @@ CanAnalyzerSettings::CanAnalyzerSettings()
 
 	mBitRateInterface.reset( new AnalyzerSettingInterfaceInteger() );
 	mBitRateInterface->SetTitleAndTooltip( "Bit Rate (Bits/S)",  "Specify the bit rate in bits per second." );
-	mBitRateInterface->SetMax( 2000000 );
+    mBitRateInterface->SetMax( 25000000 );
 	mBitRateInterface->SetMin( 10000 );
 	mBitRateInterface->SetInteger( mBitRate );
 

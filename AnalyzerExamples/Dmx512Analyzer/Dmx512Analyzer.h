@@ -7,7 +7,7 @@
 #include "Dmx512SimulationDataGenerator.h"
 
 class Dmx512AnalyzerSettings;
-class ANALYZER_EXPORT Dmx512Analyzer : public Analyzer
+class ANALYZER_EXPORT Dmx512Analyzer : public Analyzer2
 {
 public:
 	Dmx512Analyzer();
@@ -19,6 +19,8 @@ public:
 
 	virtual const char* GetAnalyzerName() const;
 	virtual bool NeedsRerun();
+
+    virtual void SetupResults();
 
 	enum { BREAK, MAB, START_CODE, DATA, MBB, MARK, STOP, START } data_type;
 

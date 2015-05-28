@@ -5,7 +5,7 @@
 #include "HdmiCecProtocol.h"
 
 HdmiCecAnalyzer::HdmiCecAnalyzer()
-:	Analyzer(),
+:	Analyzer2(),
     mSettings( new HdmiCecAnalyzerSettings() ),
     mSimulationInitilized( false )
 {
@@ -19,10 +19,6 @@ HdmiCecAnalyzer::~HdmiCecAnalyzer()
 
 void HdmiCecAnalyzer::WorkerThread()
 {
-    mResults.reset( new HdmiCecAnalyzerResults( this, mSettings.get() ) );
-    SetAnalyzerResults( mResults.get() );
-    mResults->AddChannelBubblesWillAppearOn( mSettings->mCecChannel );
-
     mCec = GetAnalyzerChannelData( mSettings->mCecChannel );
 
     // For each successful iteration of this loop, we add a new packet and one or
@@ -115,6 +111,13 @@ U32 HdmiCecAnalyzer::GenerateSimulationData( U64 minimum_sample_index, U32 devic
 U32 HdmiCecAnalyzer::GetMinimumSampleRateHz()
 {
     return HdmiCec::MinSampleRateHz;
+}
+
+void HdmiCecAnalyzer::SetupResults()
+{
+    mResults.reset( new HdmiCecAnalyzerResults( this, mSettings.get() ) );
+    SetAnalyzerResults( mResults.get() );
+    mResults->AddChannelBubblesWillAppearOn( mSettings->mCecChannel );
 }
 
 const char* HdmiCecAnalyzer::GetAnalyzerName() const

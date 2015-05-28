@@ -107,6 +107,7 @@ void SpiAnalyzerResults::GenerateExportFile( const char* file, DisplayBase displ
 
 void SpiAnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBase display_base )
 {
+    ClearTabularText();
 	Frame frame = GetFrame( frame_index );
 
 	bool mosi_used = true;

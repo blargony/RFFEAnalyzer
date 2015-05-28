@@ -82,6 +82,10 @@ void JtagAnalyzerResults::GenerateBubbleText(U64 frame_index, Channel& channel, 
 		if (sdi != mShiftedData.end())
 			AddResultString(channel == mSettings->mTdiChannel ? sdi->GetTDIString(display_base).c_str() : sdi->GetTDOString(display_base).c_str());
 	}
+
+    char number_str[128];
+    AnalyzerHelpers::GetNumberString( f.mData1, display_base, 8, number_str, 128 );
+    AddResultString( number_str );
 }
 
 void JtagAnalyzerResults::GenerateExportFile(const char* file, DisplayBase display_base, U32 export_type_user_id)
@@ -140,12 +144,57 @@ void JtagAnalyzerResults::GenerateExportFile(const char* file, DisplayBase displ
 
 void JtagAnalyzerResults::GenerateFrameTabularText(U64 frame_index, DisplayBase display_base)
 {
-	Frame frame = GetFrame(frame_index);
-	ClearResultStrings();
+    ClearTabularText();
 
-	char number_str[128];
-	AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, number_str, 128 );
-	AddResultString( number_str );
+    Frame f = GetFrame(frame_index);
+
+    std::vector< std::string > result_strings;
+
+    ClearTabularText();
+
+    bool tms_used = true;
+    bool tdi_used = true;
+    bool tdo_used = true;
+
+    if( mSettings->mTmsChannel == UNDEFINED_CHANNEL )
+        tms_used = false;
+
+    if( mSettings->mTdiChannel == UNDEFINED_CHANNEL )
+        tdi_used = false;
+
+    if( mSettings->mTdoChannel == UNDEFINED_CHANNEL )
+        tdo_used = false;
+
+    if( tms_used = true )
+    {
+        // add the TAP state descriptions to the TMS channel
+
+        result_strings.push_back( GetStateDescLong((JtagTAPState) f.mType) );
+        //result_strings.push_back( GetStateDescShort((JtagTAPState) f.mType) );
+    }
+    if (  tdi_used == true ||  tdo_used == true ) {
+
+        // find this frame's TDI/TDO data
+        JtagShiftedData sd;
+        sd.mStartSampleIndex = f.mStartingSampleInclusive;
+        std::set<JtagShiftedData>::iterator sdi(mShiftedData.find(sd));
+
+        // found?
+        if (sdi != mShiftedData.end())
+        {
+            if( tdi_used == true )
+                result_strings.push_back( sdi->GetTDIString(display_base).c_str() );
+
+            if( tdo_used == true )
+                result_strings.push_back( sdi->GetTDOString(display_base).c_str() );
+        }
+    }
+
+    for( int i = 0; i < result_strings.size(); i++ )
+    {
+        AddTabularText( result_strings[i].c_str());
+    }
+
 }
 
 void JtagAnalyzerResults::GeneratePacketTabularText(U64 packet_id, DisplayBase display_base)

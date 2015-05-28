@@ -6,7 +6,7 @@
 #include "BISSSimulationDataGenerator.h"
 
 class BISSAnalyzerSettings;
-class ANALYZER_EXPORT BISSAnalyzer : public Analyzer
+class ANALYZER_EXPORT BISSAnalyzer : public Analyzer2
 {
 public:
 	BISSAnalyzer();
@@ -17,6 +17,7 @@ public:
 	virtual U32 GetMinimumSampleRateHz();
 
 	virtual const char* GetAnalyzerName() const;
+    virtual void SetupResults();
 	virtual bool NeedsRerun();
 
 protected: //functions

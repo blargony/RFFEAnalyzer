@@ -3,7 +3,7 @@
 #include <AnalyzerChannelData.h>
 
 LINAnalyzer::LINAnalyzer()
-: Analyzer()
+: Analyzer2()
 , mSettings( new LINAnalyzerSettings() )
 , mSimulationInitilized( false )
 , mFrameState(LINAnalyzerResults::NoFrame)
@@ -28,10 +28,6 @@ void LINAnalyzer::WorkerThread()
     ibsFrame.mData2 = 0;
     ibsFrame.mFlags = 0;
     ibsFrame.mType = 0;
-
-	mResults.reset( new LINAnalyzerResults( this, mSettings.get() ) );
-	SetAnalyzerResults( mResults.get() );
-	mResults->AddChannelBubblesWillAppearOn( mSettings->mInputChannel );
 
 	mSerial = GetAnalyzerChannelData( mSettings->mInputChannel );
 
@@ -160,7 +156,14 @@ U32 LINAnalyzer::GenerateSimulationData( U64 minimum_sample_index, U32 device_sa
 
 U32 LINAnalyzer::GetMinimumSampleRateHz()
 {
-	return mSettings->mBitRate * 4;
+    return mSettings->mBitRate * 4;
+}
+
+void LINAnalyzer::SetupResults()
+{
+    mResults.reset( new LINAnalyzerResults( this, mSettings.get() ) );
+    SetAnalyzerResults( mResults.get() );
+    mResults->AddChannelBubblesWillAppearOn( mSettings->mInputChannel );
 }
 
 const char* LINAnalyzer::GetAnalyzerName() const

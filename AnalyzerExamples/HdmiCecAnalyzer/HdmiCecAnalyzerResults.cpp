@@ -27,6 +27,8 @@ void HdmiCecAnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayB
 {
     Frame frame = GetFrame( frame_index );
     mDisplayBase = display_base;
+
+    ClearTabularText();
   
     switch( frame.mType )
     {

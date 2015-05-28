@@ -69,6 +69,8 @@ void ManchesterAnalyzerResults::GenerateExportFile( const char* file, DisplayBas
 
 void ManchesterAnalyzerResults::GenerateFrameTabularText(U64 frame_index, DisplayBase display_base )
 {
+    ClearTabularText();
+
 	Frame frame = GetFrame( frame_index );
 	
 	char number_str[128];

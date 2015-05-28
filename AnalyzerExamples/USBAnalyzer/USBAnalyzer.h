@@ -9,7 +9,7 @@
 
 #include "USBTypes.h"
 
-class USBAnalyzer : public Analyzer
+class USBAnalyzer : public Analyzer2
 {
 public:
 	USBAnalyzer();
@@ -19,6 +19,7 @@ public:
 	virtual U32 GenerateSimulationData(U64 newest_sample_requested, U32 sample_rate, SimulationChannelDescriptor** simulation_channels);
 	virtual U32 GetMinimumSampleRateHz();
 
+    virtual void SetupResults();
 	virtual const char* GetAnalyzerName() const;
 	virtual bool NeedsRerun();
 

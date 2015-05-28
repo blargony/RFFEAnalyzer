@@ -3,7 +3,7 @@
 #include <AnalyzerChannelData.h>
 
 MDIOAnalyzer::MDIOAnalyzer()
-:	Analyzer(),  
+:	Analyzer2(),
 mSettings( new MDIOAnalyzerSettings() ),
 mSimulationInitialized( false )
 {
@@ -16,11 +16,7 @@ MDIOAnalyzer::~MDIOAnalyzer()
 }
 
 void MDIOAnalyzer::WorkerThread()
-{
-	mResults.reset( new MDIOAnalyzerResults( this, mSettings.get() ) );
-	SetAnalyzerResults( mResults.get() );
-	mResults->AddChannelBubblesWillAppearOn( mSettings->mMdioChannel );
-	
+{	
 	mSampleRateHz = GetSampleRate();
 	// mPacketInTransaction = 0;
 	// mTransactionID = 0;
@@ -432,7 +428,14 @@ void MDIOAnalyzer::GetBit( BitState& bit_state, std::vector<U64> & arrows)
 
 bool MDIOAnalyzer::NeedsRerun()
 {
-	return false;
+    return false;
+}
+
+void MDIOAnalyzer::SetupResults()
+{
+    mResults.reset( new MDIOAnalyzerResults( this, mSettings.get() ) );
+    SetAnalyzerResults( mResults.get() );
+    mResults->AddChannelBubblesWillAppearOn( mSettings->mMdioChannel );
 }
 
 U32 MDIOAnalyzer::GenerateSimulationData( U64 minimum_sample_index, U32 device_sample_rate, SimulationChannelDescriptor** simulation_channels )

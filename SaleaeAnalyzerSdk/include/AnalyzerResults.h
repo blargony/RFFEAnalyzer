@@ -98,12 +98,10 @@ protected:
 
 public:	
 	
-	const char* BuildSearchData( U64 FrameID, DisplayBase disp_base, int channel_list_index, char* result);
 
-	std::string GetStringForDisplayBase(U64 frame_id, Channel channel, DisplayBase disp_base);
-	void AddTabularText(const char* str1, const char* str2 = NULL, const char* str3 = NULL, const char* str4 = NULL, const char* str5 = NULL, const char* str6 = NULL);
-	std::string GetTabularTextString();
-	
+    void AddTabularText(const char* str1, const char* str2 = NULL, const char* str3 = NULL, const char* str4 = NULL, const char* str5 = NULL, const char* str6 = NULL);
+    void GetSearchData(const char ***result_string_array, U32 *num_strings);
+    void ClearTabularText();
 };
 
 

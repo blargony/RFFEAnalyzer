@@ -5,7 +5,7 @@
 #include <AnalyzerChannelData.h>
 
 PS2KeyboardAnalyzer::PS2KeyboardAnalyzer()
-:	Analyzer(),  
+:	Analyzer2(),
 	mSettings( new PS2KeyboardAnalyzerSettings() ),
 	mSimulationInitilized( false )
 {
@@ -20,10 +20,6 @@ PS2KeyboardAnalyzer::~PS2KeyboardAnalyzer()
 
 void PS2KeyboardAnalyzer::WorkerThread()
 {
-	mResults.reset( new PS2KeyboardAnalyzerResults( this, mSettings.get() ) );
-	SetAnalyzerResults( mResults.get() );
-	mResults->AddChannelBubblesWillAppearOn( mSettings->mDataChannel );
-
 	mData = GetAnalyzerChannelData( mSettings->mDataChannel );
 	mClock = GetAnalyzerChannelData( mSettings->mClockChannel );
 
@@ -265,7 +261,14 @@ U32 PS2KeyboardAnalyzer::GenerateSimulationData( U64 minimum_sample_index, U32 d
 
 U32 PS2KeyboardAnalyzer::GetMinimumSampleRateHz()
 {
-	return 25000;
+    return 25000;
+}
+
+void PS2KeyboardAnalyzer::SetupResults()
+{
+    mResults.reset( new PS2KeyboardAnalyzerResults( this, mSettings.get() ) );
+    SetAnalyzerResults( mResults.get() );
+    mResults->AddChannelBubblesWillAppearOn( mSettings->mDataChannel );
 }
 
 const char* PS2KeyboardAnalyzer::GetAnalyzerName() const

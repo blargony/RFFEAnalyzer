@@ -198,6 +198,7 @@ void UnioAnalyzerResults::GenerateExportFile( const char* file, DisplayBase disp
 
 void UnioAnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBase display_base )
 {
+    ClearTabularText();
 	Frame frame = GetFrame( frame_index );
 
 	//enum UnioFrameType { HeaderFrame, AddressFrame8, AddressFrame12, DataFrame, InvalidBit, ErrorMakRequired, ErrorNoSakRequired };

@@ -7,7 +7,7 @@
 #include "PS2KeyboardAnalyzerScanCodes.h"
 
 class PS2KeyboardAnalyzerSettings;
-class ANALYZER_EXPORT PS2KeyboardAnalyzer : public Analyzer
+class ANALYZER_EXPORT PS2KeyboardAnalyzer : public Analyzer2
 {
 public:
 	PS2KeyboardAnalyzer();
@@ -16,6 +16,7 @@ public:
 
 	virtual U32 GenerateSimulationData( U64 newest_sample_requested, U32 sample_rate, SimulationChannelDescriptor** simulation_channels );
 	virtual U32 GetMinimumSampleRateHz();
+    virtual void SetupResults();
 
 	virtual const char* GetAnalyzerName() const;
 	virtual bool NeedsRerun();

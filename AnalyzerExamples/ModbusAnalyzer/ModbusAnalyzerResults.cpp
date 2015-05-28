@@ -1030,7 +1030,7 @@ void ModbusAnalyzerResults::GenerateExportFile( const char* file, DisplayBase di
 void ModbusAnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBase display_base )
 {
 	Frame frame = GetFrame( frame_index );
-	ClearResultStrings();
+    ClearTabularText();
 
 	bool framing_error = false;
 	if( ( frame.mFlags & FRAMING_ERROR_FLAG ) != 0 )
@@ -1040,29 +1040,396 @@ void ModbusAnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBa
 	if( ( frame.mFlags & PARITY_ERROR_FLAG ) != 0 )
 		parity_error = true;
 
-	char number_str[128];
-	AnalyzerHelpers::GetNumberString( frame.mData1, display_base, mSettings->mBitsPerTransfer, number_str, 128 );
 
-	char result_str[128];
+    U32 bits_per_transfer = mSettings->mBitsPerTransfer;
+    if( mSettings->mModbusMode != ModbusAnalyzerEnums::Normal )
+        bits_per_transfer--;
 
-	if( parity_error == false && framing_error == false )
-	{
-		AddResultString( number_str );
-	}else
-	if( parity_error == true && framing_error == false )
-	{
-		sprintf( result_str, "%s (parity error)", number_str );
-		AddResultString( result_str );
-	}else
-	if( parity_error == false && framing_error == true )
-	{
-		sprintf( result_str, "%s (framing error)", number_str );
-		AddResultString( result_str );
-	}else
-	{
-		sprintf( result_str, "%s (framing error & parity error)", number_str );
-		AddResultString( result_str );
-	}
+    if(mSettings->mModbusMode==ModbusAnalyzerEnums::ModbusASCIIMaster || mSettings->mModbusMode==ModbusAnalyzerEnums::ModbusASCIISlave || mSettings->mModbusMode==ModbusAnalyzerEnums::ModbusRTUMaster || mSettings->mModbusMode==ModbusAnalyzerEnums::ModbusRTUSlave)
+    {
+        char DeviceAddrStr[128];
+        U8 DeviceAddr = (frame.mData1 & 0xFF00000000000000)>>56;
+        AnalyzerHelpers::GetNumberString( DeviceAddr, display_base, bits_per_transfer, DeviceAddrStr, 128 );
+
+        char FunctionCodeStr[128];
+        U8 FunctionCode = (frame.mData1 & 0x00FF000000000000)>>48;
+        AnalyzerHelpers::GetNumberString( FunctionCode, display_base, bits_per_transfer, FunctionCodeStr, 128 );
+
+        char Payload1Str[128];
+        U16 Payload1 = (frame.mData1 & 0x0000FFFF00000000)>>32;
+        AnalyzerHelpers::GetNumberString( Payload1, display_base, bits_per_transfer, Payload1Str, 128 );
+
+        char Payload2Str[128];
+        U16 Payload2 = (frame.mData1 & 0x00000000FFFF0000)>>16;
+        AnalyzerHelpers::GetNumberString( Payload2, display_base, bits_per_transfer, Payload2Str, 128 );
+
+        char Payload3Str[128];
+        U16 Payload3 = (frame.mData2 & 0x000000000000FFFF);
+        AnalyzerHelpers::GetNumberString( Payload3, display_base, bits_per_transfer, Payload3Str, 128 );
+
+        char Payload4Str[128];
+        U16 Payload4 = (frame.mData2 & 0x00000000FFFF0000)>>16;
+        AnalyzerHelpers::GetNumberString( Payload4, display_base, bits_per_transfer, Payload4Str, 128 );
+
+        char ChecksumStr[128];
+        U16 Checksum = (frame.mData1 & 0x000000000000FFFF);
+        AnalyzerHelpers::GetNumberString( Checksum, display_base, bits_per_transfer, ChecksumStr, 128 );
+
+        char result_str[256];
+        char Error_str[128];
+
+        if(frame.mFlags&FLAG_REQUEST_FRAME)
+        {
+            switch(FunctionCode)
+            {
+            case FUNCCODE_READ_COILS:
+                sprintf( result_str, "DeviceID: %s, Func: Read Coils (%s), StartAddr: %s, Qty: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                break;
+            case FUNCCODE_READ_DISCRETE_INPUTS:
+                sprintf( result_str, "DeviceID: %s, Func: Read Discrete Inputs (%s), StartAddr: %s, Qty: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                break;
+            case FUNCCODE_READ_HOLDING_REGISTERS:
+                sprintf( result_str, "DeviceID: %s, Func: Holding Registers (%s), StartAddr: %s, Qty: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                break;
+            case FUNCCODE_READ_INPUT_REGISTER:
+                sprintf( result_str, "DeviceID: %s, Func: Input Registers (%s), StartAddr: %s, Qty: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                break;
+            case FUNCCODE_WRITE_SINGLE_COIL:
+                sprintf( result_str, "DeviceID: %s, Func: Write Single Coil (%s), Addr: %s, Value: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                break;
+            case FUNCCODE_WRITE_SINGLE_REGISTER:
+                sprintf( result_str, "DeviceID: %s, Func: Write Single Register (%s), Addr: %s, Value: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                break;
+            case FUNCCODE_READ_EXCEPTION_STATUS:
+                sprintf( result_str, "DeviceID: %s, Func: Read Exception Status (%s), ChkSum: %s", DeviceAddrStr, FunctionCodeStr, ChecksumStr );
+                break;
+            case FUNCCODE_DIAGNOSTIC:
+
+                switch(Payload1)
+                {
+                case RETURN_QUERY_DATA:
+                    sprintf( result_str, "DeviceID: %s, Func: Diagnostics (%s), SubFunc: Return Query Data (%s), Data: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                    break;
+                case RESTART_COMMUNICATIONS_OPTION:
+                    sprintf( result_str, "DeviceID: %s, Func: Diagnostics (%s), SubFunc: Restart Comms Option (%s), Data: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                    break;
+                case RETURN_DIAGNOSTIC_REGISTER:
+                    sprintf( result_str, "DeviceID: %s, Func: Diagnostics (%s), SubFunc: Return Diag Reg (%s), Data: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                    break;
+                case CHANGE_ASCII_INPUT_DELIM:
+                    sprintf( result_str, "DeviceID: %s, Func: Diagnostics (%s), SubFunc: Change ASCII Input Delim (%s), Data: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                    break;
+                case FORCE_LISTEN_ONLY_MODE:
+                    sprintf( result_str, "DeviceID: %s, Func: Diagnostics (%s), SubFunc: Force Listen Only Mode (%s), Data: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                    break;
+                case CLEAR_COUNTERS_AND_DIAG_REGISTER:
+                    sprintf( result_str, "DeviceID: %s, Func: Diagnostics (%s), SubFunc: Clr Counters And Diag Reg (%s), Data: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                    break;
+                case RETURN_BUS_MESSAGE_COUNT:
+                    sprintf( result_str, "DeviceID: %s, Func: Diagnostics (%s), SubFunc: Bus Msg Cnt (%s), Data: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                    break;
+                case RETURN_BUS_COMM_ERROR_COUNT:
+                    sprintf( result_str, "DeviceID: %s, Func: Diagnostics (%s), SubFunc: Bus Comm Err Cnt (%s), Data: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                    break;
+                case RETURN_BUS_EXCEPTION_ERROR_COUNT:
+                    sprintf( result_str, "DeviceID: %s, Func: Diagnostics (%s), SubFunc: Bus Excpt Err Cnt (%s), Data: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                    break;
+                case RETURN_SLAVE_MESSAGE_COUNT:
+                    sprintf( result_str, "DeviceID: %s, Func: Diagnostics (%s), SubFunc: Slave Msg Cnt (%s), Data: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                    break;
+                case RETURN_SLAVE_NO_RESPONSE_COUNT:
+                    sprintf( result_str, "DeviceID: %s, Func: Diagnostics (%s), SubFunc: Slave No Resp Cnt (%s), Data: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                    break;
+                case RETURN_SLAVE_NAK_COUNT:
+                    sprintf( result_str, "DeviceID: %s, Func: Diagnostics (%s), SubFunc: Slave NAK Cnt (%s), Data: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                    break;
+                case RETURN_SLAVE_BUSY_COUNT:
+                    sprintf( result_str, "DeviceID: %s, Func: Diagnostics (%s), SubFunc: Slave Busy Cnt (%s), Data: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                    break;
+                case RETURN_BUS_CHAR_OVERRUN_COUNT:
+                    sprintf( result_str, "DeviceID: %s, Func: Diagnostics (%s), SubFunc: Bus Char Overrun Cnt (%s), Data: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                    break;
+                case CLEAR_OVERRUN_COUNTER_AND_FLAG:
+                    sprintf( result_str, "DeviceID: %s, Func: Diagnostics (%s), SubFunc: Clear Overrun Cnt (%s), Data: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                    break;
+                }
+                break;
+            case FUNCCODE_GET_COM_EVENT_COUNTER:
+                sprintf( result_str, "DeviceID: %s, Func: Get Comm Event Counter (%s), ChkSum: %s", DeviceAddrStr, FunctionCodeStr, ChecksumStr );
+                break;
+            case FUNCCODE_GET_COM_EVENT_LOG:
+                sprintf( result_str, "DeviceID: %s, Func: Get Comm Event Log (%s), ChkSum: %s", DeviceAddrStr, FunctionCodeStr, ChecksumStr );
+                break;
+            case FUNCCODE_WRITE_MULTIPLE_COILS:
+                sprintf( result_str, "DeviceID: %s, Func: Write Multiple Coils (%s), StartAddr: %s, Qty: %s, ByteCount: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                break;
+            case FUNCCODE_WRITE_MULTIPLE_REGISTERS:
+                sprintf( result_str, "DeviceID: %s, Func: Write Multiple Registers (%s), StartAddr: %s, Qty: %s, ByteCount: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                break;
+            case FUNCCODE_REPORT_SLAVE_ID:
+                sprintf( result_str, "DeviceID: %s, Func: Report Slave ID (%s), ChkSum: %s", DeviceAddrStr, FunctionCodeStr, ChecksumStr );
+                break;
+            case FUNCCODE_READ_FILE_RECORD:
+                sprintf( result_str, "DeviceID: %s, Func: Read File Record (%s), ByteCount: %s", DeviceAddrStr, FunctionCodeStr, ChecksumStr );
+                break;
+            case FUNCCODE_WRITE_FILE_RECORD:
+                AddTabularText( "Write File Record" );
+                sprintf( result_str, "DeviceID: %s, Func: Write File Record (%s), ByteCount: %s", DeviceAddrStr, FunctionCodeStr, ChecksumStr );
+                break;
+            case FUNCCODE_MASK_WRITE_REGISTER:
+                sprintf( result_str, "DeviceID: %s, Func: Mask Write Register (%s), RefAddr: %s, And_Mask: %s, OR_Mask: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, Payload3Str, ChecksumStr );
+                break;
+            case FUNCCODE_READWRITE_MULTIPLE_REGISTERS:
+                sprintf( result_str, "DeviceID: %s, Func: Read/Write Multiple Registers (%s), ReadStartAddr: %s, ReadQty: %s, WriteStartAddr: %s, WriteQty: %s, ByteCount: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, Payload4Str, Payload3Str, ChecksumStr );
+                break;
+            case FUNCCODE_READ_FIFO_QUEUE:
+                sprintf( result_str, "DeviceID: %s, Func: Read FIFO Queue (%s), Addr: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, ChecksumStr );
+                break;
+            case FUNCCODE_READ_DEVICE_ID:
+                sprintf( result_str, "DeviceID: %s, Func: Read Device ID (%s), MEI: %s, ReadIDCode: %s, ObjID: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, Payload3Str, ChecksumStr );
+                break;
+            }
+        }
+        else if(frame.mFlags&FLAG_RESPONSE_FRAME)
+        {
+            switch(FunctionCode)
+            {
+            case FUNCCODE_READ_COILS:
+                sprintf( result_str, "DeviceID: %s, Func: Read Coils [ACK] (%s), ByteCount: %s", DeviceAddrStr, FunctionCodeStr, ChecksumStr);
+                break;
+            case FUNCCODE_READ_DISCRETE_INPUTS:
+                sprintf( result_str, "DeviceID: %s, Func: Read Discrete Inputs [ACK] (%s), ByteCount: %s", DeviceAddrStr, FunctionCodeStr, ChecksumStr );
+                break;
+            case FUNCCODE_READ_HOLDING_REGISTERS:
+                sprintf( result_str, "DeviceID: %s, Func: Holding Registers [ACK] (%s), ByteCount: %s", DeviceAddrStr, FunctionCodeStr, ChecksumStr );
+                break;
+            case FUNCCODE_READ_INPUT_REGISTER:
+                sprintf( result_str, "DeviceID: %s, Func: Input Registers [ACK] (%s), ByteCount: %s", DeviceAddrStr, FunctionCodeStr, ChecksumStr );
+                break;
+            case FUNCCODE_WRITE_SINGLE_COIL:
+                sprintf( result_str, "DeviceID: %s, Func: Write Single Coil [ACK] (%s), Addr: %s, Value: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                break;
+            case FUNCCODE_WRITE_SINGLE_REGISTER:
+                sprintf( result_str, "DeviceID: %s, Func: Write Single Register [ACK] (%s), Addr: %s, Value: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                break;
+            case FUNCCODE_READ_EXCEPTION_STATUS:
+                sprintf( result_str, "DeviceID: %s, Func: Read Exception Status [ACK] (%s), Value: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, ChecksumStr );
+                break;
+            case FUNCCODE_DIAGNOSTIC:
+
+                switch(Payload1)
+                {
+                case RETURN_QUERY_DATA:
+                    sprintf( result_str, "DeviceID: %s, Func: Diagnostics [ACK] (%s), SubFunc: Return Query Data (%s), Data: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                    break;
+                case RESTART_COMMUNICATIONS_OPTION:
+                    sprintf( result_str, "DeviceID: %s, Func: Diagnostics [ACK] (%s), SubFunc: Restart Comms Option (%s), Data: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                    break;
+                case RETURN_DIAGNOSTIC_REGISTER:
+                    sprintf( result_str, "DeviceID: %s, Func: Diagnostics [ACK] (%s), SubFunc: Return Diag Reg (%s), Data: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                    break;
+                case CHANGE_ASCII_INPUT_DELIM:
+                    sprintf( result_str, "DeviceID: %s, Func: Diagnostics [ACK] (%s), SubFunc: Change ASCII Input Delim (%s), Data: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                    break;
+                case FORCE_LISTEN_ONLY_MODE:
+                    sprintf( result_str, "DeviceID: %s, Func: Diagnostics [ACK] (%s), SubFunc: Force Listen Only Mode (%s), Data: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                    break;
+                case CLEAR_COUNTERS_AND_DIAG_REGISTER:
+                    sprintf( result_str, "DeviceID: %s, Func: Diagnostics [ACK] (%s), SubFunc: Clr Counters And Diag Reg (%s), Data: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                    break;
+                case RETURN_BUS_MESSAGE_COUNT:
+                    sprintf( result_str, "DeviceID: %s, Func: Diagnostics [ACK] (%s), SubFunc: Bus Msg Cnt (%s), Data: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                    break;
+                case RETURN_BUS_COMM_ERROR_COUNT:
+                    sprintf( result_str, "DeviceID: %s, Func: Diagnostics [ACK] (%s), SubFunc: Bus Comm Err Cnt (%s), Data: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                    break;
+                case RETURN_BUS_EXCEPTION_ERROR_COUNT:
+                    sprintf( result_str, "DeviceID: %s, Func: Diagnostics [ACK] (%s), SubFunc: Bus Excpt Err Cnt (%s), Data: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                    break;
+                case RETURN_SLAVE_MESSAGE_COUNT:
+                    sprintf( result_str, "DeviceID: %s, Func: Diagnostics [ACK] (%s), SubFunc: Slave Msg Cnt (%s), Data: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                    break;
+                case RETURN_SLAVE_NO_RESPONSE_COUNT:
+                    sprintf( result_str, "DeviceID: %s, Func: Diagnostics [ACK] (%s), SubFunc: Slave No Resp Cnt (%s), Data: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                    break;
+                case RETURN_SLAVE_NAK_COUNT:
+                    sprintf( result_str, "DeviceID: %s, Func: Diagnostics [ACK] (%s), SubFunc: Slave NAK Cnt (%s), Data: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                    break;
+                case RETURN_SLAVE_BUSY_COUNT:
+                    sprintf( result_str, "DeviceID: %s, Func: Diagnostics [ACK] (%s), SubFunc: Slave Busy Cnt (%s), Data: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                    break;
+                case RETURN_BUS_CHAR_OVERRUN_COUNT:
+                    sprintf( result_str, "DeviceID: %s, Func: Diagnostics [ACK] (%s), SubFunc: Bus Char Overrun Cnt (%s), Data: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                    break;
+                case CLEAR_OVERRUN_COUNTER_AND_FLAG:
+                    sprintf( result_str, "DeviceID: %s, Func: Diagnostics [ACK] (%s), SubFunc: Clear Overrun Cnt (%s), Data: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                    break;
+                }
+                break;
+            case FUNCCODE_GET_COM_EVENT_COUNTER:
+                sprintf( result_str, "DeviceID: %s, Func: Get Comm Event Counter [ACK] (%s), Status: %s, Count: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                break;
+            case FUNCCODE_GET_COM_EVENT_LOG:
+                sprintf( result_str, "DeviceID: %s, Func: Get Comm Event Log [ACK] (%s), Status: %s, EventCnt: %s, MsgCnt: %s, ByteCount: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload4Str, Payload3Str, ChecksumStr );
+                break;
+            case FUNCCODE_WRITE_MULTIPLE_COILS:
+                sprintf( result_str, "DeviceID: %s, Func: Write Multiple Coils [ACK] (%s), StartAddr: %s, Qty: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                break;
+            case FUNCCODE_WRITE_MULTIPLE_REGISTERS:
+                sprintf( result_str, "DeviceID: %s, Func: Write Multiple Registers [ACK] (%s), StartAddr: %s, Qty: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+                break;
+            case FUNCCODE_REPORT_SLAVE_ID:
+                sprintf( result_str, "DeviceID: %s, Func: Report Slave ID [ACK] (%s), ByteCount: %s", DeviceAddrStr, FunctionCodeStr, ChecksumStr );
+                break;
+            case FUNCCODE_READ_FILE_RECORD:
+                sprintf( result_str, "DeviceID: %s, Func: Read File Record [ACK] (%s), ByteCount: %s", DeviceAddrStr, FunctionCodeStr, ChecksumStr );
+                break;
+            case FUNCCODE_WRITE_FILE_RECORD:
+                sprintf( result_str, "DeviceID: %s, Func: Write File Record [ACK] (%s), ByteCount: %s", DeviceAddrStr, FunctionCodeStr, ChecksumStr );
+                break;
+            case FUNCCODE_MASK_WRITE_REGISTER:
+                sprintf( result_str, "DeviceID: %s, Func: Mask Write Register [ACK] (%s), RefAddr: %s, And_Mask: %s, OR_Mask: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, Payload3Str, ChecksumStr );
+                break;
+            case FUNCCODE_READWRITE_MULTIPLE_REGISTERS:
+                sprintf( result_str, "DeviceID: %s, Func: Read/Write Multiple Registers [ACK] (%s), ByteCount: %s", DeviceAddrStr, FunctionCodeStr, ChecksumStr );
+                break;
+            case FUNCCODE_READ_FIFO_QUEUE:
+                sprintf( result_str, "DeviceID: %s, Func: Read FIFO Queue [ACK] (%s), ByteCount: %s, FIFO Count: %s", DeviceAddrStr, FunctionCodeStr, ChecksumStr, Payload2Str );
+                break;
+            case FUNCCODE_READ_DEVICE_ID:
+                sprintf( result_str, "DeviceID: %s, Func: Read Device ID (%s), MEI: %s, ReadIDCode: %s, ObjID: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, Payload2Str, Payload3Str, ChecksumStr );
+                break;
+            }
+
+        }
+        else if(frame.mFlags&FLAG_EXCEPTION_FRAME)
+        {
+            switch(FunctionCode-0x80)
+            {
+            case FUNCCODE_READ_COILS:
+                sprintf( result_str, "DeviceID: %s, Func: Read Coils [NACK] (%s), ExceptionCode: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, ChecksumStr);
+                break;
+            case FUNCCODE_READ_DISCRETE_INPUTS:
+                sprintf( result_str, "DeviceID: %s, Func: Read Discrete Inputs [NACK] (%s), ExceptionCode: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, ChecksumStr );
+                break;
+            case FUNCCODE_READ_HOLDING_REGISTERS:
+                sprintf( result_str, "DeviceID: %s, Func: Holding Registers [NACK] (%s), ExceptionCode: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, ChecksumStr );
+                break;
+            case FUNCCODE_READ_INPUT_REGISTER:
+                sprintf( result_str, "DeviceID: %s, Func: Input Registers [NACK] (%s), ExceptionCode: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, ChecksumStr );
+                break;
+            case FUNCCODE_WRITE_SINGLE_COIL:
+                sprintf( result_str, "DeviceID: %s, Func: Write Single Coil [NACK] (%s), ExceptionCode: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, ChecksumStr );
+                break;
+            case FUNCCODE_WRITE_SINGLE_REGISTER:
+                sprintf( result_str, "DeviceID: %s, Func: Write Single Register [NACK] (%s), ExceptionCode: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, ChecksumStr );
+                break;
+            case FUNCCODE_READ_EXCEPTION_STATUS:
+                sprintf( result_str, "DeviceID: %s, Func: Read Exception Status [NACK] (%s), ExceptionCode: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, ChecksumStr );
+                break;
+            case FUNCCODE_DIAGNOSTIC:
+                sprintf( result_str, "DeviceID: %s, Func: Diagnostics [NACK] (%s), ExceptionCode: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, ChecksumStr );
+                break;
+            case FUNCCODE_GET_COM_EVENT_COUNTER:
+                sprintf( result_str, "DeviceID: %s, Func: Get Comm Event Counter [NACK] (%s), ExceptionCode: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, ChecksumStr );
+                break;
+            case FUNCCODE_GET_COM_EVENT_LOG:
+                sprintf( result_str, "DeviceID: %s, Func: Get Comm Event Log [NACK] (%s), ExceptionCode: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, ChecksumStr );
+                break;
+            case FUNCCODE_WRITE_MULTIPLE_COILS:
+                sprintf( result_str, "DeviceID: %s, Func: Write Multiple Coils [NACK] (%s), ExceptionCode: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, ChecksumStr );
+                break;
+            case FUNCCODE_WRITE_MULTIPLE_REGISTERS:
+                sprintf( result_str, "DeviceID: %s, Func: Write Multiple Registers [NACK] (%s), ExceptionCode: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, ChecksumStr );
+                break;
+            case FUNCCODE_REPORT_SLAVE_ID:
+                sprintf( result_str, "DeviceID: %s, Func: Report Slave ID [NACK] (%s), ExceptionCode: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, ChecksumStr );
+                break;
+            case FUNCCODE_READ_FILE_RECORD:
+                sprintf( result_str, "DeviceID: %s, Func: Read File Record [NACK] (%s), ExceptionCode: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, ChecksumStr);
+                break;
+            case FUNCCODE_WRITE_FILE_RECORD:
+                sprintf( result_str, "DeviceID: %s, Func: Write File Record [NACK] (%s), ExceptionCode: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, ChecksumStr);
+                break;
+            case FUNCCODE_MASK_WRITE_REGISTER:
+                sprintf( result_str, "DeviceID: %s, Func: Mask Write Register [NACK] (%s), ExceptionCode: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, ChecksumStr );
+                break;
+            case FUNCCODE_READWRITE_MULTIPLE_REGISTERS:
+                sprintf( result_str, "DeviceID: %s, Func: Read/Write Multiple Registers [NACK] (%s), ExceptionCode: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, ChecksumStr );
+                break;
+            case FUNCCODE_READ_FIFO_QUEUE:
+                sprintf( result_str, "DeviceID: %s, Func: Read FIFO Queue [NACK] (%s), ExceptionCode: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, ChecksumStr);
+                break;
+            case FUNCCODE_READ_DEVICE_ID:
+                sprintf( result_str, "DeviceID: %s, Func: Read Device ID [NACK] (%s), ExceptionCode: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, ChecksumStr );
+                break;
+            default:
+                sprintf( result_str, "DeviceID: %s, Func: User Defined Function [NACK] (%s), ExceptionCode: %s, ChkSum: %s", DeviceAddrStr, FunctionCodeStr, Payload1Str, ChecksumStr );
+                break;
+            }
+        }
+        else if(frame.mFlags&FLAG_FILE_SUBREQ)
+        {
+            sprintf( result_str, "SubRequest - RefType: %s, FileNum: %s, RecordNum: %s, RecordLen: %s", FunctionCodeStr, Payload1Str, Payload2Str, ChecksumStr );
+        }
+        else if(frame.mFlags&FLAG_DATA_FRAME)
+        {
+            sprintf( result_str, "Value: %s", Payload1Str );
+        }
+        else if(frame.mFlags&FLAG_END_FRAME)
+        {
+            sprintf( result_str, " Checksum: %s", ChecksumStr );
+        }
+
+        if(frame.mFlags&FLAG_CHECKSUM_ERROR)
+            sprintf( result_str, "%s (Invalid Checksum!)", result_str );
+
+        AddTabularText( result_str );
+    }
+    else
+    {
+        char number_str[128];
+        AnalyzerHelpers::GetNumberString( frame.mData1, display_base, bits_per_transfer, number_str, 128 );
+
+        char result_str[128];
+
+        //MP mode address case:
+        bool mp_mode_address_flag = false;
+        if( ( frame.mFlags & MP_MODE_ADDRESS_FLAG ) != 0 )
+        {
+            mp_mode_address_flag = true;
+            if( framing_error == false )
+            {
+               sprintf( result_str, "Address: %s", number_str );
+
+            }else
+            {
+                sprintf( result_str, "Address: %s (framing error)", number_str );
+            }
+            return;
+        }
+
+        //normal case:
+        if( ( parity_error == true ) || ( framing_error == true ) )
+        {
+            sprintf( result_str, "%s (error)", number_str );
+            AddTabularText( result_str );
+
+            if( parity_error == true && framing_error == false )
+                sprintf( result_str, "%s (parity error)", number_str );
+            else
+            if( parity_error == false && framing_error == true )
+                sprintf( result_str, "%s (framing error)", number_str );
+            else
+                sprintf( result_str, "%s (framing error & parity error)", number_str );
+
+            AddTabularText( result_str );
+
+        }else
+        {
+            AddTabularText( number_str );
+        }
+    }
 }
 
 void ModbusAnalyzerResults::GeneratePacketTabularText( U64 /*packet_id*/, DisplayBase /*display_base*/ )  //unrefereced vars commented out to remove warnings.

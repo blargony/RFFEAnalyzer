@@ -348,6 +348,8 @@ void AtmelSWIAnalyzerResults::GenerateFrameTabularText(U64 frame_index, DisplayB
 	AnalyzerHelpers::GetNumberString(frame.mData1, display_base, 8, number_str, sizeof(number_str));
 	AddResultString(number_str);*/
 
+    ClearTabularText();
+
 	const int BUFF_SIZE = 128;
 	char number_str[BUFF_SIZE];
 
@@ -373,23 +375,11 @@ void AtmelSWIAnalyzerResults::GenerateFrameTabularText(U64 frame_index, DisplayB
 		std::vector<std::string> texts;
 		GetTextsForChecksumFrame(f, display_base, texts);
 
-		std::vector<std::string>::iterator i(texts.begin());
-		while (i != texts.end())
-		{
-			AddTabularText(i->c_str());
-			++i;
-		}
+        AddTabularText( texts[0].c_str() );
 
 	} else if (f.mType == FrameFlag) {
 		AnalyzerHelpers::GetNumberString(f.mData1, display_base, 8, number_str, BUFF_SIZE);
-		AddTabularText(number_str);
-		if (f.mData2)
-		{
-			const char* FlagName = GetFlagName(static_cast<SWI_Flag>(f.mData1));
-			AddTabularText("Flag ", FlagName, " (", number_str, ")");
-		} else {
-			AddTabularText("Bad Flag (", number_str, ")");
-		}
+        AddTabularText("Bad Flag (", number_str, ")");
 
 	} else if (f.mType == FrameCount) {
 		AnalyzerHelpers::GetNumberString(f.mData1, display_base, 8, number_str, BUFF_SIZE);
@@ -399,13 +389,7 @@ void AtmelSWIAnalyzerResults::GenerateFrameTabularText(U64 frame_index, DisplayB
 
 		std::vector<std::string> texts;
 		GetTextsForPacketSegmentFrame(f, display_base, texts);
-
-		std::vector<std::string>::iterator i(texts.begin());
-		while (i != texts.end())
-		{
-			AddTabularText(i->c_str());
-			++i;
-		}
+        AddTabularText( texts[0].c_str() );
 	}
 }
 

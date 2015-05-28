@@ -762,11 +762,11 @@ void MidiAnalyzerResults::GenerateExportFile( const char* file, DisplayBase disp
 void MidiAnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBase display_base )
 {
 	Frame frame = GetFrame( frame_index );
-	ClearResultStrings();
+    ClearTabularText();
 
 	char number_str[128];
 	AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, number_str, 128 );
-	AddResultString( number_str );
+    AddTabularText( number_str );
 }
 
 void MidiAnalyzerResults::GeneratePacketTabularText( U64 packet_id, DisplayBase display_base )

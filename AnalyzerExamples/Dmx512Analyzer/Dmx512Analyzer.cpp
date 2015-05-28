@@ -3,7 +3,7 @@
 #include <AnalyzerChannelData.h>
 
 Dmx512Analyzer::Dmx512Analyzer()
-:	Analyzer(),
+:	Analyzer2(),
 	mSettings( new Dmx512AnalyzerSettings() ),
 	mSimulationInitilized( false )
 {
@@ -17,10 +17,7 @@ Dmx512Analyzer::~Dmx512Analyzer()
 
 void Dmx512Analyzer::WorkerThread()
 {
-	mResults.reset( new Dmx512AnalyzerResults( this, mSettings.get() ) );
-	SetAnalyzerResults( mResults.get() );
-	mResults->AddChannelBubblesWillAppearOn( mSettings->mInputChannel );
-	
+
 	mSampleRateHz = GetSampleRate();
 	
 	mSerial = GetAnalyzerChannelData( mSettings->mInputChannel );
@@ -159,7 +156,14 @@ void Dmx512Analyzer::PassFrame( U64 data, U8 type, U8 flags, U64 start, U64 end,
 
 bool Dmx512Analyzer::NeedsRerun()
 {
-	return false;
+    return false;
+}
+
+void Dmx512Analyzer::SetupResults()
+{
+    mResults.reset( new Dmx512AnalyzerResults( this, mSettings.get() ) );
+    SetAnalyzerResults( mResults.get() );
+    mResults->AddChannelBubblesWillAppearOn( mSettings->mInputChannel );
 }
 
 U32 Dmx512Analyzer::GenerateSimulationData( U64 minimum_sample_index, U32 device_sample_rate, SimulationChannelDescriptor** simulation_channels )

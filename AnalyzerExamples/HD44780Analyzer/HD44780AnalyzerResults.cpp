@@ -238,6 +238,8 @@ void HD44780AnalyzerResults::GenerateExportFile( const char* file, DisplayBase d
 
 void HD44780AnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBase display_base )
 {
+  ClearTabularText();
+
   char s1[256],s2[256];
 	Frame frame;
 
@@ -263,7 +265,9 @@ void HD44780AnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayB
   strcat(s1," (");
   strcat(s1,s2);
   strcat(s1,")");
-  AddResultString( s1 );
+  //AddResultString( s1 );
+
+  AddTabularText( s1 );
 }
 
 void HD44780AnalyzerResults::GeneratePacketTabularText( U64 packet_id, DisplayBase display_base )

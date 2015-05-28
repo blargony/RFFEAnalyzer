@@ -6,7 +6,7 @@
 #include "MidiSimulationDataGenerator.h"
 
 class MidiAnalyzerSettings;
-class ANALYZER_EXPORT MidiAnalyzer : public Analyzer
+class ANALYZER_EXPORT MidiAnalyzer : public Analyzer2
 {
 public:
 	MidiAnalyzer();
@@ -19,6 +19,7 @@ public:
 	virtual const char* GetAnalyzerName() const;
 	virtual bool NeedsRerun();
 	
+    virtual void SetupResults();
 protected: //vars
 	union stash {
 		U64 mData2;

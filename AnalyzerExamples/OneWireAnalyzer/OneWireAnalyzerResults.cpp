@@ -280,6 +280,7 @@ void OneWireAnalyzerResults::GenerateExportFile( const char* file, DisplayBase d
 void OneWireAnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBase display_base )
 {
 	Frame frame = GetFrame( frame_index );
+    ClearTabularText();
 
 	bool warning_flag = false;
 	if( ( frame.mFlags & DISPLAY_AS_WARNING_FLAG ) != 0 )

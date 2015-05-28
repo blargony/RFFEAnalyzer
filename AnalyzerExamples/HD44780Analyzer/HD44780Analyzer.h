@@ -6,12 +6,14 @@
 #include "HD44780SimulationDataGenerator.h"
 
 class HD44780AnalyzerSettings;
-class ANALYZER_EXPORT HD44780Analyzer : public Analyzer
+class ANALYZER_EXPORT HD44780Analyzer : public Analyzer2
 {
 public:
 	HD44780Analyzer();
 	virtual ~HD44780Analyzer();
 	virtual void WorkerThread();
+
+    virtual void SetupResults();
 
 	virtual U32 GenerateSimulationData( U64 newest_sample_requested, U32 sample_rate, SimulationChannelDescriptor** simulation_channels );
 	virtual U32 GetMinimumSampleRateHz();

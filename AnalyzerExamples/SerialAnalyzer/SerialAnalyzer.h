@@ -21,7 +21,7 @@ public:
 	virtual bool NeedsRerun();
 	
 
-
+	 
 #pragma warning( push )
 #pragma warning( disable : 4251 ) //warning C4251: 'SerialAnalyzer::<...>' : class <...> needs to have dll-interface to be used by clients of class
 

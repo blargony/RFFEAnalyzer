@@ -21,17 +21,9 @@ SMBusAnalyzer::~SMBusAnalyzer()
 
 void SMBusAnalyzer::Setup()
 {
-	// reset the results
-	mResults.reset(new SMBusAnalyzerResults(this, &mSettings));
-	SetAnalyzerResults(mResults.get());
-
 	// get the channel pointers
 	mSMBDAT = GetAnalyzerChannelData(mSettings.mSMBDAT);
 	mSMBCLK = GetAnalyzerChannelData(mSettings.mSMBCLK);
-
-	// set which channels will carry bubbles
-	mResults->AddChannelBubblesWillAppearOn(mSettings.mSMBDAT);
-	mResults->AddChannelBubblesWillAppearOn(mSettings.mSMBCLK);
 }
 
 AnalyzerChannelData* SMBusAnalyzer::AdvanceAllTo(U64 toSample)
@@ -311,7 +303,17 @@ void SMBusAnalyzer::WorkerThread()
 
 bool SMBusAnalyzer::NeedsRerun()
 {
-	return false;
+    return false;
+}
+
+void SMBusAnalyzer::SetupResults()
+{
+    // reset the results
+    mResults.reset(new SMBusAnalyzerResults(this, &mSettings));
+    SetAnalyzerResults(mResults.get());
+    // set which channels will carry bubbles
+    mResults->AddChannelBubblesWillAppearOn(mSettings.mSMBDAT);
+    mResults->AddChannelBubblesWillAppearOn(mSettings.mSMBCLK);
 }
 
 U32 SMBusAnalyzer::GenerateSimulationData(U64 minimum_sample_index, U32 device_sample_rate, SimulationChannelDescriptor** simulation_channels)

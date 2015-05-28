@@ -523,192 +523,192 @@ void PS2KeyboardAnalyzerResults::GenerateExportFile( const char* file, DisplayBa
  
 void PS2KeyboardAnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBase display_base )
 {
+    ClearTabularText();
 	Frame frame = GetFrame( frame_index );
 	
-	char device_str[16];
-	if(frame.mFlags&TX_HOST_TO_DEVICE)
-	{
-		sprintf(device_str,"Host");
+    char device_str[16];
+    if(frame.mFlags&TX_HOST_TO_DEVICE)
+    {
+        sprintf(device_str,"Host");
 
-		char num_str[128];
-		AnalyzerHelpers::GetNumberString(frame.mData1,Hexadecimal,8,num_str,32);
+        char num_str[128];
+        AnalyzerHelpers::GetNumberString(frame.mData1,Hexadecimal,8,num_str,32);
 
-		char cmd_str[64];
-		GetCommandName(cmd_str, frame.mData1, mSettings->mDeviceType);
+        char cmd_str[64];
+        GetCommandName(cmd_str, frame.mData1, mSettings->mDeviceType);
 
-		char result_str[255];
-		
-		sprintf(result_str,"%s: %s (%s)",device_str,cmd_str,num_str);
-		AddTabularText(result_str);
+        char result_str[255];
 
-	}
-	else
-	{
-		if(mSettings->mDeviceType==0)
-		{
-			sprintf(device_str,"Keyboard");
-			
-			char num_str[128];
-			AnalyzerHelpers::GetNumberString(frame.mData1,Hexadecimal,8,num_str,32);
-			
-			char tmp_str[128];
-			char codetype[32];
+        sprintf(result_str,"%s: %s (%s)",device_str,cmd_str,num_str);
+        AddTabularText(result_str);
 
-			char key_str[64];
-			GetKeyName(key_str, frame.mData1, frame.mFlags&EXTENDED_KEY);
-			
+    }
+    else
+    {
+        if(mSettings->mDeviceType==0)
+        {
+            sprintf(device_str,"Keyboard");
 
-			if(frame.mFlags&DATA_FRAME)
-			{
-				if(frame.mData2&ACK_FRAME)
-				{
-					sprintf(tmp_str,"%s",num_str);
-					sprintf(codetype,"ACK");
-					sprintf(key_str,"");
-				}
-				else if (frame.mData2&ECHO_FRAME)
-				{
-					sprintf(tmp_str,"%s",num_str);
-					sprintf(codetype,"ECHO");
+            char num_str[128];
+            AnalyzerHelpers::GetNumberString(frame.mData1,Hexadecimal,8,num_str,32);
 
-					sprintf(key_str,"");
-				}
-				else if (frame.mData2&BAT_FRAME)
-				{
-					sprintf(tmp_str,"%s",num_str);
-					sprintf(codetype,"BAT");
+            char tmp_str[128];
+            char codetype[32];
 
-                    sprintf(key_str,"Power-On Self Test Successfull");
-				}
-			}
-			else if(frame.mFlags&ERROR_FRAME)
-			{
-				sprintf(tmp_str,"%s",num_str);
-				sprintf(codetype,"ERROR");
-				sprintf(key_str,"INVALID CODE");
-			}
-			else if(frame.mFlags&PAUSE_BREAK)
-			{
-				sprintf(tmp_str,"0xE1, 0x14, 0x77, 0xE1, 0xF0, 0x14, 0xF0, 0x77");
-				sprintf(codetype,"");
-				sprintf(key_str,"[PAUSE/BREAK]");
-			}
-			else if (frame.mFlags&PRINT_SCREEN && frame.mFlags&BREAK_CODE)
-			{
-				sprintf(tmp_str,"0xE0, 0xF0, 0x7C, 0xE0, 0xF0, 0x12");
-				sprintf(codetype,"BREAK");
-				sprintf(key_str,"[PRINT SCREEN]");
-			}
-			else if (frame.mFlags&PRINT_SCREEN)
-			{
-				sprintf(tmp_str,"0xE0, 0x12, 0xE0, 0x7C");
-				sprintf(codetype,"MAKE");
-				sprintf(key_str,"[PRINT SCREEN]");
-			}
-			else if (frame.mFlags&EXTENDED_KEY && frame.mFlags&BREAK_CODE)
-			{
-				sprintf(tmp_str,"0xE0, 0xF0, %s",num_str);
-				sprintf(codetype,"BREAK");
-			}
-			else if (frame.mFlags&EXTENDED_KEY)
-			{
-				sprintf(tmp_str,"0xE0, %s",num_str);
-				sprintf(codetype,"MAKE");
-			}
-			else if (frame.mFlags&BREAK_CODE)
-			{
-				sprintf(tmp_str,"0xF0, %s",num_str);
-				sprintf(codetype,"BREAK");
-			}
-			else
-			{
-				sprintf(tmp_str,"%s",num_str);
-				sprintf(codetype,"MAKE");
-			}
-			
-			sprintf(num_str,"%s",tmp_str);
+            char key_str[64];
+            GetKeyName(key_str, frame.mData1, frame.mFlags&EXTENDED_KEY);
 
-			char result_str[255];
-		
-			//at next zoom show originator and raw hex
-			sprintf(result_str,"%s: %s %s (%s)",device_str,codetype,key_str,num_str);
-			AddTabularText(result_str);
-		}
-		else
-		{
-			sprintf(device_str,"Mouse");
 
-			char num_str[128];
-		
-			char tmp_str[256];
-			char codetype[32];
+            if(frame.mFlags&DATA_FRAME)
+            {
+                if(frame.mData2&ACK_FRAME)
+                {
+                    sprintf(tmp_str,"%s",num_str);
+                    sprintf(codetype,"ACK");
+                    sprintf(key_str,"");
+                }
+                else if (frame.mData2&ECHO_FRAME)
+                {
+                    sprintf(tmp_str,"%s",num_str);
+                    sprintf(codetype,"ECHO");
 
-			char key_str[512];
-			GetKeyName(key_str, frame.mData1, frame.mFlags&EXTENDED_KEY);
-
-			if(frame.mFlags&DATA_FRAME)
-			{
-				if(frame.mData2&ACK_FRAME)
-				{
-					AnalyzerHelpers::GetNumberString(frame.mData1,Hexadecimal,8,num_str,128);
-					sprintf(tmp_str,"%s",num_str);
-					sprintf(codetype,"ACK");
-					sprintf(key_str,"");
-				}
-				else if (frame.mData2&BAT_FRAME)
-				{
-					AnalyzerHelpers::GetNumberString(frame.mData1,Hexadecimal,8,num_str,128);
-					sprintf(tmp_str,"%s",num_str);
-					sprintf(codetype,"BAT");
+                    sprintf(key_str,"");
+                }
+                else if (frame.mData2&BAT_FRAME)
+                {
+                    sprintf(tmp_str,"%s",num_str);
+                    sprintf(codetype,"BAT");
 
                     sprintf(key_str,"Power-On Self Test Successfull");
-				}
-			}
-			else if(frame.mFlags&MOVEMENT_FRAME)
-			{
-					AnalyzerHelpers::GetNumberString(frame.mData1,Hexadecimal,32,num_str,128);
-					sprintf(tmp_str,"%s",num_str);
-					sprintf(codetype,"MOVEMENT");
-					
-					U8 YOverflow = (frame.mData1&0x80) >> 7;
-					U8 XOverflow = (frame.mData1&0x40) >> 6;
-					U8 YSignBit = (frame.mData1&0x20) >> 5;
-					U8 XSignBit = (frame.mData1&0x10) >> 4;
-					U8 MiddleButton = (frame.mData1&0x04) >> 2;
-					U8 RightButton = (frame.mData1&0x02) >> 1;
-					U8 LeftButton = frame.mData1&0x01;
-					
-					U8 Xmovement = (frame.mData1&0xFF00) >> 8;
-					U8 Ymovement = (frame.mData1&0xFF0000) >> 16;
+                }
+            }
+            else if(frame.mFlags&ERROR_FRAME)
+            {
+                sprintf(tmp_str,"%s",num_str);
+                sprintf(codetype,"ERROR");
+                sprintf(key_str,"INVALID CODE");
+            }
+            else if(frame.mFlags&PAUSE_BREAK)
+            {
+                sprintf(tmp_str,"0xE1, 0x14, 0x77, 0xE1, 0xF0, 0x14, 0xF0, 0x77");
+                sprintf(codetype,"");
+                sprintf(key_str,"[PAUSE/BREAK]");
+            }
+            else if (frame.mFlags&PRINT_SCREEN && frame.mFlags&BREAK_CODE)
+            {
+                sprintf(tmp_str,"0xE0, 0xF0, 0x7C, 0xE0, 0xF0, 0x12");
+                sprintf(codetype,"BREAK");
+                sprintf(key_str,"[PRINT SCREEN]");
+            }
+            else if (frame.mFlags&PRINT_SCREEN)
+            {
+                sprintf(tmp_str,"0xE0, 0x12, 0xE0, 0x7C");
+                sprintf(codetype,"MAKE");
+                sprintf(key_str,"[PRINT SCREEN]");
+            }
+            else if (frame.mFlags&EXTENDED_KEY && frame.mFlags&BREAK_CODE)
+            {
+                sprintf(tmp_str,"0xE0, 0xF0, %s",num_str);
+                sprintf(codetype,"BREAK");
+            }
+            else if (frame.mFlags&EXTENDED_KEY)
+            {
+                sprintf(tmp_str,"0xE0, %s",num_str);
+                sprintf(codetype,"MAKE");
+            }
+            else if (frame.mFlags&BREAK_CODE)
+            {
+                sprintf(tmp_str,"0xF0, %s",num_str);
+                sprintf(codetype,"BREAK");
+            }
+            else
+            {
+                sprintf(tmp_str,"%s",num_str);
+                sprintf(codetype,"MAKE");
+            }
 
-					if(mSettings->mDeviceType==1)
-						sprintf(key_str,"Y Overflow: %d, X Overflow: %d, Y Sign Bit: %d, X Sign Bit: %d, Middle Btn: %d, Right Btn: %d, Left Btn: %d, deltaX: %d, deltaY: %d", YOverflow, XOverflow, YSignBit, XSignBit, MiddleButton, RightButton, LeftButton, Xmovement, Ymovement);
-					else
-					{
-						
-						U8 FifthButton = (frame.mData1&0x20000000) >> 29;
-						U8 FourthButton = (frame.mData1&0x1000000) >> 28;
-						U8 Zmovement = (frame.mData1&0x0F000000) >> 24;
+            sprintf(num_str,"%s",tmp_str);
 
-						sprintf(key_str,"Y Overflow: %d, X Overflow: %d, Y Sign Bit: %d, X Sign Bit: %d, Middle Btn: %d, Right Btn: %d, Left Btn: %d, 4th Btn: %d, 5th Btn: %d, deltaX: %d, deltaY: %d, deltaZ: %d", YOverflow, XOverflow, YSignBit, XSignBit, MiddleButton, RightButton, LeftButton, FourthButton, FifthButton, Xmovement, Ymovement, Zmovement);
-					}
-			}
-			else
-			{	
-					AnalyzerHelpers::GetNumberString(frame.mData1,Hexadecimal,8,num_str,128);
-					sprintf(tmp_str,"%s",num_str);
-					sprintf(codetype,"DATA");
+            char result_str[255];
 
-					sprintf(key_str,"");
-			}
-			sprintf(num_str,"%s",tmp_str);
+            //at next zoom show originator and raw hex
+            sprintf(result_str,"%s: %s %s (%s)",device_str,codetype,key_str,num_str);
+            AddTabularText(result_str);
+        }
+        else
+        {
+            sprintf(device_str,"Mouse");
 
-			char result_str[255];
-		
-			sprintf(result_str,"%s: %s %s (%s)",device_str,codetype,key_str,num_str);
-			AddTabularText(result_str);
-		}
-	}
+            char num_str[128];
+
+            char tmp_str[256];
+            char codetype[32];
+
+            char key_str[512];
+            GetKeyName(key_str, frame.mData1, frame.mFlags&EXTENDED_KEY);
+
+            if(frame.mFlags&DATA_FRAME)
+            {
+                if(frame.mData2&ACK_FRAME)
+                {
+                    AnalyzerHelpers::GetNumberString(frame.mData1,Hexadecimal,8,num_str,128);
+                    sprintf(tmp_str,"%s",num_str);
+                    sprintf(codetype,"ACK");
+                    sprintf(key_str,"");
+                }
+                else if (frame.mData2&BAT_FRAME)
+                {
+                    AnalyzerHelpers::GetNumberString(frame.mData1,Hexadecimal,8,num_str,128);
+                    sprintf(tmp_str,"%s",num_str);
+                    sprintf(codetype,"BAT");
+
+                    sprintf(key_str,"Power-On Self Test Successfull");
+                }
+            }
+            else if(frame.mFlags&MOVEMENT_FRAME)
+            {
+                    AnalyzerHelpers::GetNumberString(frame.mData1,Hexadecimal,32,num_str,128);
+                    sprintf(tmp_str,"%s",num_str);
+                    sprintf(codetype,"MOVEMENT");
+
+                    U8 YOverflow = (frame.mData1&0x80) >> 7;
+                    U8 XOverflow = (frame.mData1&0x40) >> 6;
+                    U8 YSignBit = (frame.mData1&0x20) >> 5;
+                    U8 XSignBit = (frame.mData1&0x10) >> 4;
+                    U8 MiddleButton = (frame.mData1&0x04) >> 2;
+                    U8 RightButton = (frame.mData1&0x02) >> 1;
+                    U8 LeftButton = frame.mData1&0x01;
+
+                    U8 Xmovement = (frame.mData1&0xFF00) >> 8;
+                    U8 Ymovement = (frame.mData1&0xFF0000) >> 16;
+
+                    if(mSettings->mDeviceType==1)
+                        sprintf(key_str,"Y Overflow: %d, X Overflow: %d, Y Sign Bit: %d, X Sign Bit: %d, Middle Btn: %d, Right Btn: %d, Left Btn: %d, deltaX: %d, deltaY: %d", YOverflow, XOverflow, YSignBit, XSignBit, MiddleButton, RightButton, LeftButton, Xmovement, Ymovement);
+                    else
+                    {
+
+                        U8 FifthButton = (frame.mData1&0x20000000) >> 29;
+                        U8 FourthButton = (frame.mData1&0x1000000) >> 28;
+                        U8 Zmovement = (frame.mData1&0x0F000000) >> 24;
+
+                        sprintf(key_str,"Y Overflow: %d, X Overflow: %d, Y Sign Bit: %d, X Sign Bit: %d, Middle Btn: %d, Right Btn: %d, Left Btn: %d, 4th Btn: %d, 5th Btn: %d, deltaX: %d, deltaY: %d, deltaZ: %d", YOverflow, XOverflow, YSignBit, XSignBit, MiddleButton, RightButton, LeftButton, FourthButton, FifthButton, Xmovement, Ymovement, Zmovement);
+                    }
+            }
+            else
+            {
+                    AnalyzerHelpers::GetNumberString(frame.mData1,Hexadecimal,8,num_str,128);
+                    sprintf(tmp_str,"%s",num_str);
+                    sprintf(codetype,"DATA");
+
+                    sprintf(key_str,"");
+            }
+            sprintf(num_str,"%s",tmp_str);
+
+            char result_str[255];
+            sprintf(result_str,"%s: %s %s (%s)",device_str,codetype,key_str,num_str);
+            AddTabularText(result_str);
+        }
+    }
 }
 
 void PS2KeyboardAnalyzerResults::GeneratePacketTabularText( U64 packet_id, DisplayBase display_base )

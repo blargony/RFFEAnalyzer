@@ -7,7 +7,7 @@
 #include "JtagAnalyzerResults.h"
 #include "JtagSimulationDataGenerator.h"
 
-class JtagAnalyzer : public Analyzer
+class JtagAnalyzer : public Analyzer2
 {
 public:
 	JtagAnalyzer();
@@ -19,6 +19,7 @@ public:
 
 	virtual const char* GetAnalyzerName() const;
 	virtual bool NeedsRerun();
+    virtual void SetupResults();
 
 protected:	// functions
 

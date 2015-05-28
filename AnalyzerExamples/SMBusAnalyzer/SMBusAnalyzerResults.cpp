@@ -114,7 +114,7 @@ void SMBusAnalyzerResults::GetBubbleText(const Frame& f, const bool isClock, Dis
 {
 	results.clear();
 
-	if (f.mType == FT_Desc)
+    if (f.mType == FT_Desc)
 	{
 		if (isClock)
 		{
@@ -521,12 +521,293 @@ void SMBusAnalyzerResults::GenerateExportFile(const char* file, DisplayBase disp
 
 void SMBusAnalyzerResults::GenerateFrameTabularText(U64 frame_index, DisplayBase display_base)
 {
-	Frame frame = GetFrame(frame_index);
-	ClearResultStrings();
+    ClearTabularText();
+    Frame f = GetFrame(frame_index);
+    std::vector<std::string> results;
+    bool isClock;
+    //if( mSettings->mSMBCLK != UNDEFINED_CHANNEL )
+    //    isClock = true;
 
-	char number_str[128];
-	AnalyzerHelpers::GetNumberString(frame.mData1, display_base, 8, number_str, sizeof(number_str));
-	AddResultString(number_str);
+    if( mSettings->mSMBCLK != UNDEFINED_CHANNEL )
+    {
+        if (f.mType == FT_Desc)
+        {
+            //if (isClock)
+            {
+                std::string protName = "Unknown";
+                std::string protSpec = "Unknown";
+
+                if (f.mData1 != 0)
+                {
+                    const SMBusProtocol* pProt = (const SMBusProtocol*) f.mData1;
+
+                    protName = pProt->name;
+
+                    if (pProt >= SMBusProtocols  &&  pProt < (SMBusProtocols + NUM_SMBUS_PROTOCOLS))
+                        protSpec = "SMBus ";
+                    else
+                        protSpec = "PMBus ";
+                } else if (f.mData2 == 1) {		// PMBus group command
+                    protName = "Group command";
+                    protSpec = "PMBus ";
+                } else if (f.mData2 == 2) {		// raw data
+                    protName = "";
+                    protSpec = "Unable to match ";
+                }
+
+                results.push_back(protSpec + "protocol " + protName);
+            }
+
+        }
+    }
+
+    if ( mSettings->mSMBDAT != UNDEFINED_CHANNEL )
+    {
+
+        if (f.mType == SMB_Start)
+        {
+            if (mSettings->mDecodeLevel == DL_Signals)
+                results.push_back("Start");
+        } else if (f.mType == SMB_Stop) {
+            if (mSettings->mDecodeLevel == DL_Signals)
+                results.push_back("Stop");
+        } else if (f.mType == SMB_Zero)
+            results.push_back("0");
+        else if (f.mType == SMB_One)
+            results.push_back("1");
+        else if (f.mType == SMB_ACK)
+            results.push_back("ACK");
+        else if (f.mType == SMB_NACK)
+            results.push_back("NACK");
+        else if (f.mType == FT_Byte) {
+
+            std::string num(int2str_sal(f.mData1, display_base, 8));
+            results.push_back("Byte " + num + ((f.mFlags & F_IsAcked) ? " ACK" : " NACK"));
+        } else if (f.mType == FT_Word) {
+
+            std::string num(int2str_sal(f.mData1, display_base, 16));
+
+            results.push_back("Word " + num + ((f.mFlags & F_IsAcked) ? " ACK" : " NACK"));
+
+        } else if (f.mType == FT_PEC) {
+
+            std::string readPEC(int2str_sal(f.mData1, display_base, 8));
+            std::string calcedPEC(int2str_sal(f.mData2, display_base, 8));
+
+            if (f.mData1 == f.mData2)
+            {
+                results.push_back("PEC " + readPEC + " OK");
+            } else {
+                results.push_back("Bad PEC " + readPEC + " should be " + calcedPEC);
+            }
+        } else if (f.mType == FT_Address) {
+
+            std::string addr(int2str_sal(f.mData1, display_base, 7));
+            std::string rw = (f.mFlags & F_IsRead) ? "Read " : "Write ";
+            std::string rw_s = (f.mFlags & F_IsRead) ? "R " : "W ";
+            const bool is_acked = f.mFlags & F_IsAcked;
+
+            results.push_back(rw + "address " + addr + (is_acked ? " ACK" : " NACK"));
+
+        } else if (f.mType == FT_ByteCount) {
+
+            std::string bc_str(int2str_sal(f.mData1, display_base, 7));
+
+            results.push_back("Byte count " + bc_str);
+
+        } else if (f.mType == FT_CmdPMBus  ||  f.mType == FT_CmdSmartBattery) {
+
+            CommandDesc cmd;
+            if (f.mType == FT_CmdPMBus)
+                cmd = GetPMBusCommandDesc(f.mData1);
+            else
+                cmd = GetSmartBatteryCommandDesc(f.mData1);
+
+            std::string id(int2str_sal(f.mData1, display_base, 8));
+
+            results.push_back("Command " + std::string(cmd.name) + " " + id);
+        } else if (f.mType == FT_CmdSMBus) {
+
+            std::string id(int2str_sal(f.mData1, display_base, 8));
+
+            results.push_back("Command " + id);
+
+        } else if (f.mType == FT_PMBusCapability) {
+
+            U8 bm = (U8) f.mData1;
+            const char* pec_desc = (f.mData1 & 0x80 ? "PEC unsupported, " : "PEC supported, ");
+
+            const char* max_bus_speed;
+            switch (f.mData1 & 0x60)
+            {
+            case 0x00: max_bus_speed = "Max bus speed 100KHz, "; break;
+            case 0x20: max_bus_speed = "Max bus speed 400KHz, "; break;
+            default: max_bus_speed = "Reserved, "; break;
+            }
+
+            const char* smbalert_desc = ((f.mData1 & 0x10) ? "SMBALERT supported " : "SMBALERT unsupported ");
+
+            std::string val_str(int2str_sal(f.mData1, display_base, 8));
+
+            results.push_back("Capability data byte " + val_str + " " + pec_desc + max_bus_speed + smbalert_desc);
+
+        } else if (f.mType == FT_PMBusQuery) {
+
+            U8 bm = (U8) f.mData1;
+
+            // command supported?
+            if (bm & 0x80)
+            {
+                std::string for_write = (bm & 0x40) ? "for write" : "";
+                const char* for_read = (bm & 0x20) ? "for read" : "";
+                const char* format;
+                switch (bm & 0x1C)
+                {
+                case 0x00:	format = "Linear data format"; break;
+                case 0x0C:	format = "Direct mode format"; break;
+                case 0x14:	format = "VID mode format"; break;
+                case 0x18:	format = "Manufacturer specific format"; break;
+                default:	format = "error format"; break;
+                }
+
+                results.push_back("Command supported " + for_write + for_read + format);
+            } else {
+                results.push_back("Command unsupported");
+            }
+
+        } else if (f.mType == FT_PMBusWriteProtect) {
+
+            switch (f.mData1)
+            {
+            case 0x80:
+                results.push_back("Disable all writes except to the WRITE_PROTECT command");
+                break;
+            case 0x40:
+                results.push_back("Disable all writes except to the WRITE_PROTECT, OPERATION and PAGE commands");
+                break;
+            case 0x20:
+                results.push_back("Disable all writes except to the WRITE_PROTECT, OPERATION, PAGE, ON_OFF_CONFIG and VOUT_COMMAND commands");
+                break;
+            case 0x00:
+                results.push_back("Enable writes to all commands");
+                break;
+            default:
+                results.push_back("Invalid Data!");
+                break;
+            }
+
+        } else if (f.mType == FT_PMBusOperation) {
+
+            std::string unit_on_off = "<invalid>";
+            const char* margin_state = "<invalid>";
+            switch (f.mData1 & 0xC0)
+            {
+            case 0x00:
+                unit_on_off = "Immediate off (no sequencing)";
+                margin_state = "N/A";
+                break;
+            case 0x40:
+                unit_on_off = "Soft off (with sequencing)";
+                margin_state = "N/A";
+                break;
+            case 0x80:
+                unit_on_off = "Unit on";
+                switch (f.mData1 & 0x3C)
+                {
+                case 0x14:	margin_state = "Margin low (ignore fault)";		break;
+                case 0x18:	margin_state = "Margin low (act on fault)";		break;
+                case 0x24:	margin_state = "Margin high (ignore fault)";	break;
+                case 0x28:	margin_state = "Margin high (act on fault)";	break;
+                }
+                break;
+            }
+
+            std::string val(int2str_sal(f.mData1, display_base, 8));
+
+            results.push_back("Operation params " + val + " Unit on/off=" + unit_on_off + ", Margin state=" + margin_state);
+
+        } else if (f.mType == FT_PMBusOnOffConfig) {
+
+            std::string val(int2str_sal(f.mData1, display_base, 8));
+
+            const char* power_up = (f.mData1 & 0x10) ? "CONTROL pin and OPERATION command" : "Any time";
+            const char* commands = (f.mData1 & 0x08) ? "Acknowledge on/off portion of OPERATION command" : "Ignore on/off portion of OPERATION command";
+            const char* control  = (f.mData1 & 0x04) ? "CONTROL pin required to operate" : "Ignore CONTROL pin";
+            const char* polarity = (f.mData1 & 0x02) ? "CONTROL is active high" : "CONTROL is active low";
+            const char* action   = (f.mData1 & 0x01) ? "Turn off the output as fast as possible" : "Use programmed turn off delay";
+
+            results.push_back("Params " + val + ": " + power_up + ", " + commands + ", " + polarity + ", " + action);
+
+        } else if (f.mType == FT_PMBusVoutMode) {
+
+            std::string val(int2str_sal(f.mData1, display_base, 8));
+
+            U8 mode = U8(f.mData1 >> 5);
+            U8 param = U8(f.mData1 & 0x1F);
+
+            results.push_back(val + " Mode: "+ int2str_sal(mode, display_base, 3) + " Param: " + int2str_sal(param, display_base, 5));
+        } else if (f.mType == FT_SmartBattBatteryMode) {
+
+            std::string val(int2str_sal(f.mData1, display_base, 16));
+            std::string prefix("BatteryMode " + val + " ");
+
+            std::vector<std::string> v;
+            BitFieldToDescAll(BatteryModeBits, f.mData1, v);
+
+            AddResultStringsFromVector(prefix, v, "", results);
+
+            // make sure the longest description is the first in the vector
+            std::swap(results.front(), results.back());
+
+            results.push_back(val);
+
+        } else if (f.mType == FT_SmartBattBatteryStatus) {
+
+            std::string val(int2str_sal(f.mData1, display_base, 16));
+            std::string prefix("BatteryStatus " + val + " ");
+
+            std::vector<std::string> v;
+            BitFieldToDescAll(BatteryStatusBits, f.mData1, v);
+
+            AddResultStringsFromVector(prefix, v, "ErrorCode=" + std::string(ErrorCodesDesc[f.mData1 & 0x07]), results);
+
+            // make sure the longest description is the first in the vector
+            std::swap(results.front(), results.back());
+
+        } else if (f.mType == FT_SmartBattSpecificationInfo) {
+
+            std::string val(int2str_sal(f.mData1, display_base, 16));
+
+            U8 revision	= f.mData1 & 0x0f;
+            U8 version	= (f.mData1 >> 4) & 0x0f;
+            U8 vscale	= (f.mData1 >> 8) & 0x0f;
+            U8 ipscale	= U8(f.mData1 >> 12);
+
+            results.push_back("SpecificationInfo " + val + " Revision=" + int2str_sal(revision, display_base, 4)
+                                                            + " Version=" + int2str_sal(version, display_base, 4)
+                                                            + " VScale=" + int2str_sal(vscale, display_base, 4)
+                                                            + " IPScale=" + int2str_sal(ipscale, display_base, 4));
+
+        } else if (f.mType == FT_SmartBattManufactureDate) {
+
+            std::string val(int2str_sal(f.mData1, display_base, 16));
+
+            U8 day		= f.mData1 & 0x1f;			// 5 bits
+            U8 month	= (f.mData1 >> 5) & 0x0f;	// 4 bits
+            U16 year	= (f.mData1 >> 9) & 0x9f;	// 7 bits
+            year += 1980;
+
+            std::string date(int2str(month) + "/" + int2str(day) + "/" + int2str(year));
+
+            results.push_back("ManufactureDate " + val + " " + date);
+
+        } else {
+            results.push_back(".");
+        }
+    }
+
+    for( int i = 0; i < results.size() ; i++ )
+        AddTabularText( results[i].c_str() );
 }
 
 void SMBusAnalyzerResults::GeneratePacketTabularText(U64 packet_id, DisplayBase display_base)

@@ -241,13 +241,72 @@ void USBAnalyzerResults::GenerateExportFile(const char* file, DisplayBase displa
 
 void USBAnalyzerResults::GenerateFrameTabularText(U64 frame_index, DisplayBase display_base)
 {
+    ClearTabularText();
 	Frame f = GetFrame(frame_index);
 	std::vector<std::string> results;
 
-	GetFrameDesc(f, display_base, results);
+    //GetFrameDesc(f, display_base, results);
+
+    results.clear();
+
+    if (f.mType == FT_Signal)
+    {
+        std::string result;
+        if (f.mData1 == S_J)
+            result = "J";
+        else if (f.mData1 == S_K)
+            result = "K";
+        else if (f.mData1 == S_SE0)
+            result = "SE0";
+        else if (f.mData1 == S_SE1)
+            result = "SE1";
+
+        results.push_back(result);
+
+    }
+    else if (f.mType == FT_EOP) {
+        results.push_back("EOP");
+    }
+    else if (f.mType == FT_Reset) {
+        results.push_back("Reset");
+    }
+    else if (f.mType == FT_Idle) {
+        results.push_back("Idle");
+    }
+    else if (f.mType == FT_SYNC) {
+        results.push_back("SYNC");
+    }
+    else if (f.mType == FT_PID) {
+        results.push_back("PID " + GetPIDName(USB_PID(f.mData1)));
+    }
+    else if (f.mType == FT_FrameNum) {
+        results.push_back("Frame # " + int2str_sal(f.mData1, display_base, 11));
+    }
+    else if (f.mType == FT_AddrEndp) {
+        results.push_back("Address=" + int2str_sal(f.mData1, display_base, 7) + " Endpoint=" + int2str_sal(f.mData2, display_base, 5));
+    }
+    else if (f.mType == FT_Byte) {
+        results.push_back("Byte " + int2str_sal(f.mData1, display_base, 8));
+    }
+    else if (f.mType == FT_KeepAlive) {
+        results.push_back("Keep alive");
+    }
+    else if (f.mType == FT_CRC5  ||  f.mType == FT_CRC16) {
+        const int num_bits = f.mType == FT_CRC5 ? 5 : 16;
+        if (f.mData1 == f.mData2)
+        {
+            results.push_back("CRC OK " + int2str_sal(f.mData1, display_base, num_bits));
+        }
+        else {
+            results.push_back("CRC Bad! Rcvd: " + int2str_sal(f.mData1, display_base, num_bits) + " Calc: " + int2str_sal(f.mData2, display_base, num_bits));
+        }
+    }
+    else if (f.mType == FT_Error) {
+        results.push_back("Error packet");
+    }
 
 	for (std::vector<std::string>::iterator ri(results.begin()); ri != results.end(); ++ri)
-	AddTabularText(ri->c_str());
+        AddTabularText(ri->c_str());
 }
 
 void USBAnalyzerResults::GeneratePacketTabularText(U64 packet_id, DisplayBase display_base)

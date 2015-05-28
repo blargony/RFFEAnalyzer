@@ -133,6 +133,8 @@ void Dmx512AnalyzerResults::GenerateExportFile( const char* file, DisplayBase /*
 
 void Dmx512AnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBase display_base )
 {
+    ClearTabularText();
+
 	Frame frame = GetFrame( frame_index );
 	
 	char number_str[128];

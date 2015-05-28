@@ -386,12 +386,138 @@ void BISSAnalyzerResults::GenerateExportFile( const char* file, DisplayBase disp
 
 void BISSAnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBase display_base )
 {
-	//Frame frame = GetFrame( frame_index );
-	//ClearResultStrings();
+    ClearTabularText();
 
-	//char number_str[128];
-	//AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, number_str, 128 );
-	//AddResultString( number_str );
+    Frame frame = GetFrame( frame_index );
+
+    char number_str[128];
+
+    switch (frame.mType)
+    {
+    case 1: //Sensordaten
+        if (mSettings->mDatenart == 1)//Benutzerauswahl Sensordaten
+        {
+            if (mSettings->mSloChannel != UNDEFINED_CHANNEL)
+            {
+
+                char result_str2[128];
+                AnalyzerHelpers::GetNumberString( frame.mData1, display_base, frame.mData2, number_str, 128 );
+
+                switch (frame.mFlags)
+                {
+                case 1:
+
+                    sprintf( result_str2,"Serial Data [ %s ]", number_str);
+                    break;
+                case 2:
+
+                    sprintf( result_str2,"nError/nWarning [ %s ]", number_str);
+                    break;
+                case 3:
+
+                    sprintf( result_str2,"CRC [ %s ]", number_str);
+                    break;
+                //default:
+                //	sprintf( result_str,"Fehler [ %s ]", number_str);
+                //	break;
+                }
+
+                AddTabularText( result_str2 );
+
+            }
+        }
+        break;
+
+    case 2://CDM
+        if (mSettings->mDatenart == 0)//Benutzerauswahl Registerdaten
+        {
+            if (mSettings->mMaChannel != UNDEFINED_CHANNEL)
+            {
+
+                char result_str2[128];
+                AnalyzerHelpers::GetNumberString( frame.mData1, display_base, frame.mData2, number_str, 128 );
+
+                switch (frame.mFlags)
+                {
+                case 1:
+
+                    sprintf( result_str2,"Start,Control Select [ %s ]", number_str);
+                    break;
+                case 2:
+
+                    sprintf( result_str2,"Identifier [ %s ]", number_str);
+                    break;
+                case 3:
+
+                    sprintf( result_str2,"Register Address [ %s ]", number_str);
+                    break;
+                case 4:
+
+                    sprintf( result_str2,"CRC [ %s ]", number_str);
+                    break;
+                case 5:
+
+                    sprintf( result_str2,"Read/Write [ %s ]", number_str);
+                    break;
+                case 6:
+
+                    sprintf( result_str2,"Register Data [ %s ]", number_str);
+                    break;
+                case 7:
+
+                    sprintf( result_str2,"CRC [ %s ]", number_str);
+                    break;
+                //default:
+                //	sprintf( result_str,"Fehler [ %s ]", number_str);
+                //	break;
+                }
+
+                AddTabularText( result_str2 );
+            }
+        }
+        break;
+
+    case 3://CDS
+        if (mSettings->mDatenart == 0)//Benutzerauswahl Registerdaten
+        {
+            if (mSettings->mSloChannel != UNDEFINED_CHANNEL)
+            {
+
+                char result_str2[128];
+                AnalyzerHelpers::GetNumberString( frame.mData1, display_base, frame.mData2, number_str, 128 );
+
+                switch (frame.mFlags)
+                {
+                case 1:
+
+                    sprintf( result_str2,"ID Lock Bits [ %s ]", number_str);
+                    break;
+                case 2:
+
+                    sprintf( result_str2,"[ %s ]", number_str);
+                    break;
+                case 3:
+
+                    sprintf( result_str2,"Read/Write [ %s ]", number_str);
+                    break;
+                case 4:
+
+                    sprintf( result_str2,"Register Data [ %s ]", number_str);
+                    break;
+                case 5:
+
+                    sprintf( result_str2,"CRC [ %s ]", number_str);
+                    break;
+                //default:
+                //	sprintf( result_str,"Fehler [ %s ]", number_str);
+                //	break;
+                }
+
+                AddTabularText( result_str2 );
+            }
+        }
+        break;
+    }
 }
 
 void BISSAnalyzerResults::GeneratePacketTabularText( U64 packet_id, DisplayBase display_base )

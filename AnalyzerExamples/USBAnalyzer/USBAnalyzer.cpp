@@ -19,17 +19,9 @@ USBAnalyzer::~USBAnalyzer()
 
 void USBAnalyzer::Setup()
 {
-	// reset the results
-	mResults.reset(new USBAnalyzerResults(this, &mSettings));
-	SetAnalyzerResults(mResults.get());
-
 	// get the channel pointers
 	mDP = GetAnalyzerChannelData(mSettings.mDPChannel);
 	mDM = GetAnalyzerChannelData(mSettings.mDMChannel);
-
-	// set which channels will carry bubbles
-	mResults->AddChannelBubblesWillAppearOn(mSettings.mDPChannel);
-	mResults->AddChannelBubblesWillAppearOn(mSettings.mDMChannel);
 }
 
 void USBAnalyzer::WorkerThread()
@@ -141,7 +133,17 @@ U32 USBAnalyzer::GenerateSimulationData(U64 minimum_sample_index, U32 device_sam
 
 U32 USBAnalyzer::GetMinimumSampleRateHz()
 {
-	return 24000000;	// full 24MHz
+    return 24000000;	// full 24MHz
+}
+
+void USBAnalyzer::SetupResults()
+{
+    // reset the results
+    mResults.reset(new USBAnalyzerResults(this, &mSettings));
+    SetAnalyzerResults(mResults.get());
+    // set which channels will carry bubbles
+    mResults->AddChannelBubblesWillAppearOn(mSettings.mDPChannel);
+    mResults->AddChannelBubblesWillAppearOn(mSettings.mDMChannel);
 }
 
 const char* USBAnalyzer::GetAnalyzerName() const

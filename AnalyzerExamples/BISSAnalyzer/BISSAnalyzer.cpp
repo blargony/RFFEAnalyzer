@@ -3,7 +3,7 @@
 #include <AnalyzerChannelData.h>
 
 BISSAnalyzer::BISSAnalyzer()
-:	Analyzer(),  
+:	Analyzer2(),
 	mSettings( new BISSAnalyzerSettings() ),
 	mSimulationInitilized( false )
 
@@ -32,10 +32,7 @@ void BISSAnalyzer::WorkerThread()
 	mul_cdmframe_index = 0;
 	mul_cdsframe_index = 0;
 
-	mResults.reset( new BISSAnalyzerResults( this, mSettings.get() ) );
-	SetAnalyzerResults( mResults.get() );
 
-	mResults->AddChannelBubblesWillAppearOn( mSettings->mSloChannel );
 
 	mSampleRateHz = GetSampleRate();
 	Trigger = GetTriggerSample();
@@ -722,7 +719,15 @@ U32 BISSAnalyzer::GetMinimumSampleRateHz()
 
 const char* BISSAnalyzer::GetAnalyzerName() const
 {
-	return "BiSS C";
+    return "BiSS C";
+}
+
+void BISSAnalyzer::SetupResults()
+{
+    mResults.reset( new BISSAnalyzerResults( this, mSettings.get() ) );
+    SetAnalyzerResults( mResults.get() );
+
+    mResults->AddChannelBubblesWillAppearOn( mSettings->mSloChannel );
 }
 
 const char* GetAnalyzerName()

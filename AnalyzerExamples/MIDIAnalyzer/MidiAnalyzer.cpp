@@ -7,7 +7,7 @@
 		S8 channel;
 	} stash1;
 */
-MidiAnalyzer::MidiAnalyzer() :	Analyzer(),  mSettings( new MidiAnalyzerSettings() ), mSimulationInitilized( false ) {
+MidiAnalyzer::MidiAnalyzer() :	Analyzer2(),  mSettings( new MidiAnalyzerSettings() ), mSimulationInitilized( false ) {
 	SetAnalyzerSettings( mSettings.get() );
 	distanceFromLastCommandPacket = -1;
 }
@@ -17,10 +17,7 @@ MidiAnalyzer::~MidiAnalyzer() {
 }
 
 void MidiAnalyzer::WorkerThread() {
-	mResults.reset( new MidiAnalyzerResults( this, mSettings.get() ) );
-	SetAnalyzerResults( mResults.get() );
-	mResults->AddChannelBubblesWillAppearOn( mSettings->mInputChannel );
-	
+
 	mSampleRateHz = GetSampleRate();
 	
 	mSerial = GetAnalyzerChannelData( mSettings->mInputChannel );
@@ -259,7 +256,14 @@ void MidiAnalyzer::channelMessage( U8 mData, enum MidiFrameType *mFrameType, uni
 }
 
 bool MidiAnalyzer::NeedsRerun() {
-	return false;
+    return false;
+}
+
+void MidiAnalyzer::SetupResults()
+{
+    mResults.reset( new MidiAnalyzerResults( this, mSettings.get() ) );
+    SetAnalyzerResults( mResults.get() );
+    mResults->AddChannelBubblesWillAppearOn( mSettings->mInputChannel );
 }
 
 U32 MidiAnalyzer::GenerateSimulationData( U64 minimum_sample_index, U32 device_sample_rate, SimulationChannelDescriptor** simulation_channels ) {

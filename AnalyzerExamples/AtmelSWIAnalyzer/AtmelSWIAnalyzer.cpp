@@ -19,15 +19,8 @@ AtmelSWIAnalyzer::~AtmelSWIAnalyzer()
 
 void AtmelSWIAnalyzer::Setup()
 {
-	// reset the results
-	mResults.reset(new AtmelSWIAnalyzerResults(this, &mSettings));
-	SetAnalyzerResults(mResults.get());
-
-	// get the channel data pointer
+    // get the channel data pointer
 	mSDA = GetAnalyzerChannelData(mSettings.mSDAChannel);
-
-	// set which channels will carry bubbles
-	mResults->AddChannelBubblesWillAppearOn(mSettings.mSDAChannel);
 }
 
 void AtmelSWIAnalyzer::AddFrame(U64 SampleBegin, U64 SampleEnd, AtmelSWIFrameType FrameType, U64 Data1, U64 Data2)
@@ -67,7 +60,7 @@ void AtmelSWIAnalyzer::ResyncToWake(SWI_WaveParser& tokenizer)
 
 void AtmelSWIAnalyzer::WorkerThread()
 {
-	Setup();
+    Setup();
 
 	SWI_WaveParser tokenizer(mSDA, GetSampleRate());
 
@@ -283,7 +276,17 @@ U32 AtmelSWIAnalyzer::GenerateSimulationData(U64 minimum_sample_index, U32 devic
 
 U32 AtmelSWIAnalyzer::GetMinimumSampleRateHz()
 {
-	return 4000000;		// 4 MHz
+    return 4000000;		// 4 MHz
+}
+
+void AtmelSWIAnalyzer::SetupResults()
+{
+    // reset the results
+    mResults.reset(new AtmelSWIAnalyzerResults(this, &mSettings));
+    SetAnalyzerResults(mResults.get());
+
+    // set which channels will carry bubbles
+    mResults->AddChannelBubblesWillAppearOn(mSettings.mSDAChannel);
 }
 
 const char* AtmelSWIAnalyzer::GetAnalyzerName() const

@@ -335,6 +335,8 @@ void MDIOAnalyzerResults::GenerateExportFile( const char* file, DisplayBase disp
 
 void MDIOAnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBase display_base )
 {
+    ClearTabularText();
+
 	Frame frame = GetFrame( frame_index );
     
     switch( frame.mType ) 

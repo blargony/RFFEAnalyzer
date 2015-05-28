@@ -6,7 +6,7 @@
 using namespace std;
 
 HdlcAnalyzer::HdlcAnalyzer()
-	:	Analyzer(),
+    :	Analyzer2(),
 	    mSettings ( new HdlcAnalyzerSettings() ),
 	    mSimulationInitilized ( false ),
 	    mResults ( 0 ), mHdlc ( 0 ),
@@ -24,9 +24,6 @@ HdlcAnalyzer::~HdlcAnalyzer()
 
 void HdlcAnalyzer::SetupAnalyzer()
 {
-	mResults.reset ( new HdlcAnalyzerResults ( this, mSettings.get() ) );
-	SetAnalyzerResults ( mResults.get() );
-	mResults->AddChannelBubblesWillAppearOn ( mSettings->mInputChannel );
 	mHdlc = GetAnalyzerChannelData ( mSettings->mInputChannel );
 
 	double halfPeriod = ( 1.0 / double ( mSettings->mBitRate ) ) * 1000000.0;
@@ -833,7 +830,14 @@ HdlcFrameType HdlcAnalyzer::GetFrameType ( U8 value )
 
 bool HdlcAnalyzer::NeedsRerun()
 {
-	return false;
+    return false;
+}
+
+void HdlcAnalyzer::SetupResults()
+{
+    mResults.reset ( new HdlcAnalyzerResults ( this, mSettings.get() ) );
+    SetAnalyzerResults ( mResults.get() );
+    mResults->AddChannelBubblesWillAppearOn ( mSettings->mInputChannel );
 }
 
 U32 HdlcAnalyzer::GenerateSimulationData ( U64 minimum_sample_index, U32 device_sample_rate, SimulationChannelDescriptor** simulation_channels )

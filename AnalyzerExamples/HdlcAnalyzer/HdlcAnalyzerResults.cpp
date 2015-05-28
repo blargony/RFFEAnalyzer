@@ -23,7 +23,9 @@ void HdlcAnalyzerResults::GenerateBubbleText ( U64 frame_index, Channel& /*chann
 
 void HdlcAnalyzerResults::GenBubbleText ( U64 frame_index, DisplayBase display_base, bool tabular )
 {
-	ClearResultStrings();
+    if( !tabular )
+        ClearResultStrings();
+
 	Frame frame = GetFrame ( frame_index );
 
 	switch ( frame.mType )
@@ -74,8 +76,10 @@ void HdlcAnalyzerResults::GenFlagFieldString ( const Frame & frame, bool tabular
 		AddResultString ( "FL" );
 		AddResultString ( "FLAG" );
 		AddResultString ( flagTypeStr, " FLAG" );
+        AddResultString ( flagTypeStr, " Flag Delimiter" );
 	}
-	AddResultString ( flagTypeStr, " Flag Delimiter" );
+    else
+        AddTabularText( flagTypeStr, " Flag Delimiter" );
 }
 
 string HdlcAnalyzerResults::GenEscapedString ( const Frame & frame )
@@ -110,13 +114,13 @@ void HdlcAnalyzerResults::GenAddressFieldString ( const Frame & frame, DisplayBa
 		AddResultString ( "AD" );
 		AddResultString ( "ADDR" );
 		AddResultString ( "ADDR ", byteNumber ,"[", addressStr, "]", escStr.c_str() );
+        AddResultString ( "Address ", byteNumber , "[", addressStr, "]", escStr.c_str() );
 	}
-
-	AddResultString ( "Address ", byteNumber , "[", addressStr, "]", escStr.c_str() );
+    else
+        AddTabularText( "Address ", byteNumber , "[", addressStr, "]", escStr.c_str() );
 }
 
-void HdlcAnalyzerResults::GenInformationFieldString ( const Frame & frame, const DisplayBase display_base,
-        bool tabular )
+void HdlcAnalyzerResults::GenInformationFieldString ( const Frame & frame, const DisplayBase display_base, bool tabular )
 {
 
 	char informationStr[ 64 ];
@@ -131,8 +135,10 @@ void HdlcAnalyzerResults::GenInformationFieldString ( const Frame & frame, const
 		AddResultString ( "I" );
 		AddResultString ( "I ", numberStr );
 		AddResultString ( "I ", numberStr, " [", informationStr ,"]", escStr.c_str() );
+        AddResultString ( "Info ", numberStr, " [", informationStr ,"]", escStr.c_str() );
 	}
-	AddResultString ( "Info ", numberStr, " [", informationStr ,"]", escStr.c_str() );
+    else
+        AddTabularText("Info ", numberStr, " [", informationStr ,"]", escStr.c_str() );
 }
 
 void HdlcAnalyzerResults::GenControlFieldString ( const Frame & frame, DisplayBase display_base, bool tabular )
@@ -175,12 +181,17 @@ void HdlcAnalyzerResults::GenControlFieldString ( const Frame & frame, DisplayBa
 		AddResultString ( "CTL", ctlNumStr );
 		AddResultString ( ss.str().c_str(), byteStr, "]", escStr.c_str() );
 		AddResultString ( ss.str().c_str(), byteStr, "]", frameTypeStr, escStr.c_str() );
+        ss.str ( "" );
+        ss << "Control" << ctlNumStr << " [";
+
+        AddResultString ( ss.str().c_str(), byteStr, "]", frameTypeStr, escStr.c_str() );
 	}
-
-	ss.str ( "" );
-	ss << "Control" << ctlNumStr << " [";
-
-	AddResultString ( ss.str().c_str(), byteStr, "]", frameTypeStr, escStr.c_str() );
+    else
+    {
+        ss.str ( "" );
+        ss << "Control" << ctlNumStr << " [";
+        AddTabularText(ss.str().c_str(), byteStr, "]", frameTypeStr, escStr.c_str() );
+    }
 }
 
 void HdlcAnalyzerResults::GenFcsFieldString ( const Frame & frame, DisplayBase display_base, bool tabular )
@@ -241,28 +252,35 @@ void HdlcAnalyzerResults::GenFcsFieldString ( const Frame & frame, DisplayBase d
 		fieldNameStr << " - CALC CRC[" << calcFcsStr << "] != READ CRC[" << readFcsStr << "]";
 	}
 
-	AddResultString ( fieldNameStr.str().c_str()  );
+    if( !tabular )
+        AddResultString ( fieldNameStr.str().c_str()  );
+    else
+        AddTabularText( fieldNameStr.str().c_str()  );
 
 }
 
 void HdlcAnalyzerResults::GenAbortFieldString ( bool tabular )
 {
+    char* seq = 0;
+    if ( mSettings->mTransmissionMode == HDLC_TRANSMISSION_BIT_SYNC )
+    {
+        seq = "(>=7 1-bits)";
+    }
+    else
+    {
+        seq = "(0x7D-0x7F)";
+    }
+
 	if ( !tabular )
 	{
 		AddResultString ( "AB!" );
 		AddResultString ( "ABORT!" );
+        AddResultString ( "ABORT SEQUENCE!", seq );
 	}
-	char* seq = 0;
-	if ( mSettings->mTransmissionMode == HDLC_TRANSMISSION_BIT_SYNC )
-	{
-		seq = "(>=7 1-bits)";
-	}
-	else
-	{
-		seq = "(0x7D-0x7F)";
-	}
-
-	AddResultString ( "ABORT SEQUENCE!", seq );
+    else
+    {
+        AddTabularText( "ABORT SEQUENCE!", seq );
+    }
 }
 
 string HdlcAnalyzerResults::EscapeByteStr ( const Frame & frame )
@@ -566,6 +584,7 @@ void HdlcAnalyzerResults::GenerateExportFile ( const char* file, DisplayBase dis
 
 void HdlcAnalyzerResults::GenerateFrameTabularText ( U64 frame_index, DisplayBase display_base )
 {
+    ClearTabularText();
 	GenBubbleText ( frame_index, display_base, true );
 }
 

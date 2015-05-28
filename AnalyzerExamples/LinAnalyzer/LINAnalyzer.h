@@ -7,7 +7,7 @@
 #include "LINChecksum.h"
 
 class LINAnalyzerSettings;
-class ANALYZER_EXPORT LINAnalyzer : public Analyzer
+class ANALYZER_EXPORT LINAnalyzer : public Analyzer2
 {
 public:
 	LINAnalyzer();
@@ -16,6 +16,8 @@ public:
 
 	virtual U32 GenerateSimulationData( U64 newest_sample_requested, U32 sample_rate, SimulationChannelDescriptor** simulation_channels );
 	virtual U32 GetMinimumSampleRateHz();
+
+    virtual void SetupResults();
 
 	virtual const char* GetAnalyzerName() const;
 	virtual bool NeedsRerun();

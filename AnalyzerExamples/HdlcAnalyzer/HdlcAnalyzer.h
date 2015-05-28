@@ -14,7 +14,7 @@ struct HdlcByte
 };
 
 class HdlcAnalyzerSettings;
-class ANALYZER_EXPORT HdlcAnalyzer : public Analyzer
+class ANALYZER_EXPORT HdlcAnalyzer : public Analyzer2
 {
 public:
 	HdlcAnalyzer();
@@ -26,6 +26,8 @@ public:
 
 	virtual const char* GetAnalyzerName() const;
 	virtual bool NeedsRerun();
+
+    virtual void SetupResults();
 
 	static HdlcFrameType GetFrameType ( U8 value );
 
