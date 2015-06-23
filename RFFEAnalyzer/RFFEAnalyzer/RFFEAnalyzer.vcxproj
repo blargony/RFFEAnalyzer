@@ -88,18 +88,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="W:\dvt_workspace_vm\saleae_trunk\RFFEAnalyzer\source\RFFEAnalyzer.cpp" />
-    <ClCompile Include="W:\dvt_workspace_vm\saleae_trunk\RFFEAnalyzer\source\RFFEAnalyzerResults.cpp" />
-    <ClCompile Include="W:\dvt_workspace_vm\saleae_trunk\RFFEAnalyzer\source\RFFEAnalyzerSettings.cpp" />
-    <ClCompile Include="W:\dvt_workspace_vm\saleae_trunk\RFFEAnalyzer\source\RFFESimulationDataGenerator.cpp" />
-    <ClCompile Include="W:\dvt_workspace_vm\saleae_trunk\RFFEAnalyzer\source\RFFEUtil.cpp" />
+    <ClCompile Include="$(ProjectDir)\..\source\RFFEAnalyzer.cpp" />
+    <ClCompile Include="$(ProjectDir)\..\source\RFFEAnalyzerResults.cpp" />
+    <ClCompile Include="$(ProjectDir)\..\source\RFFEAnalyzerSettings.cpp" />
+    <ClCompile Include="$(ProjectDir)\..\source\RFFESimulationDataGenerator.cpp" />
+    <ClCompile Include="$(ProjectDir)\..\source\RFFEUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="W:\dvt_workspace_vm\saleae_trunk\RFFEAnalyzer\source\RFFEAnalyzer.h" />
-    <ClInclude Include="W:\dvt_workspace_vm\saleae_trunk\RFFEAnalyzer\source\RFFEAnalyzerResults.h" />
-    <ClInclude Include="W:\dvt_workspace_vm\saleae_trunk\RFFEAnalyzer\source\RFFEAnalyzerSettings.h" />
-    <ClInclude Include="W:\dvt_workspace_vm\saleae_trunk\RFFEAnalyzer\source\RFFESimulationDataGenerator.h" />
-    <ClInclude Include="W:\dvt_workspace_vm\saleae_trunk\RFFEAnalyzer\source\RFFEUtil.h" />
+    <ClInclude Include="$(ProjectDir)\..\source\RFFEAnalyzer.h" />
+    <ClInclude Include="$(ProjectDir)\..\source\RFFEAnalyzerResults.h" />
+    <ClInclude Include="$(ProjectDir)\..\source\RFFEAnalyzerSettings.h" />
+    <ClInclude Include="$(ProjectDir)\..\source\RFFESimulationDataGenerator.h" />
+    <ClInclude Include="$(ProjectDir)\..\source\RFFEUtil.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
