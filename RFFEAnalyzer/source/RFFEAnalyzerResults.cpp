@@ -407,7 +407,7 @@ void RFFEAnalyzerResults::GenerateExportFile( const char* file,
             ss << "," << bc_str << "," << payload.str().c_str();
         }
         ss << std::endl;
-        AnalyzerHelpers::AppendToFile( (U8*)ss.str().c_str(), ss.str().length(), f );
+        AnalyzerHelpers::AppendToFile( (U8*)ss.str().c_str(), (U32)ss.str().length(), f );
         ss.str( std::string() );
 
         if( UpdateExportProgressAndCheckForCancel( i, num_packets ) == true )
