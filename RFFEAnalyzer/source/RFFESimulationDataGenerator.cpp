@@ -57,53 +57,53 @@ void RFFESimulationDataGenerator::CreateRffeTransaction() {
       CreateCommandFrame(cmd);
 
       switch (RFFEUtil::decodeRFFECmdFrame(cmd)) {
-      case RFFEAnalyzerResults::RffeTypeExtWrite:
-        CreateAddressFrame(CreateRandomData());
-        for (U32 i = 0; i <= RFFEUtil::byteCount(cmd); i += 1) {
+        case RFFEAnalyzerResults::RffeTypeExtWrite:
+          CreateAddressFrame(CreateRandomData());
+          for (U32 i = 0; i <= RFFEUtil::byteCount(cmd); i += 1) {
+            CreateDataFrame(CreateRandomData());
+          }
+          CreateBusPark();
+          break;
+        case RFFEAnalyzerResults::RffeTypeReserved:
+          CreateBusPark();
+          break;
+        case RFFEAnalyzerResults::RffeTypeExtRead:
+          CreateAddressFrame(CreateRandomData());
+          CreateBusPark();
+          for (U32 i = 0; i <= RFFEUtil::byteCount(cmd); i += 1) {
+            CreateDataFrame(CreateRandomData());
+          }
+          CreateBusPark();
+          break;
+        case RFFEAnalyzerResults::RffeTypeExtLongWrite:
+          CreateAddressFrame(CreateRandomData());
+          CreateAddressFrame(CreateRandomData());
+          for (U32 i = 0; i <= RFFEUtil::byteCount(cmd); i += 1) {
+            CreateDataFrame(CreateRandomData());
+          }
+          CreateBusPark();
+          break;
+        case RFFEAnalyzerResults::RffeTypeExtLongRead:
+          CreateAddressFrame(CreateRandomData());
+          CreateAddressFrame(CreateRandomData());
+          CreateBusPark();
+          for (U32 i = 0; i <= RFFEUtil::byteCount(cmd); i += 1) {
+            CreateDataFrame(CreateRandomData());
+          }
+          CreateBusPark();
+          break;
+        case RFFEAnalyzerResults::RffeTypeNormalWrite:
           CreateDataFrame(CreateRandomData());
-        }
-        CreateBusPark();
-        break;
-      case RFFEAnalyzerResults::RffeTypeReserved:
-        CreateBusPark();
-        break;
-      case RFFEAnalyzerResults::RffeTypeExtRead:
-        CreateAddressFrame(CreateRandomData());
-        CreateBusPark();
-        for (U32 i = 0; i <= RFFEUtil::byteCount(cmd); i += 1) {
+          CreateBusPark();
+          break;
+        case RFFEAnalyzerResults::RffeTypeNormalRead:
+          CreateBusPark();
           CreateDataFrame(CreateRandomData());
-        }
-        CreateBusPark();
-        break;
-      case RFFEAnalyzerResults::RffeTypeExtLongWrite:
-        CreateAddressFrame(CreateRandomData());
-        CreateAddressFrame(CreateRandomData());
-        for (U32 i = 0; i <= RFFEUtil::byteCount(cmd); i += 1) {
-          CreateDataFrame(CreateRandomData());
-        }
-        CreateBusPark();
-        break;
-      case RFFEAnalyzerResults::RffeTypeExtLongRead:
-        CreateAddressFrame(CreateRandomData());
-        CreateAddressFrame(CreateRandomData());
-        CreateBusPark();
-        for (U32 i = 0; i <= RFFEUtil::byteCount(cmd); i += 1) {
-          CreateDataFrame(CreateRandomData());
-        }
-        CreateBusPark();
-        break;
-      case RFFEAnalyzerResults::RffeTypeNormalWrite:
-        CreateDataFrame(CreateRandomData());
-        CreateBusPark();
-        break;
-      case RFFEAnalyzerResults::RffeTypeNormalRead:
-        CreateBusPark();
-        CreateDataFrame(CreateRandomData());
-        CreateBusPark();
-        break;
-      case RFFEAnalyzerResults::RffeTypeWrite0:
-        CreateBusPark();
-        break;
+          CreateBusPark();
+          break;
+        case RFFEAnalyzerResults::RffeTypeWrite0:
+          CreateBusPark();
+          break;
       }
     }
   }

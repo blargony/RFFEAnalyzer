@@ -58,45 +58,45 @@ void RFFEAnalyzer::WorkerThread() {
       // including the number of data bytes.  Go ahead and handle the different
       // cases
       switch (mRffeType) {
-      case RFFEAnalyzerResults::RffeTypeExtWrite:
-        FindAddressFrame(RFFEAnalyzerResults::RffeAddressField);
-        for (U32 i = 0; i <= byte_count; i += 1) {
+        case RFFEAnalyzerResults::RffeTypeExtWrite:
+          FindAddressFrame(RFFEAnalyzerResults::RffeAddressField);
+          for (U32 i = 0; i <= byte_count; i += 1) {
+            FindDataFrame();
+          }
+          break;
+        case RFFEAnalyzerResults::RffeTypeReserved:
+          break;
+        case RFFEAnalyzerResults::RffeTypeExtRead:
+          FindAddressFrame(RFFEAnalyzerResults::RffeAddressField);
+          FindBusPark();
+          for (U32 i = 0; i <= byte_count; i += 1) {
+            FindDataFrame();
+          }
+          break;
+        case RFFEAnalyzerResults::RffeTypeExtLongWrite:
+          FindAddressFrame(RFFEAnalyzerResults::RffeAddressHiField);
+          FindAddressFrame(RFFEAnalyzerResults::RffeAddressLoField);
+          for (U32 i = 0; i <= byte_count; i += 1) {
+            FindDataFrame();
+          }
+          break;
+        case RFFEAnalyzerResults::RffeTypeExtLongRead:
+          FindAddressFrame(RFFEAnalyzerResults::RffeAddressHiField);
+          FindAddressFrame(RFFEAnalyzerResults::RffeAddressLoField);
+          FindBusPark();
+          for (U32 i = 0; i <= byte_count; i += 1) {
+            FindDataFrame();
+          }
+          break;
+        case RFFEAnalyzerResults::RffeTypeNormalWrite:
           FindDataFrame();
-        }
-        break;
-      case RFFEAnalyzerResults::RffeTypeReserved:
-        break;
-      case RFFEAnalyzerResults::RffeTypeExtRead:
-        FindAddressFrame(RFFEAnalyzerResults::RffeAddressField);
-        FindBusPark();
-        for (U32 i = 0; i <= byte_count; i += 1) {
+          break;
+        case RFFEAnalyzerResults::RffeTypeNormalRead:
+          FindBusPark();
           FindDataFrame();
-        }
-        break;
-      case RFFEAnalyzerResults::RffeTypeExtLongWrite:
-        FindAddressFrame(RFFEAnalyzerResults::RffeAddressHiField);
-        FindAddressFrame(RFFEAnalyzerResults::RffeAddressLoField);
-        for (U32 i = 0; i <= byte_count; i += 1) {
-          FindDataFrame();
-        }
-        break;
-      case RFFEAnalyzerResults::RffeTypeExtLongRead:
-        FindAddressFrame(RFFEAnalyzerResults::RffeAddressHiField);
-        FindAddressFrame(RFFEAnalyzerResults::RffeAddressLoField);
-        FindBusPark();
-        for (U32 i = 0; i <= byte_count; i += 1) {
-          FindDataFrame();
-        }
-        break;
-      case RFFEAnalyzerResults::RffeTypeNormalWrite:
-        FindDataFrame();
-        break;
-      case RFFEAnalyzerResults::RffeTypeNormalRead:
-        FindBusPark();
-        FindDataFrame();
-        break;
-      case RFFEAnalyzerResults::RffeTypeWrite0:
-        break;
+          break;
+        case RFFEAnalyzerResults::RffeTypeWrite0:
+          break;
       }
 
       // Finish up with a Bus Park
@@ -188,46 +188,46 @@ U8 RFFEAnalyzer::FindSlaveAddrAndCommand() {
   byte_count = RFFEUtil::byteCount((U8)RffeCmd);
 
   switch (mRffeType) {
-  case RFFEAnalyzerResults::RffeTypeExtWrite:
-    // 4 bit command w/ 4 bit Byte Count
-    FillInFrame(RFFEAnalyzerResults::RffeTypeField, mRffeType, 4, 8, flags);
-    FillInFrame(RFFEAnalyzerResults::RffeExByteCountField, (RffeCmd & 0x0F), 8, 12, flags);
-    break;
-  case RFFEAnalyzerResults::RffeTypeReserved:
-    // 8 Bit Reserved Cmd Type
-    flags |= (DISPLAY_AS_ERROR_FLAG | DISPLAY_AS_WARNING_FLAG | RFFE_INVALID_CMD_ERROR_FLAG);
-    FillInFrame(RFFEAnalyzerResults::RffeTypeField, mRffeType, 4, 12, flags);
-    break;
-  case RFFEAnalyzerResults::RffeTypeExtRead:
-    // 4 Bit Command w/ 4 bit Byte Count
-    FillInFrame(RFFEAnalyzerResults::RffeTypeField, mRffeType, 4, 8, flags);
-    FillInFrame(RFFEAnalyzerResults::RffeExByteCountField, (RffeCmd & 0x0F), 8, 12, flags);
-    break;
-  case RFFEAnalyzerResults::RffeTypeExtLongWrite:
-    // 5 Bit Command w/ 3 bit Byte Count
-    FillInFrame(RFFEAnalyzerResults::RffeTypeField, mRffeType, 4, 9, flags);
-    FillInFrame(RFFEAnalyzerResults::RffeExLongByteCountField, (RffeCmd & 0x07), 9, 12, flags);
-    break;
-  case RFFEAnalyzerResults::RffeTypeExtLongRead:
-    // 5 Bit Command w/ 3 bit Byte Count
-    FillInFrame(RFFEAnalyzerResults::RffeTypeField, mRffeType, 4, 9, flags);
-    FillInFrame(RFFEAnalyzerResults::RffeExLongByteCountField, (RffeCmd & 0x07), 9, 12, flags);
-    break;
-  case RFFEAnalyzerResults::RffeTypeNormalWrite:
-    // 3 Bit Command w/ 5 bit Addr
-    FillInFrame(RFFEAnalyzerResults::RffeTypeField, mRffeType, 4, 7, flags);
-    FillInFrame(RFFEAnalyzerResults::RffeAddressField, (RffeCmd & 0x1F), 7, 12, flags);
-    break;
-  case RFFEAnalyzerResults::RffeTypeNormalRead:
-    // 3 Bit Command w/ 5 bit Addr
-    FillInFrame(RFFEAnalyzerResults::RffeTypeField, mRffeType, 4, 7, flags);
-    FillInFrame(RFFEAnalyzerResults::RffeAddressField, (RffeCmd & 0x1F), 7, 12, flags);
-    break;
-  case RFFEAnalyzerResults::RffeTypeWrite0:
-    // 1 Bit Command w/ 7 bit Write Data
-    FillInFrame(RFFEAnalyzerResults::RffeTypeField, mRffeType, 4, 5, flags);
-    FillInFrame(RFFEAnalyzerResults::RffeShortDataField, (RffeCmd & 0x7F), 5, 12, flags);
-    break;
+    case RFFEAnalyzerResults::RffeTypeExtWrite:
+      // 4 bit command w/ 4 bit Byte Count
+      FillInFrame(RFFEAnalyzerResults::RffeTypeField, mRffeType, 4, 8, flags);
+      FillInFrame(RFFEAnalyzerResults::RffeExByteCountField, (RffeCmd & 0x0F), 8, 12, flags);
+      break;
+    case RFFEAnalyzerResults::RffeTypeReserved:
+      // 8 Bit Reserved Cmd Type
+      flags |= (DISPLAY_AS_ERROR_FLAG | DISPLAY_AS_WARNING_FLAG | RFFE_INVALID_CMD_ERROR_FLAG);
+      FillInFrame(RFFEAnalyzerResults::RffeTypeField, mRffeType, 4, 12, flags);
+      break;
+    case RFFEAnalyzerResults::RffeTypeExtRead:
+      // 4 Bit Command w/ 4 bit Byte Count
+      FillInFrame(RFFEAnalyzerResults::RffeTypeField, mRffeType, 4, 8, flags);
+      FillInFrame(RFFEAnalyzerResults::RffeExByteCountField, (RffeCmd & 0x0F), 8, 12, flags);
+      break;
+    case RFFEAnalyzerResults::RffeTypeExtLongWrite:
+      // 5 Bit Command w/ 3 bit Byte Count
+      FillInFrame(RFFEAnalyzerResults::RffeTypeField, mRffeType, 4, 9, flags);
+      FillInFrame(RFFEAnalyzerResults::RffeExLongByteCountField, (RffeCmd & 0x07), 9, 12, flags);
+      break;
+    case RFFEAnalyzerResults::RffeTypeExtLongRead:
+      // 5 Bit Command w/ 3 bit Byte Count
+      FillInFrame(RFFEAnalyzerResults::RffeTypeField, mRffeType, 4, 9, flags);
+      FillInFrame(RFFEAnalyzerResults::RffeExLongByteCountField, (RffeCmd & 0x07), 9, 12, flags);
+      break;
+    case RFFEAnalyzerResults::RffeTypeNormalWrite:
+      // 3 Bit Command w/ 5 bit Addr
+      FillInFrame(RFFEAnalyzerResults::RffeTypeField, mRffeType, 4, 7, flags);
+      FillInFrame(RFFEAnalyzerResults::RffeAddressField, (RffeCmd & 0x1F), 7, 12, flags);
+      break;
+    case RFFEAnalyzerResults::RffeTypeNormalRead:
+      // 3 Bit Command w/ 5 bit Addr
+      FillInFrame(RFFEAnalyzerResults::RffeTypeField, mRffeType, 4, 7, flags);
+      FillInFrame(RFFEAnalyzerResults::RffeAddressField, (RffeCmd & 0x1F), 7, 12, flags);
+      break;
+    case RFFEAnalyzerResults::RffeTypeWrite0:
+      // 1 Bit Command w/ 7 bit Write Data
+      FillInFrame(RFFEAnalyzerResults::RffeTypeField, mRffeType, 4, 5, flags);
+      FillInFrame(RFFEAnalyzerResults::RffeShortDataField, (RffeCmd & 0x7F), 5, 12, flags);
+      break;
   }
 
   // Check Parity - Parity bit covers the full SA/Command field (12 bits)
