@@ -10,6 +10,8 @@
 	<string>RFFEAnalyzer</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
+		<key>61E7F2C867CF054D3323CEEFF8F5E8C4244D2EC1</key>
+		<string>http://github.com/SeanOBoyle/RFFEAnalyzer</string>
 		<key>BDAAD90B-09A1-4E71-B4D0-AEA5FD67394B</key>
 		<string>svn://digsvn/saleae</string>
 		<key>b242a16d-804b-4e6a-a70a-7a35d463ab92++505</key>
@@ -19,10 +21,12 @@
 	<string>RFFEAnalyzer/RFFEAnalyzer.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
+		<key>61E7F2C867CF054D3323CEEFF8F5E8C4244D2EC1</key>
+		<string>../../..</string>
 		<key>BDAAD90B-09A1-4E71-B4D0-AEA5FD67394B</key>
 		<string>../../../../saleae</string>
 		<key>b242a16d-804b-4e6a-a70a-7a35d463ab92++505</key>
-		<string>../../..</string>
+		<string>../../../../saleae_trunk</string>
 	</dict>
 	<key>IDESourceControlProjectRepositoryRootDictionary</key>
 	<dict>
@@ -30,13 +34,21 @@
 		<string>svn://digsvn/saleae</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
-	<string>svn://digsvn/saleae/trunk/RFFEAnalyzer/RFFEAnalyzer.xcodeproj</string>
+	<string>http://github.com/SeanOBoyle/RFFEAnalyzer</string>
 	<key>IDESourceControlProjectVersion</key>
 	<integer>111</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>b242a16d-804b-4e6a-a70a-7a35d463ab92++505</string>
+	<string>61E7F2C867CF054D3323CEEFF8F5E8C4244D2EC1</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>61E7F2C867CF054D3323CEEFF8F5E8C4244D2EC1</string>
+			<key>IDESourceControlWCCName</key>
+			<string>RFFEAnalyzer</string>
+		</dict>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.subversion</string>
