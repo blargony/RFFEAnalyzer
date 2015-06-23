@@ -5,13 +5,11 @@
 #include <AnalyzerTypes.h>
 #include "RFFEAnalyzerResults.h"
 
-class RFFEUtil
-{
+class RFFEUtil {
 public:
-    static RFFEAnalyzerResults::RffeTypeFieldType decodeRFFECmdFrame(U8 cmd);
-    static U8 byteCount(U8 cmd);
-    static bool CalcParity(U64 val);
-    
+  static RFFEAnalyzerResults::RffeTypeFieldType decodeRFFECmdFrame(U8 cmd);
+  static U8 byteCount(U8 cmd);
+  static bool CalcParity(U64 val);
 };
 
-#endif //RFFE_UTIL
+#endif // RFFE_UTIL
