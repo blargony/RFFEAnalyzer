@@ -7,7 +7,7 @@
 
 class RFFEUtil {
 public:
-  static RFFEAnalyzerResults::RffeTypeFieldType decodeRFFECmdFrame(U8 cmd);
+  static RFFEAnalyzerResults::RffeCommandFieldType decodeRFFECmdFrame(U8 cmd);
   static U8 byteCount(U8 cmd);
   static bool CalcParity(U64 val);
 };

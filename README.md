@@ -1,10 +1,10 @@
-# Saleae RFFE v1.10a Analyzer
+# Saleae RFFE v2.0 Analyzer
 
 Saleae Analyzer for the MIPI RFFE interface.
 
 # OSX
 
-In OSX, in order to compile the dynlib:
+In OSX, in order to compile the dylib:
 
 * Install XCode
 * Open the Project File, RFFEAnalyzer.xcodeproj

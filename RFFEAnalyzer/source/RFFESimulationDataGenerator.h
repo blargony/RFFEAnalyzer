@@ -22,14 +22,13 @@ protected:
 
 protected: // RFFE specific functions
   void CreateRffeTransaction();
-  void CreateStart();
+  void CreateSSC();
   void CreateSlaveAddress(U8 addr);
-  void CreateCommandFrame(U8 cmd);
+  void CreateByteFrame(U8 byte);
   void CreateByte(U8 cmd);
-  void CreateParity();
+  void CreateBits(U8 bits, U8 data);
+  void CreateParity(U8 byte);
   void CreateBusPark();
-  void CreateDataFrame(U8 data);
-  void CreateAddressFrame(U8 addr);
   U8 CreateRandomData();
 
 protected: // RFFE specific vars
@@ -39,7 +38,16 @@ protected: // RFFE specific vars
   SimulationChannelDescriptor *mSdata;
 
 private:
-  U32 mParityCounter;
   U8 mLSFRData;
 };
+
+// Parity Lookup Table
+static const U8 ParityTable256[256] =
+{
+#   define P2(n) n, n^1, n^1, n
+#   define P4(n) P2(n), P2(n^1), P2(n^1), P2(n)
+#   define P6(n) P4(n), P4(n^1), P4(n^1), P4(n)
+  P6(1), P6(0), P6(0), P6(1)
+};
+
 #endif // RFFE_SIMULATION_DATA_GENERATOR
