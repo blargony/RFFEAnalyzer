@@ -44,27 +44,29 @@ protected: // vars
   //
   U32 mSampleRateHz;
 
-protected: // functions
+protected:
+  // Packet Level Searchs
   U8 FindStartSeqCondition();
-  U8 FindSlaveAddrAndCommand();
+  U8 FindCommandFrame();
+  void FindByteFrame(RFFEAnalyzerResults::RffeFrameType type);
+  U8 FindISI();
+  void FindInterruptSlots();
   void FindParity(bool expParity);
-  void FindDataFrame();
-  void FindAddressFrame(RFFEAnalyzerResults::RffeFrameType type);
   void FindBusPark();
 
+  // Bit Level Waveform Parsing
   void GotoNextTransition();
   void GotoSclkEdge(BitState);
   BitState GetNextBit(U8 idx);
   U64 GetBitStream(U8 len);
 
+  // Physical Layer Checks
   bool CheckClockRate();
 
-  void FillInFrame(RFFEAnalyzerResults::RffeFrameType type, U64 frame_data, U32 idx_start, U32 idx_end, U8 flags);
+  // Interface to the Results/Output
+  void FillInFrame(RFFEAnalyzerResults::RffeFrameType type, U64 frame_data, U64 extra_data, U32 idx_start, U32 idx_end, U8 flags);
 
 private:
-  // RFFE Parsing state to pass between various methods
-  RFFEAnalyzerResults::RffeTypeFieldType mRffeType; // RFFE Cmd we are in
-
   // --------------------------------------
   // The sampling and storing of chunks of
   // RFFE Data are managed in member variables.
@@ -72,6 +74,9 @@ private:
   // a variety of methods so keep them here as
   // a common working set of variables
   // --------------------------------------
+  // RFFE Cmd Type we are in the middle of - ReadExtended, Write0, etc...
+  RFFEAnalyzerResults::RffeCommandFieldType mRffeCmdType;
+
   // Used to store the current and previous state of the bus
   // (on a transition by transition basis)
   U64 mSamplePosition;
@@ -87,7 +92,6 @@ private:
   // Used to store sample offsets that need to be handed to the AnalyzerResults
   // objects to indicate the start/stop sample points for annotations in the
   // waveform display.
-  // Member Variables so we don't have to pass them around so much
   U64 mSampleClkOffsets[16];
   U64 mSampleDataOffsets[16];
   AnalyzerResults::MarkerType mSampleMarker[16];

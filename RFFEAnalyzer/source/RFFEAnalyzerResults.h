@@ -6,6 +6,9 @@
 #define RFFE_PARITY_ERROR_FLAG (0x1 << 0)
 #define RFFE_INVALID_CMD_ERROR_FLAG (0x1 << 1)
 #define RFFE_INCOMPLETE_PACKET_ERROR_FLAG (0x1 << 2)
+#define RFFE_INVALID_MASTER_ID (0x1 << 3)
+
+
 
 class RFFEAnalyzer;
 class RFFEAnalyzerSettings;
@@ -26,7 +29,7 @@ public:
   enum RffeFrameType {
     RffeSSCField,
     RffeSAField,
-    RffeTypeField,
+    RffeCommandField,
     RffeExByteCountField,
     RffeExLongByteCountField,
     RffeAddressField,
@@ -34,14 +37,21 @@ public:
     RffeAddressLoField,
     RffeShortDataField,
     RffeDataField,
+    RffeMasterHandoffAckField,
+    RffeISIField,
+    RffeIntSlotField,
     RffeParityField,
     RffeBusParkField,
     RffeErrorCaseField,
   };
 
-  enum RffeTypeFieldType {
+  enum RffeCommandFieldType {
     RffeTypeExtWrite,
     RffeTypeReserved,
+    RffeTypeMasterRead,
+    RffeTypeMasterWrite,
+    RffeTypeMasterHandoff,
+    RffeTypeInterrupt,
     RffeTypeExtRead,
     RffeTypeExtLongWrite,
     RffeTypeExtLongRead,
@@ -49,11 +59,19 @@ public:
     RffeTypeNormalRead,
     RffeTypeWrite0,
   };
-
-protected: // functions
-protected: // vars
+ 
+protected:
   RFFEAnalyzerSettings *mSettings;
   RFFEAnalyzer *mAnalyzer;
+};
+
+// Map RffeCommandFieldType to Descriptive Strings
+static const char *RffeCommandFieldStringShort[] = {
+  "EW", "-", "MR", "MW", "MH", "I", "ER", "EWL", "ERL", "W", "R", "W0",
+};
+
+static const char *RffeCommandFieldStringMid[] = {
+  "ExtWr", "Rsvd", "MstrRd", "MstrWr", "MstrHand", "Int", "ExtRd", "ExtWrLng", "ExtRdLng", "Wr", "Rd", "Wr0",
 };
 
 #endif // RFFE_ANALYZER_RESULTS

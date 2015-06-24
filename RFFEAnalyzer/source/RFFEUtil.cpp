@@ -1,10 +1,18 @@
 #include "RFFEUtil.h"
 
-RFFEAnalyzerResults::RffeTypeFieldType RFFEUtil::decodeRFFECmdFrame(U8 cmd) {
+RFFEAnalyzerResults::RffeCommandFieldType RFFEUtil::decodeRFFECmdFrame(U8 cmd) {
   if (cmd < 0x10) {
     return RFFEAnalyzerResults::RffeTypeExtWrite;
-  } else if ((cmd >= 0x10) && (cmd < 0x20)) {
+  } else if ((cmd >= 0x10) && (cmd < 0x1c)) {
     return RFFEAnalyzerResults::RffeTypeReserved;
+  } else if (cmd == 0x1c) {
+    return RFFEAnalyzerResults::RffeTypeMasterRead;
+  } else if (cmd == 0x1d) {
+    return RFFEAnalyzerResults::RffeTypeMasterWrite;
+  } else if (cmd == 0x1e) {
+    return RFFEAnalyzerResults::RffeTypeMasterHandoff;
+  } else if (cmd == 0x1f) {
+    return RFFEAnalyzerResults::RffeTypeInterrupt;
   } else if ((cmd >= 0x20) && (cmd < 0x30)) {
     return RFFEAnalyzerResults::RffeTypeExtRead;
   } else if ((cmd >= 0x30) && (cmd < 0x38)) {
@@ -20,10 +28,18 @@ RFFEAnalyzerResults::RffeTypeFieldType RFFEUtil::decodeRFFECmdFrame(U8 cmd) {
   }
 }
 
+// Note:  This returns the number of bytes expected MINUS one
+// (This is due to how command lengths are encoded in the RFFE Commands
 U8 RFFEUtil::byteCount(U8 cmd) {
   if (cmd < 0x10) { // ExtWr
-    return (cmd & 0x0F);
-  } else if ((cmd >= 0x10) && (cmd < 0x20)) { // Rsvd
+    return (cmd & 0x0f);
+  } else if ((cmd >= 0x10) && (cmd < 0x1C)) { // Rsvd
+    return 0;
+  } else if ((cmd >= 0x1c) && (cmd < 0x1e)) { // Master Rd/Wr
+    return 1;   // 2 bytes
+  } else if (cmd == 0x1e) { // Master Handoff
+    return 0;   // 1 byte
+  } else if (cmd == 0x1f) { // Interrupt - non-byte sized length, handle as special case
     return 0;
   } else if ((cmd >= 0x20) && (cmd < 0x30)) { // ExtRd
     return (cmd & 0x0F);
