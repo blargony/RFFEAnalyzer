@@ -104,7 +104,7 @@ void RFFEAnalyzerResults::GenerateBubbleText(U64 frame_index, Channel &channel, 
     case RffeIntSlotField: {
       AnalyzerHelpers::GetNumberString(frame.mData1, display_base, 1, number_str, 4);
       snprintf(results_str, sizeof(results_str), "INT%d", U8(frame.mData2));
-      AddResultString("INT");
+      AddResultString("I");
       AddResultString(results_str);
     } break;
       

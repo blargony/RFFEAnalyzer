@@ -71,7 +71,7 @@ static const char *RffeCommandFieldStringShort[] = {
 };
 
 static const char *RffeCommandFieldStringMid[] = {
-  "ExtWr", "Rsvd", "MstrRd", "MstrWr", "MstrHand", "Int", "ExtRd", "ExtWrLng", "ExtRdLng", "Wr", "Rd", "Wr0",
+  "ExtWr", "Rsvd", "MstrRd", "MstrWr", "MstrHand", "Interrupt", "ExtRd", "ExtWrLng", "ExtRdLng", "Wr", "Rd", "Wr0",
 };
 
 #endif // RFFE_ANALYZER_RESULTS
