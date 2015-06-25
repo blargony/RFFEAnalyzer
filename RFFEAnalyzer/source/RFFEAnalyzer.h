@@ -51,7 +51,7 @@ protected:
   void FindByteFrame(RFFEAnalyzerResults::RffeFrameType type);
   U8 FindISI();
   void FindInterruptSlots();
-  void FindParity(bool expParity);
+  void FindParity(bool expParity, U64 extra_data);
   void FindBusPark();
 
   // Bit Level Waveform Parsing

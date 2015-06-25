@@ -265,7 +265,7 @@ U8 RFFEAnalyzer::FindCommandFrame() {
   }
 
   // Check Parity - Parity bit covers the full SA/Command field (12 bits)
-  FindParity(RFFEUtil::CalcParity(RffeCmd));
+  FindParity(RFFEUtil::CalcParity(RffeCmd), 0);
 
   return byte_count;
 }
@@ -291,11 +291,11 @@ void RFFEAnalyzer::FindInterruptSlots() {
 void RFFEAnalyzer::FindByteFrame(RFFEAnalyzerResults::RffeFrameType type) {
   U64 byte = GetBitStream(8);
   FillInFrame(type, byte, 0, 0, 8, 0);
-  FindParity(RFFEUtil::CalcParity(byte));
+  FindParity(RFFEUtil::CalcParity(byte), 1);
 }
 
 // ------------------------------------------------------------------------------
-void RFFEAnalyzer::FindParity(bool expParity) {
+void RFFEAnalyzer::FindParity(bool expParity, U64 extra_data) {
   BitState bitstate;
   bool data_parity;
   U64 parity_value;
@@ -322,7 +322,7 @@ void RFFEAnalyzer::FindParity(bool expParity) {
     mSampleMarker[0] = AnalyzerResults::ErrorDot;
   }
 
-  FillInFrame(RFFEAnalyzerResults::RffeParityField, parity_value, 0, 0, 1, flags);
+  FillInFrame(RFFEAnalyzerResults::RffeParityField, parity_value, extra_data, 0, 1, flags);
 }
 
 // ------------------------------------------------------------------------------

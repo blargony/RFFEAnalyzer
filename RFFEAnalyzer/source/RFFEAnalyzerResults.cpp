@@ -3,7 +3,6 @@
 #include "RFFEAnalyzer.h"
 #include "RFFEAnalyzerSettings.h"
 #include <iostream>
-#include <sstream>
 #include <stdio.h>
 
 
@@ -15,7 +14,7 @@ RFFEAnalyzerResults::~RFFEAnalyzerResults() {}
 //
 void RFFEAnalyzerResults::GenerateBubbleText(U64 frame_index, Channel &channel, DisplayBase display_base) {
   char number_str[8];
-  char results_string[16];
+  char results_str[16];
 
   channel = channel;
 
@@ -29,9 +28,9 @@ void RFFEAnalyzerResults::GenerateBubbleText(U64 frame_index, Channel &channel, 
 
     case RffeSAField: {
       AnalyzerHelpers::GetNumberString(frame.mData1, display_base, 4, number_str, 8);
-      snprintf(results_string, 16, "SA:%s", number_str);
+      snprintf(results_str, sizeof(results_str), "SA:%s", number_str);
       AddResultString("SA");
-      AddResultString(results_string);
+      AddResultString(results_str);
     } break;
 
     case RffeCommandField: {
@@ -41,59 +40,59 @@ void RFFEAnalyzerResults::GenerateBubbleText(U64 frame_index, Channel &channel, 
 
     case RffeExByteCountField: {
       AnalyzerHelpers::GetNumberString(frame.mData1, display_base, 4, number_str, 8);
-      snprintf(results_string, 16, "BC:%s", number_str);
+      snprintf(results_str, sizeof(results_str), "BC:%s", number_str);
       AddResultString("BC");
-      AddResultString(results_string);
+      AddResultString(results_str);
     } break;
 
     case RffeExLongByteCountField: {
       AnalyzerHelpers::GetNumberString(frame.mData1, display_base, 3, number_str, 8);
-      snprintf(results_string, 16, "BC:%s", number_str);
+      snprintf(results_str, sizeof(results_str), "BC:%s", number_str);
       AddResultString("BC");
-      AddResultString(results_string);
+      AddResultString(results_str);
     } break;
 
     case RffeAddressField: {
       AnalyzerHelpers::GetNumberString(frame.mData1, display_base, 8, number_str, 8);
-      snprintf(results_string, 16, "A:%s", number_str);
+      snprintf(results_str, sizeof(results_str), "A:%s", number_str);
       AddResultString("A");
-      AddResultString(results_string);
+      AddResultString(results_str);
     } break;
 
     case RffeAddressHiField: {
       AnalyzerHelpers::GetNumberString(frame.mData1, display_base, 8, number_str, 8);
-      snprintf(results_string, 16, "AH:%s", number_str);
+      snprintf(results_str, sizeof(results_str), "AH:%s", number_str);
       AddResultString("A");
-      AddResultString(results_string);
+      AddResultString(results_str);
 
     } break;
 
     case RffeAddressLoField: {
       AnalyzerHelpers::GetNumberString(frame.mData1, display_base, 8, number_str, 8);
-      snprintf(results_string, 16, "AL:%s", number_str);
+      snprintf(results_str, sizeof(results_str), "AL:%s", number_str);
       AddResultString("A");
-      AddResultString(results_string);
+      AddResultString(results_str);
     } break;
 
     case RffeShortDataField: {
       AnalyzerHelpers::GetNumberString(frame.mData1, display_base, 7, number_str, 8);
-      snprintf(results_string, 16, "D:%s", number_str);
+      snprintf(results_str, sizeof(results_str), "D:%s", number_str);
       AddResultString("D");
-      AddResultString(results_string);
+      AddResultString(results_str);
     } break;
 
     case RffeDataField: {
       AnalyzerHelpers::GetNumberString(frame.mData1, display_base, 8, number_str, 8);
-      snprintf(results_string, 16, "D:%s", number_str);
+      snprintf(results_str, sizeof(results_str), "D:%s", number_str);
       AddResultString("D");
-      AddResultString(results_string);
+      AddResultString(results_str);
     } break;
 
     case RffeMasterHandoffAckField: {
       AnalyzerHelpers::GetNumberString(frame.mData1, display_base, 8, number_str, 8);
-      snprintf(results_string, 16, "MHAck:%s", number_str);
+      snprintf(results_str, sizeof(results_str), "MHAck:%s", number_str);
       AddResultString("MHA");
-      AddResultString(results_string);
+      AddResultString(results_str);
     } break;
 
     case RffeISIField: {
@@ -104,16 +103,16 @@ void RFFEAnalyzerResults::GenerateBubbleText(U64 frame_index, Channel &channel, 
       
     case RffeIntSlotField: {
       AnalyzerHelpers::GetNumberString(frame.mData1, display_base, 1, number_str, 4);
-      snprintf(results_string, 16, "INT%d", U8(frame.mData2));
+      snprintf(results_str, sizeof(results_str), "INT%d", U8(frame.mData2));
       AddResultString("INT");
-      AddResultString(results_string);
+      AddResultString(results_str);
     } break;
       
     case RffeParityField: {
       AnalyzerHelpers::GetNumberString(frame.mData1, Decimal, 1, number_str, 4);
-      snprintf(results_string, 16, "P:%s", number_str);
+      snprintf(results_str, sizeof(results_str), "P:%s", number_str);
       AddResultString("P");
-      AddResultString(results_string);
+      AddResultString(results_str);
     } break;
 
     case RffeBusParkField: {
@@ -128,9 +127,9 @@ void RFFEAnalyzerResults::GenerateBubbleText(U64 frame_index, Channel &channel, 
 
       AnalyzerHelpers::GetNumberString(frame.mData1, Hexadecimal, 32, number1_str, 10);
       AnalyzerHelpers::GetNumberString(frame.mData2, Hexadecimal, 32, number2_str, 10);
-      snprintf(results_string, 16, "E:%s - %s", number1_str, number2_str);
+      snprintf(results_str, sizeof(results_str), "E:%s - %s", number1_str, number2_str);
       AddResultString("E");
-      AddResultString(results_string);
+      AddResultString(results_str);
     } break;
   }
 }
@@ -150,8 +149,8 @@ void RFFEAnalyzerResults::GenerateExportFile(const char *file, DisplayBase displ
   char data_str[8];
   bool show_parity = mSettings->mShowParityInReport;
   bool show_buspark = mSettings->mShowBusParkInReport;
-  std::stringstream payload;
-  std::stringstream ss;
+  char payload_str[256];
+  char results_str[256];
   Frame frame;
   void *f = AnalyzerHelpers::StartFile(file);
 
@@ -160,14 +159,19 @@ void RFFEAnalyzerResults::GenerateExportFile(const char *file, DisplayBase displ
   U64 trigger_sample = mAnalyzer->GetTriggerSample();
   U32 sample_rate = mAnalyzer->GetSampleRate();
 
-  ss << "Time [s],Packet ID,SSC,SA,Type,Adr,BC,Payload" << std::endl;
+  if (show_parity) {
+    snprintf(results_str, sizeof(results_str), "Time[s],Packet ID,SA,Type,Adr,BC,CmdP,Payload\n");
+  }
+  else {
+    snprintf(results_str, sizeof(results_str), "Time[s],Packet ID,SA,Type,Adr,BC,Payload\n");
+  }
+  AnalyzerHelpers::AppendToFile((U8*)results_str, (U32)strlen(results_str), f);
 
   U64 num_packets = GetNumPackets();
   for (U32 i = 0; i < num_packets; i++) {
     // package id
     AnalyzerHelpers::GetNumberString(i, Decimal, 0, packet_str, 16);
 
-    payload.str(std::string());
     snprintf(sa_str, 8, "");
     snprintf(type_str, 8, "");
     snprintf(addr_str, 8, "");
@@ -175,7 +179,9 @@ void RFFEAnalyzerResults::GenerateExportFile(const char *file, DisplayBase displ
     snprintf(parityCmd_str, 8, "");
     snprintf(bc_str, 8, "");
     snprintf(data_str, 8, "");
-    address = 0xFFFFFFFF;
+    snprintf(payload_str, 256, "");
+    snprintf(results_str, 256, "");
+    address = 0x0;
 
     GetFramesContainedInPacket(i, &first_frame_id, &last_frame_id);
     for (U64 j = first_frame_id; j <= last_frame_id; j++) {
@@ -193,6 +199,13 @@ void RFFEAnalyzerResults::GenerateExportFile(const char *file, DisplayBase displ
 
         case RffeCommandField:
           snprintf(type_str, sizeof(type_str), "%s", RffeCommandFieldStringMid[frame.mData1]);
+          if (frame.mData1 == RffeTypeNormalWrite || frame.mData1 == RffeTypeNormalRead) {
+            snprintf(bc_str, sizeof(bc_str), "0x0");
+          }
+          else if (frame.mData1 == RffeTypeWrite0) {
+            snprintf(bc_str, sizeof(bc_str), "0x0");
+            snprintf(addr_str, sizeof(addr_str), "0x0");
+          }
           break;
 
         case RffeExByteCountField:
@@ -205,42 +218,60 @@ void RFFEAnalyzerResults::GenerateExportFile(const char *file, DisplayBase displ
 
         case RffeAddressField:
           address = frame.mData1;
+          AnalyzerHelpers::GetNumberString(address, display_base, sizeof(addr_str), addr_str, 16);
           break;
 
         case RffeAddressHiField:
           address = (frame.mData1 << 8);
+          AnalyzerHelpers::GetNumberString(address, display_base, sizeof(addr_str), addr_str, 16);
           break;
 
         case RffeAddressLoField:
           address |= frame.mData1;
+          AnalyzerHelpers::GetNumberString(address, display_base, sizeof(addr_str), addr_str, 16);
           break;
 
         case RffeShortDataField:
           AnalyzerHelpers::GetNumberString(frame.mData1, display_base, 7, data_str, 8);
-          payload << "D:" << data_str << " ";
+          snprintf(payload_str, sizeof(payload_str), "%s", data_str);
           break;
 
         case RffeDataField:
           AnalyzerHelpers::GetNumberString(frame.mData1, display_base, 8, data_str, 8);
-          payload << data_str << " ";
+          // Gather up all the data bytes into the payload
+          if (strlen(payload_str) == 0) {
+            snprintf(payload_str, sizeof(payload_str), "%s", data_str);
+          } else {
+            snprintf(payload_str, sizeof(payload_str), "%s %s", payload_str, data_str);
+          }
           break;
 
         case RffeParityField:
-          if (!show_parity)
-            break;
-          if (frame.mData2 == 0) {
+          if (show_parity) {
             AnalyzerHelpers::GetNumberString(frame.mData1, Decimal, 1, parity_str, 4);
-            payload << "P" << parity_str << " ";
-          } else {
-            AnalyzerHelpers::GetNumberString(frame.mData1, Decimal, 1, parityCmd_str, 4);
+            if (frame.mData2) {
+              // Data Parity
+              if (strlen(payload_str) == 0) {
+                snprintf(payload_str, sizeof(payload_str), "P%s", parity_str);
+              } else {
+                snprintf(payload_str, sizeof(payload_str), "%s P%s", payload_str, parity_str);
+              }
+            }
+            else {
+              snprintf(parityCmd_str, sizeof(parityCmd_str), "P%s", parity_str);   // CmdParity
+            }
+            
           }
           break;
 
         case RffeBusParkField:
-          if (!show_buspark)
-            break;
-
-          payload << "BP ";
+          if (show_buspark) {
+            if (strlen(payload_str) == 0) {
+              snprintf(payload_str, sizeof(payload_str), "BP");
+            } else {
+              snprintf(payload_str, sizeof(payload_str), "%s BP", payload_str);
+            }
+          }
           break;
 
         case RffeErrorCaseField:
@@ -250,29 +281,19 @@ void RFFEAnalyzerResults::GenerateExportFile(const char *file, DisplayBase displ
 
           AnalyzerHelpers::GetNumberString(frame.mData1, Hexadecimal, 32, number1_str, 10);
           AnalyzerHelpers::GetNumberString(frame.mData2, Hexadecimal, 32, number2_str, 10);
-          payload << "E:" << number1_str << " - " << number2_str << " ";
+          snprintf(payload_str, sizeof(payload_str), "E:%s - %s ", number1_str, number2_str);
           break;
       }
     }
 
-    ss << time_str << "," << packet_str << ",SSC," << sa_str << "," << type_str;
 
-    if (address == 0xFFFFFFFF) {
-      ss << ",,," << payload.str().c_str();
-      if (show_parity) {
-        ss << " P" << parityCmd_str;
-      }
-    } else {
-      AnalyzerHelpers::GetNumberString(address, display_base, 16, addr_str, 16);
-      ss << "," << addr_str;
-      if (show_parity) {
-        ss << " P" << parityCmd_str;
-      }
-      ss << "," << bc_str << "," << payload.str().c_str();
+    if (show_parity) {
+      snprintf(results_str, sizeof(results_str), "%s,%s,%s,%s,%s,%s,%s,%s\n", time_str, packet_str, sa_str, type_str, addr_str, bc_str, parityCmd_str, payload_str);
     }
-    ss << std::endl;
-    AnalyzerHelpers::AppendToFile((U8 *)ss.str().c_str(), (U32)ss.str().length(), f);
-    ss.str(std::string());
+    else {
+      snprintf(results_str, sizeof(results_str), "%s,%s,%s,%s,%s,%s,%s\n", time_str, packet_str, sa_str, type_str, addr_str, bc_str, payload_str);
+    }
+    AnalyzerHelpers::AppendToFile((U8*)results_str, (U32)strlen(results_str), f);
 
     if (UpdateExportProgressAndCheckForCancel(i, num_packets) == true) {
       AnalyzerHelpers::EndFile(f);
@@ -290,8 +311,7 @@ void RFFEAnalyzerResults::GenerateFrameTabularText(U64 frame_index, DisplayBase 
   char addr_str[8];
   char bc_str[8];
   char data_str[8];
-  std::stringstream payload;
-  std::stringstream ss;
+  char frame_str[32];
   Frame frame;
 
   U64 trigger_sample = mAnalyzer->GetTriggerSample();
@@ -305,79 +325,66 @@ void RFFEAnalyzerResults::GenerateFrameTabularText(U64 frame_index, DisplayBase 
     case RffeSSCField:
       // starting time using SSC as marker
       AnalyzerHelpers::GetTimeString(frame.mStartingSampleInclusive, trigger_sample, sample_rate, time_str, 16);
-      ss << "SSC";
-      AddTabularText(ss.str().c_str());
+      snprintf(frame_str, sizeof(frame_str), "SSC");
       break;
 
     case RffeSAField:
       AnalyzerHelpers::GetNumberString(frame.mData1, display_base, 4, sa_str, 8);
-      ss << "SA: " << sa_str;
-      AddTabularText(ss.str().c_str());
+      snprintf(frame_str, sizeof(frame_str), "SA: %s", sa_str);
       break;
 
     case RffeCommandField:
       snprintf(type_str, sizeof(type_str), "%s", RffeCommandFieldStringMid[frame.mData1]);
-      ss << "Type: " << type_str;
-      AddTabularText(ss.str().c_str());
+      snprintf(frame_str, sizeof(frame_str), "Type: %s", type_str);
       break;
 
     case RffeExByteCountField:
       AnalyzerHelpers::GetNumberString(frame.mData1, display_base, 4, bc_str, 8);
-      ss << "ExByteCount: " << bc_str;
-      AddTabularText(ss.str().c_str());
+      snprintf(frame_str, sizeof(frame_str), "ExByteCount: %s", bc_str);
       break;
 
     case RffeExLongByteCountField:
       AnalyzerHelpers::GetNumberString(frame.mData1, display_base, 3, bc_str, 8);
-      ss << "ExLongByteCount: " << bc_str;
-      AddTabularText(ss.str().c_str());
+      snprintf(frame_str, sizeof(frame_str), "ExLongByteCount: %s", bc_str);
       break;
 
     case RffeAddressField:
       AnalyzerHelpers::GetNumberString(frame.mData1, display_base, 8, addr_str, 8);
-      ss << "Addr: " << addr_str;
-      AddTabularText(ss.str().c_str());
+      snprintf(frame_str, sizeof(frame_str), "Addr: %s", addr_str);
       break;
 
     case RffeAddressHiField:
       AnalyzerHelpers::GetNumberString(frame.mData1, display_base, 8, addr_str, 8);
-      ss << "AddrHi: " << addr_str;
-      AddTabularText(ss.str().c_str());
+      snprintf(frame_str, sizeof(frame_str), "AddrHi: %s", addr_str);
       break;
 
     case RffeAddressLoField:
       AnalyzerHelpers::GetNumberString(frame.mData1, display_base, 8, addr_str, 8);
-      ss << "AddrLo: " << addr_str;
-      AddTabularText(ss.str().c_str());
+      snprintf(frame_str, sizeof(frame_str), "AddrLo: %s", addr_str);
       break;
 
     case RffeShortDataField:
       AnalyzerHelpers::GetNumberString(frame.mData1, display_base, 7, data_str, 8);
-      ss << "DataShort: " << data_str;
-      AddTabularText(ss.str().c_str());
+      snprintf(frame_str, sizeof(frame_str), "DataShort: %s", data_str);
       break;
 
     case RffeDataField:
       AnalyzerHelpers::GetNumberString(frame.mData1, display_base, 8, data_str, 8);
-      ss << "Data: " << data_str;
-      AddTabularText(ss.str().c_str());
+      snprintf(frame_str, sizeof(frame_str), "Data: %s", data_str);
       break;
 
     case RffeParityField:
-      if (frame.mData2 == 0) {
+      if (frame.mData2 == 1) {
         AnalyzerHelpers::GetNumberString(frame.mData1, Decimal, 1, parity_str, 4);
-        ss << "DataParity: " << parity_str;
-        AddTabularText(ss.str().c_str());
+        snprintf(frame_str, sizeof(frame_str), "DataParity: %s", parity_str);
       } else {
         AnalyzerHelpers::GetNumberString(frame.mData1, Decimal, 1, parityCmd_str, 4);
-        ss << "CmdParity: " << parityCmd_str;
-        AddTabularText(ss.str().c_str());
+        snprintf(frame_str, sizeof(frame_str), "CmdParity: %s", parityCmd_str);
       }
       break;
 
     case RffeBusParkField:
-      ss << "BP";
-      AddTabularText(ss.str().c_str());
+      snprintf(frame_str, sizeof(frame_str), "BP");
       break;
 
     case RffeErrorCaseField:
@@ -387,10 +394,11 @@ void RFFEAnalyzerResults::GenerateFrameTabularText(U64 frame_index, DisplayBase 
 
       AnalyzerHelpers::GetNumberString(frame.mData1, Hexadecimal, 32, number1_str, 10);
       AnalyzerHelpers::GetNumberString(frame.mData2, Hexadecimal, 32, number2_str, 10);
-      ss << "ERROR:" << number1_str << " - " << number2_str << " ";
-      AddTabularText(ss.str().c_str());
+      snprintf(frame_str, sizeof(frame_str), "Error: %s - %s", number1_str, number2_str);
       break;
   }
+  
+  AddTabularText(frame_str);
 }
 
 void RFFEAnalyzerResults::GeneratePacketTabularText(U64 packet_id, DisplayBase display_base) {
