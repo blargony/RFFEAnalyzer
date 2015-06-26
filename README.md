@@ -10,7 +10,7 @@ In OSX, in order to compile the dylib:
 * Find the output directory under 'DerivedData' to include in the Saleae -> Options -> Preferences -> Developer tab
 
 ## OSX Build Details
-* Tested with Saleae Analyzer SDK 1.1.32 and Logic 1.2.1 Beta on OSX Yosemite
+* Tested with Saleae Analyzer SDK 1.1.32 and Logic 1.2.2 Beta on OSX Yosemite
 * XCode Version 6.3.2 (6D2105)
 
 # Windows
@@ -22,7 +22,7 @@ In order to compile the DLL:
 * Note the output directory and include that in the Saleae -> Options -> Preferences -> Developer tab
 
 ## Windows Build Details
-  * Tested with Saleae Analyzer SDK 1.1.32 and Logic 1.1.34 Beta on Windows 7
+  * Tested with Saleae Analyzer SDK 1.1.32, Logic 1.1.34 Beta and Logic 1.2.2 Beta on Windows 7
   * Microsoft Visual Studio 2010 - Version 10.0.40219.1 SP1Rel
   * Microsoft .NET Framework - Version 4.5.51209 SP1Rel
   * Installed Products
