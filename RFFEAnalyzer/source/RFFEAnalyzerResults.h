@@ -8,8 +8,6 @@
 #define RFFE_INCOMPLETE_PACKET_ERROR_FLAG (0x1 << 2)
 #define RFFE_INVALID_MASTER_ID (0x1 << 3)
 
-
-
 class RFFEAnalyzer;
 class RFFEAnalyzerSettings;
 
@@ -59,7 +57,7 @@ public:
     RffeTypeNormalRead,
     RffeTypeWrite0,
   };
- 
+
 protected:
   RFFEAnalyzerSettings *mSettings;
   RFFEAnalyzer *mAnalyzer;
@@ -67,11 +65,11 @@ protected:
 
 // Map RffeCommandFieldType to Descriptive Strings
 static const char *RffeCommandFieldStringShort[] = {
-  "EW", "-", "MR", "MW", "MH", "I", "ER", "EWL", "ERL", "W", "R", "W0",
+    "EW", "-", "MR", "MW", "MH", "I", "ER", "EWL", "ERL", "W", "R", "W0",
 };
 
 static const char *RffeCommandFieldStringMid[] = {
-  "ExtWr", "Rsvd", "MstrRd", "MstrWr", "MstrHand", "Interrupt", "ExtRd", "ExtWrLng", "ExtRdLng", "Wr", "Rd", "Wr0",
+    "ExtWr", "Rsvd", "MstrRd", "MstrWr", "MstrHand", "Interrupt", "ExtRd", "ExtWrLng", "ExtRdLng", "Wr", "Rd", "Wr0",
 };
 
 #endif // RFFE_ANALYZER_RESULTS

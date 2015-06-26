@@ -5,11 +5,11 @@
 #include <iostream>
 #include <stdio.h>
 
+RFFEAnalyzerResults::RFFEAnalyzerResults(RFFEAnalyzer *analyzer, RFFEAnalyzerSettings *settings) : AnalyzerResults(), mSettings(settings), mAnalyzer(analyzer) {
+}
 
-RFFEAnalyzerResults::RFFEAnalyzerResults(RFFEAnalyzer *analyzer, RFFEAnalyzerSettings *settings)
-    : AnalyzerResults(), mSettings(settings), mAnalyzer(analyzer) {}
-
-RFFEAnalyzerResults::~RFFEAnalyzerResults() {}
+RFFEAnalyzerResults::~RFFEAnalyzerResults() {
+}
 
 //
 void RFFEAnalyzerResults::GenerateBubbleText(U64 frame_index, Channel &channel, DisplayBase display_base) {
@@ -100,14 +100,14 @@ void RFFEAnalyzerResults::GenerateBubbleText(U64 frame_index, Channel &channel, 
       AddResultString("ISI");
       AddResultString("ISI");
     } break;
-      
+
     case RffeIntSlotField: {
       AnalyzerHelpers::GetNumberString(frame.mData1, display_base, 1, number_str, 4);
       snprintf(results_str, sizeof(results_str), "INT%d", U8(frame.mData2));
       AddResultString("I");
       AddResultString(results_str);
     } break;
-      
+
     case RffeParityField: {
       AnalyzerHelpers::GetNumberString(frame.mData1, Decimal, 1, number_str, 4);
       snprintf(results_str, sizeof(results_str), "P:%s", number_str);
@@ -161,11 +161,10 @@ void RFFEAnalyzerResults::GenerateExportFile(const char *file, DisplayBase displ
 
   if (show_parity) {
     snprintf(results_str, sizeof(results_str), "Time[s],Packet ID,SA,Type,Adr,BC,CmdP,Payload\n");
-  }
-  else {
+  } else {
     snprintf(results_str, sizeof(results_str), "Time[s],Packet ID,SA,Type,Adr,BC,Payload\n");
   }
-  AnalyzerHelpers::AppendToFile((U8*)results_str, (U32)strlen(results_str), f);
+  AnalyzerHelpers::AppendToFile((U8 *)results_str, (U32)strlen(results_str), f);
 
   U64 num_packets = GetNumPackets();
   for (U32 i = 0; i < num_packets; i++) {
@@ -201,8 +200,7 @@ void RFFEAnalyzerResults::GenerateExportFile(const char *file, DisplayBase displ
           snprintf(type_str, sizeof(type_str), "%s", RffeCommandFieldStringMid[frame.mData1]);
           if (frame.mData1 == RffeTypeNormalWrite || frame.mData1 == RffeTypeNormalRead) {
             snprintf(bc_str, sizeof(bc_str), "0x0");
-          }
-          else if (frame.mData1 == RffeTypeWrite0) {
+          } else if (frame.mData1 == RffeTypeWrite0) {
             snprintf(bc_str, sizeof(bc_str), "0x0");
             snprintf(addr_str, sizeof(addr_str), "0x0");
           }
@@ -256,11 +254,9 @@ void RFFEAnalyzerResults::GenerateExportFile(const char *file, DisplayBase displ
               } else {
                 snprintf(payload_str, sizeof(payload_str), "%s P%s", payload_str, parity_str);
               }
+            } else {
+              snprintf(parityCmd_str, sizeof(parityCmd_str), "P%s", parity_str); // CmdParity
             }
-            else {
-              snprintf(parityCmd_str, sizeof(parityCmd_str), "P%s", parity_str);   // CmdParity
-            }
-            
           }
           break;
 
@@ -286,14 +282,13 @@ void RFFEAnalyzerResults::GenerateExportFile(const char *file, DisplayBase displ
       }
     }
 
-
     if (show_parity) {
-      snprintf(results_str, sizeof(results_str), "%s,%s,%s,%s,%s,%s,%s,%s\n", time_str, packet_str, sa_str, type_str, addr_str, bc_str, parityCmd_str, payload_str);
-    }
-    else {
+      snprintf(results_str, sizeof(results_str), "%s,%s,%s,%s,%s,%s,%s,%s\n", time_str, packet_str, sa_str, type_str, addr_str, bc_str, parityCmd_str,
+               payload_str);
+    } else {
       snprintf(results_str, sizeof(results_str), "%s,%s,%s,%s,%s,%s,%s\n", time_str, packet_str, sa_str, type_str, addr_str, bc_str, payload_str);
     }
-    AnalyzerHelpers::AppendToFile((U8*)results_str, (U32)strlen(results_str), f);
+    AnalyzerHelpers::AppendToFile((U8 *)results_str, (U32)strlen(results_str), f);
 
     if (UpdateExportProgressAndCheckForCancel(i, num_packets) == true) {
       AnalyzerHelpers::EndFile(f);
@@ -397,7 +392,7 @@ void RFFEAnalyzerResults::GenerateFrameTabularText(U64 frame_index, DisplayBase 
       snprintf(frame_str, sizeof(frame_str), "Error: %s - %s", number1_str, number2_str);
       break;
   }
-  
+
   AddTabularText(frame_str);
 }
 

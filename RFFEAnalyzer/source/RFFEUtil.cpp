@@ -36,10 +36,10 @@ U8 RFFEUtil::byteCount(U8 cmd) {
   } else if ((cmd >= 0x10) && (cmd < 0x1C)) { // Rsvd
     return 0;
   } else if ((cmd >= 0x1c) && (cmd < 0x1e)) { // Master Rd/Wr
-    return 1;   // 2 bytes
-  } else if (cmd == 0x1e) { // Master Handoff
-    return 0;   // 1 byte
-  } else if (cmd == 0x1f) { // Interrupt - non-byte sized length, handle as special case
+    return 1;                                 // 2 bytes
+  } else if (cmd == 0x1e) {                   // Master Handoff
+    return 0;                                 // 1 byte
+  } else if (cmd == 0x1f) {                   // Interrupt - non-byte sized length, handle as special case
     return 0;
   } else if ((cmd >= 0x20) && (cmd < 0x30)) { // ExtRd
     return (cmd & 0x0F);

@@ -29,7 +29,8 @@ RFFEAnalyzerSettings::RFFEAnalyzerSettings() : mSclkChannel(UNDEFINED_CHANNEL), 
   AddChannel(mSdataChannel, "SDATA", false);
 }
 
-RFFEAnalyzerSettings::~RFFEAnalyzerSettings() {}
+RFFEAnalyzerSettings::~RFFEAnalyzerSettings() {
+}
 
 bool RFFEAnalyzerSettings::SetSettingsFromInterfaces() {
   mSclkChannel = mSclkChannelInterface->GetChannel();

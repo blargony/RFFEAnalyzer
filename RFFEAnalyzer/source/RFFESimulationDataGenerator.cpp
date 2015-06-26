@@ -8,7 +8,8 @@ RFFESimulationDataGenerator::RFFESimulationDataGenerator() {
   mLSFRData = 0xE1; // Must be non-zero (or we get stuck)
 }
 
-RFFESimulationDataGenerator::~RFFESimulationDataGenerator() {}
+RFFESimulationDataGenerator::~RFFESimulationDataGenerator() {
+}
 
 void RFFESimulationDataGenerator::Initialize(U32 simulation_sample_rate, RFFEAnalyzerSettings *settings) {
   mSimulationSampleRateHz = simulation_sample_rate;
@@ -65,7 +66,7 @@ void RFFESimulationDataGenerator::CreateRffeTransaction() {
         case RFFEAnalyzerResults::RffeTypeReserved:
           CreateBusPark();
           break;
-          
+
         case RFFEAnalyzerResults::RffeTypeMasterRead:
           CreateByteFrame(CreateRandomData());
           CreateBusPark();
@@ -84,16 +85,16 @@ void RFFESimulationDataGenerator::CreateRffeTransaction() {
         case RFFEAnalyzerResults::RffeTypeMasterHandoff:
           CreateBusPark();
           for (U32 i = 0; i <= RFFEUtil::byteCount(cmd); i += 1) {
-            CreateByteFrame((CreateRandomData() & 0x18) | 0x80);   // Mask Out bits that are always zero and always set the ACK bit
+            CreateByteFrame((CreateRandomData() & 0x18) | 0x80); // Mask Out bits that are always zero and always set the ACK bit
           }
           CreateBusPark();
           break;
         case RFFEAnalyzerResults::RffeTypeInterrupt:
           CreateBusPark();
-          CreateBits(2, 0x3);   // Always indicate interrupts
+          CreateBits(2, 0x3); // Always indicate interrupts
           CreateBusPark();
           for (U32 i = 0; i < 16; i += 1) {
-            CreateBits(2, CreateRandomData() & 0x2);   // Interrupts are 1 bit of interrupt followed by a 0/BP
+            CreateBits(2, CreateRandomData() & 0x2); // Interrupts are 1 bit of interrupt followed by a 0/BP
           }
           break;
         case RFFEAnalyzerResults::RffeTypeExtRead:
@@ -180,7 +181,7 @@ void RFFESimulationDataGenerator::CreateBusPark() {
 
 void RFFESimulationDataGenerator::CreateBits(U8 bits, U8 cmd) {
   BitState bit;
-  U8 idx = 0x1 << (bits-1);
+  U8 idx = 0x1 << (bits - 1);
 
   for (U32 i = 0; i < bits; i += 1) {
     mSclk->Transition();
@@ -197,7 +198,7 @@ void RFFESimulationDataGenerator::CreateBits(U8 bits, U8 cmd) {
     mSclk->Transition();
 
     mRffeSimulationChannels.AdvanceAll(mClockGenerator.AdvanceByHalfPeriod(1.0));
-    
+
     idx = idx >> 0x1;
   }
 }

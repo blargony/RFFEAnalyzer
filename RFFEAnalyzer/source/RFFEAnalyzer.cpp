@@ -17,7 +17,9 @@ RFFEAnalyzer::RFFEAnalyzer() : Analyzer2(), mSettings(new RFFEAnalyzerSettings()
   mUnexpectedSSC = false;
 }
 
-RFFEAnalyzer::~RFFEAnalyzer() { KillThread(); }
+RFFEAnalyzer::~RFFEAnalyzer() {
+  KillThread();
+}
 
 void RFFEAnalyzer::SetupResults() {
   mResults.reset(new RFFEAnalyzerResults(this, mSettings.get()));
@@ -207,19 +209,16 @@ U8 RFFEAnalyzer::FindCommandFrame() {
   // Why grab all 12 bits?  So we can calculate parity across the SA+Cmd field
   // after we are done parsing the Command
   RffeCmd = GetBitStream(12);
-  
+
   // Now look at the RFFE command and decode the various options.
   mRffeCmdType = RFFEUtil::decodeRFFECmdFrame((U8)(RffeCmd & 0xFF));
   byte_count = RFFEUtil::byteCount((U8)RffeCmd);
   RffeID = (RffeCmd & 0xF00) >> 8;
 
   // Check for an invalid Master address, if this is a Master Command
-  if (
-      ( mRffeCmdType == RFFEAnalyzerResults::RffeTypeMasterRead ||
-        mRffeCmdType == RFFEAnalyzerResults::RffeTypeMasterWrite ||
-        mRffeCmdType == RFFEAnalyzerResults::RffeTypeMasterHandoff
-      ) && (RffeID > 0x3)
-  ) {
+  if ((mRffeCmdType == RFFEAnalyzerResults::RffeTypeMasterRead || mRffeCmdType == RFFEAnalyzerResults::RffeTypeMasterWrite ||
+       mRffeCmdType == RFFEAnalyzerResults::RffeTypeMasterHandoff) &&
+      (RffeID > 0x3)) {
     flags = RFFE_INVALID_MASTER_ID;
   }
   // Log the Master or Slave Address
@@ -275,14 +274,14 @@ U8 RFFEAnalyzer::FindISI() {
   U64 byte = GetBitStream(2);
   FillInFrame(RFFEAnalyzerResults::RffeISIField, byte, 0, 0, 2, 0);
   FindBusPark();
-  return (byte & 0x2);   // Return the ISI bit
+  return (byte & 0x2); // Return the ISI bit
 }
 
 // ------------------------------------------------------------------------------
 void RFFEAnalyzer::FindInterruptSlots() {
   for (S8 i = 15; i >= 0; i -= 1) {
     U64 byte = GetBitStream(1);
-    FillInFrame(RFFEAnalyzerResults::RffeIntSlotField, byte, i, 0, 1, 0);   // Send int number as a note
+    FillInFrame(RFFEAnalyzerResults::RffeIntSlotField, byte, i, 0, 1, 0); // Send int number as a note
     FindBusPark();
   }
 }
@@ -499,7 +498,9 @@ void RFFEAnalyzer::FillInFrame(RFFEAnalyzerResults::RffeFrameType type, U64 fram
 // ==============================================================================
 // Boilerplate for the API
 // ==============================================================================
-bool RFFEAnalyzer::NeedsRerun() { return false; }
+bool RFFEAnalyzer::NeedsRerun() {
+  return false;
+}
 
 // --------------------------------------
 U32 RFFEAnalyzer::GenerateSimulationData(U64 minimum_sample_index, U32 device_sample_rate, SimulationChannelDescriptor **simulation_channels) {
@@ -512,16 +513,26 @@ U32 RFFEAnalyzer::GenerateSimulationData(U64 minimum_sample_index, U32 device_sa
 }
 
 // --------------------------------------
-U32 RFFEAnalyzer::GetMinimumSampleRateHz() { return 50000000; }
+U32 RFFEAnalyzer::GetMinimumSampleRateHz() {
+  return 50000000;
+}
 
 // --------------------------------------
-const char *RFFEAnalyzer::GetAnalyzerName() const { return "RFFEv2.0"; }
+const char *RFFEAnalyzer::GetAnalyzerName() const {
+  return "RFFEv2.0";
+}
 
 // --------------------------------------
-const char *GetAnalyzerName() { return "RFFEv2.0"; }
+const char *GetAnalyzerName() {
+  return "RFFEv2.0";
+}
 
 // --------------------------------------
-Analyzer *CreateAnalyzer() { return new RFFEAnalyzer(); }
+Analyzer *CreateAnalyzer() {
+  return new RFFEAnalyzer();
+}
 
 // --------------------------------------
-void DestroyAnalyzer(Analyzer *analyzer) { delete analyzer; }
+void DestroyAnalyzer(Analyzer *analyzer) {
+  delete analyzer;
+}
