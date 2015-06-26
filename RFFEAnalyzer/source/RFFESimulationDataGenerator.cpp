@@ -172,7 +172,7 @@ void RFFESimulationDataGenerator::CreateByte(U8 cmd) {
 }
 
 void RFFESimulationDataGenerator::CreateParity(U8 byte) {
-  CreateBits(1, ParityTable256[byte]);
+  CreateBits(1, ParityTable256[byte]); // Use a different algorithm for generating parity than we have for checking it
 }
 
 void RFFESimulationDataGenerator::CreateBusPark() {
