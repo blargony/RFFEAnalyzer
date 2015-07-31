@@ -7,37 +7,27 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="W:\dvt_workspace_vm\saleae_trunk\RFFEAnalyzer\source\RFFEAnalyzer.cpp">
+    <ClCompile Include="$(ProjectDir)\..\source\RFFEAnalyzer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="W:\dvt_workspace_vm\saleae_trunk\RFFEAnalyzer\source\RFFEAnalyzerResults.cpp">
+    <ClCompile Include="$(ProjectDir)\..\source\RFFEAnalyzerResults.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="W:\dvt_workspace_vm\saleae_trunk\RFFEAnalyzer\source\RFFEAnalyzerSettings.cpp">
+    <ClCompile Include="$(ProjectDir)\..\source\RFFEAnalyzerSettings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="W:\dvt_workspace_vm\saleae_trunk\RFFEAnalyzer\source\RFFESimulationDataGenerator.cpp">
+    <ClCompile Include="$(ProjectDir)\..\source\RFFESimulationDataGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="W:\dvt_workspace_vm\saleae_trunk\RFFEAnalyzer\source\RFFEUtil.cpp">
+    <ClCompile Include="$(ProjectDir)\..\source\RFFEUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="W:\dvt_workspace_vm\saleae_trunk\RFFEAnalyzer\source\RFFEAnalyzer.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="W:\dvt_workspace_vm\saleae_trunk\RFFEAnalyzer\source\RFFEAnalyzerResults.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="W:\dvt_workspace_vm\saleae_trunk\RFFEAnalyzer\source\RFFEAnalyzerSettings.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="W:\dvt_workspace_vm\saleae_trunk\RFFEAnalyzer\source\RFFESimulationDataGenerator.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="W:\dvt_workspace_vm\saleae_trunk\RFFEAnalyzer\source\RFFEUtil.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
+    <ClInclude Include="$(ProjectDir)\..\source\RFFEAnalyzer.h" />
+    <ClInclude Include="$(ProjectDir)\..\source\RFFEAnalyzerResults.h" />
+    <ClInclude Include="$(ProjectDir)\..\source\RFFEAnalyzerSettings.h" />
+    <ClInclude Include="$(ProjectDir)\..\source\RFFESimulationDataGenerator.h" />
+    <ClInclude Include="$(ProjectDir)\..\source\RFFEUtil.h" />
   </ItemGroup>
 </Project>
