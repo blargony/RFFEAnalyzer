@@ -63,6 +63,27 @@ protected:
   RFFEAnalyzer *mAnalyzer;
 };
 
+
+// Map RffeFrameType to Descriptive Strings
+static const char *RffeFrameString[] = {
+    "SSCField",
+    "SAField",
+    "CommandField",
+    "ExByteCountField",
+    "ExLongByteCountField",
+    "AddressField",
+    "AddressHiField",
+    "AddressLoField",
+    "ShortDataField",
+    "DataField",
+    "MasterHandoffAckField",
+    "ISIField",
+    "IntSlotField",
+    "ParityField",
+    "BusParkField",
+    "ErrorCaseField",
+};
+
 // Map RffeCommandFieldType to Descriptive Strings
 static const char *RffeCommandFieldStringShort[] = {
     "EW", "-", "MR", "MW", "MH", "I", "ER", "EWL", "ERL", "W", "R", "W0",

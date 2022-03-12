@@ -491,6 +491,16 @@ void RFFEAnalyzer::FillInFrame(RFFEAnalyzerResults::RffeFrameType type, U64 fram
   }
 
   mResults->AddFrame(frame);
+
+  // New FrameV2 code.
+  FrameV2 frame_v2;
+  // you can add any number of key value pairs. Each will get it's own column in the data table.
+  frame_v2.AddString("type", RffeFrameString[type]);
+  frame_v2.AddInteger("data", frame_data);
+  frame_v2.AddInteger("extra_data", extra_data);
+  frame_v2.AddInteger("flags", flags);
+  mResults->AddFrameV2(frame_v2, "frame", frame.mStartingSampleInclusive, frame.mEndingSampleInclusive);
+
   mResults->CommitResults();
   ReportProgress(frame.mEndingSampleInclusive);
 }
