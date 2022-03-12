@@ -1,27 +1,106 @@
 # Saleae RFFE v2.0 Analyzer
 
-Saleae Analyzer for the MIPI RFFE interface.
+Saleae Analyzer for the MIPI RFFE v2.0 interface.
 
-# OSX
-In OSX, in order to compile the dylib:
-* Install XCode
-* Open the Project File, RFFEAnalyzer.xcodeproj
-* Build
-* Find the output directory under 'DerivedData' to include in the Saleae -> Options -> Preferences -> Developer tab
+See www.mipi.org for details on RFFE.
+See www.saleae.com for details on the Saleae logic analyzer.
 
-## OSX Build Details
-* Tested with Saleae Analyzer SDK 1.1.32 and Logic 1.2.2 Beta on OSX Yosemite
-* XCode Version 6.3.2 (6D2105)
+See the Saleae reference Analyzer for details on how to build and update
+your own Analyzer plugin.  For possibly out of date details on how to build
+the RFFE Analyzer, see the copy of the Saleae instructions below.
 
-# Windows
-In order to compile the DLL:
-* Install Microsoft Visual Studio Community 2015 (with Visual C++)
-* Open the project file, RFFEAnalyzer.vcxproj
-* Build (F7)
-* Note the output directory and include that in the Saleae -> Options -> Preferences -> Developer tab
+## Prerequisites
 
-## Windows Build Details
-  * Tested with Saleae Analyzer SDK 1.2.3 Beta on Windows 10
-  * Microsoft Visual Community 2015 - Version 14.0.23107.0 D14REL
-  * Microsoft .NET Framework - Version 4.6.00079
-  * Microsoft Visual C++ 2015 - 00322-20000-00000-AA121
+### Windows
+
+Dependencies:
+
+- Visual Studio 2017 (or newer) with C++
+- CMake 3.13+
+
+**Visual Studio 2017**
+
+_Note - newer versions of Visual Studio should be fine._
+
+Setup options:
+
+- Programming Languages > Visual C++ > select all sub-components.
+
+Note - if CMake has any problems with the MSVC compiler, it's likely a component is missing.
+
+**CMake**
+
+Download and install the latest CMake release here.
+https://cmake.org/download/
+
+### MacOS
+
+Dependencies:
+
+- XCode with command line tools
+- CMake 3.13+
+
+Installing command line tools after XCode is installed:
+
+```
+xcode-select --install
+```
+
+Then open XCode, open Preferences from the main menu, go to locations, and select the only option under 'Command line tools'.
+
+Installing CMake on MacOS:
+
+1. Download the binary distribution for MacOS, `cmake-*-Darwin-x86_64.dmg`
+2. Install the usual way by dragging into applications.
+3. Open a terminal and run the following:
+
+```
+/Applications/CMake.app/Contents/bin/cmake-gui --install
+```
+
+_Note: Errors may occur if older versions of CMake are installed._
+
+### Linux
+
+Dependencies:
+
+- CMake 3.13+
+- gcc 5+
+
+Misc dependencies:
+
+```
+sudo apt-get install build-essential
+```
+
+## Building your Analyzer
+
+### Windows
+
+```bat
+mkdir build
+cd build
+cmake .. -A x64
+cmake --build .
+:: built analyzer will be located at SampleAnalyzer\build\Analyzers\Debug\SimpleSerialAnalyzer.dll
+```
+
+### MacOS
+
+```bash
+mkdir build
+cd build
+cmake ..
+cmake --build .
+# built analyzer will be located at SampleAnalyzer/build/Analyzers/libSimpleSerialAnalyzer.so
+```
+
+### Linux
+
+```bash
+mkdir build
+cd build
+cmake ..
+cmake --build .
+# built analyzer will be located at SampleAnalyzer/build/Analyzers/libSimpleSerialAnalyzer.so
+```
